@@ -1,0 +1,120 @@
+/* PAGE STYLES */
+body {
+    
+}
+
+a:link, a:visited {
+    color:#562E60;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#title {
+    font: bold 40px consolas !important;
+}
+
+.menuItem {
+    font: bold 35px consolas !important;
+    cursor: pointer;
+	text-shadow: #562E60 1px 1px 5px;
+    -webkit-text-shadow: #562E60 1px 1px 5px;
+    -khtml-text-shadow: #562E60 1px 1px 5px;
+    -moz-text-shadow: #562E60 1px 1px 5px;
+}
+
+.optionItem {
+    fill: #562E60;
+    color: #562E60;
+    font: bolder 20px consolas !important;
+}
+
+.subOptionItem {
+    fill: #562E60;
+    color: #562E60;
+    font: bolder 15px consolas !important;
+}
+
+/* CANVAS GRID CLASSES */
+#grid {
+    width: 545px; 
+    height: 600px;
+    margin: 20px auto;
+    /* DISABLE TEXT SELECTION INSIDE CANVAS ELEMENT*/
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#footer {
+    text-align: center;
+    font-size: .8em;
+}
+
+/* NUMBER SELECTOR CLASSES */
+.numSelector {
+    fill: #F3E2A9;
+    background-color: #F3E2A9;
+    cursor: move;
+}
+
+.numSelectorText {
+    cursor: move;
+}
+
+/* BOARD BUTTONS */
+.clickableRegion {
+    cursor: pointer !important;
+}
+
+/* CELL CLASSES */
+.menuCellText {
+    font-weight: bold !important;
+    cursor: default;
+}
+
+.sudokuCell {
+    fill: #E0F8E0;
+    background-color: #E0F8E0;
+    font-weight: lighter;
+    cursor: pointer;
+}
+
+.highlightCell {
+    fill: #DFEA49;
+    background-color: #DFEA49;
+}
+
+.selectedCell {
+    fill: #58D3F7;
+    background-color: #58D3F7;
+}
+
+.incorrectCell {
+    fill: red;
+    background-color: red;
+}
+
+.prePopulatedCell {
+    fill: #E0F8E0;
+    background-color: #E0F8E0;
+}
+
+/* TIMER CLASSES */
+#timer {
+    cursor: default;
+}
+
+/* BACK BUTTON CLASSES */
+#backButton {
+    
+}
+
+#backButtonText {
+    font-size: 17px !important;
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Sudoku JS</title>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="viewport" content="width=device-width, initial-scale=.55" />
+        <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9" />
+        <link rel="stylesheet" type="text/css" media="all" href="css/base.css" />
+        <script src="js/frameworks/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/frameworks/jquery.total-storage.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/frameworks/raphael-min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/frameworks/raphael.free_transform.js" type="text/javascript" charset="utf-8"></script>
+
+        <script type="text/javascript">
+//            // google analytics
+//            var _gaq = _gaq || [];
+//            _gaq.push(['_setAccount', 'UA-1522193-2']);
+//            _gaq.push(['_trackPageview']);
+//            _gaq.push(['_trackPageLoadTime']);
+
+//            (function () {
+//                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+//                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+//                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+//            })();
+        </script>
+    </head>
+    <body>
+        <div id="grid"></div>
+        <div id="footer">
+            created by <a href="http://www.subtledetour.com">e @ subtledetour.com</a> 
+            with <a target="_blank" href="http://www.raphaeljs.com/">RaphaëlJS</a> and <a target="_blank" href="http://www.jquery.com/">jQuery</a>
+        </div>
+
+        <script src="js/enums.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/utilities.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/sudoku.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/mouseEvents.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/keyboardEvents.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/boardUI.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/menu.js" type="text/javascript" charset="utf-8"></script>
+
+        <script type="text/javascript">
+            Raphael(function () {
+                menu.initialize('grid');
+            });
+
+            $(document).ready(function ()
+            {
+
+            });
+
+            // on unload, save game
+            $(window).unload(function () {
+                sudoku.saveState();
+            });
+        </script>
+    </body>
+</html>
