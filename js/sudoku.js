@@ -14,13 +14,15 @@ var sudoku = {
     savesAvailable: false,
     menuCellsToShow: [0, 2, 16, 18, 26, 36, 43, 71, 75],
     menuCellsValues: [],
-    solver: null,
+    solver: [],
     foundUnique: false,
-    enableWebWorkers: true,
+    enableWebWorkers: false,
     tryCount: 10,
-    numOfWorkers: 3,
+    numOfWorkers: 5,
     workerResults: new Array(this.numOfWorkers),
     cullNumber: 0,
+
+    startTime: null,
 
     /**
     * Initialized the arrays with all 0's
@@ -28,20 +30,7 @@ var sudoku = {
     */
     initialize: function () {
         // create all boards and fill with 0's
-        for (var i = 0; i < 9; i++) {
-            this.completeBoard[i] = [];
-            this.culledBoard[i] = [];
-            this.playerBoard[i] = [];
-
-            for (var j = 0; j < 9; j++) {
-                this.completeBoard[i][j] = 0;
-                this.culledBoard[i][j] = 0;
-                this.playerBoard[i][j] = 0;
-            }
-        }
-
-        // create worker delegate
-        this.createWorker();
+        this.clearBoards();
 
         // randomly select values for menu cells
         sudokuCellValues = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -58,20 +47,42 @@ var sudoku = {
     },
 
     /**
+    * Clears all the boards
+    * @method
+    */
+    clearBoards: function () {
+        // create all boards and fill with 0's
+        for (var i = 0; i < 9; i++) {
+            this.completeBoard[i] = [];
+            this.culledBoard[i] = [];
+            this.playerBoard[i] = [];
+
+            for (var j = 0; j < 9; j++) {
+                this.completeBoard[i][j] = 0;
+                this.culledBoard[i][j] = 0;
+                this.playerBoard[i][j] = 0;
+            }
+        }
+    },
+
+    /**
     * Creates the worker thread and the delegates
     * @method
     */
-    createWorker: function () {
-        this.solver = new Worker('js/sudokuSolverWorker.js');
+    createWorker: function (threadNum) {
+        this.solver[threadNum] = new Worker('js/sudokuSolverWorker.js');
 
-        this.solver.addEventListener('message', function (e) {
+        this.solver[threadNum].addEventListener('message', function (e) {
             if (sudoku.foundUnique) {
                 this.terminate();
             }
 
+            var successCount = (sudoku.workerResults[e.data.threadNum] != undefined) ? sudoku.workerResults[e.data.threadNum].successCount : 0;
+
             switch (e.data.cmd) {
                 case 'test':
-                    this.postMessage({ 'board': e.data.board, 'successCount': e.data.successCount, 'threadNum': e.data.threadNum });
+                    this.postMessage({ 'board': e.data.board, 'threadNum': e.data.threadNum });
+                    console.log('testing on thread ' + e.data.threadNum);
 
                     break;
 
@@ -83,35 +94,73 @@ var sudoku = {
                 case 'result':
                     switch (e.data.result) {
                         case sudokuUniqueResult.unique:
-                            if (e.data.finished && !sudoku.foundUnique) {
-                                //console.log('unique');
-                                sudoku.foundUnique = true;
-                                sudoku.workerResults[e.data.threadNum] = { 'board': sudoku.workerResults[e.data.threadNum].board, 'result': sudokuUniqueResult.unique };
+                            successCount += 1;
 
-                                // place board onto sudoku board
-                                //console.log(sudoku.workerResults[e.data.threadNum]);
-                                board.populate(sudoku.workerResults[e.data.threadNum].board);
-                                board.startTimer(boardLoadType.fresh);
-
-                                board.showBoard();
-
-                                // fade out home menu and then hide it
-                                menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+                            if (successCount > 1) {
+                                //console.log('      not unique, board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + new Date().getTime() + ') thread: ' + e.data.threadNum);
+                                sudoku.workerResults[e.data.threadNum] = { 'result': sudokuUniqueResult.notUnique, 'board': sudoku.workerResults[e.data.threadNum].board,
+                                    'successCount': successCount, 'finished': true
+                                };
 
                                 this.terminate();
                             } else {
-                                this.postMessage({ 'board': e.data.board, 'successCount': (e.data.successCount++), 'threadNum': e.data.threadNum });
+                                sudoku.workerResults[e.data.threadNum] = { 'board': sudoku.workerResults[e.data.threadNum].board, 'successCount': successCount, 'finished': false };
+                                //console.log('got a solution to board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + new Date().getTime() + ') thread: ' + e.data.threadNum);
+
+                                this.boardsReadyTimeout = setTimeout(function (i) {
+                                    sudoku.workerResults[i] = { 'board': sudoku.workerResults[i].board, 'successCount': sudoku.workerResults[i].successCount, 'finished': true };
+
+                                    if (sudoku.workerResults[i].successCount == 1) {
+                                        console.log('got a solution to board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | thread: ' + e.data.threadNum);
+
+                                        sudoku.foundUnique = true;
+
+                                        // place board onto sudoku board
+                                        board.populate(sudoku.workerResults[i].board);
+                                        board.startTimer(boardLoadType.fresh);
+
+                                        board.showBoard();
+
+                                        // fade out home menu and then hide it, if touch enabled, skip the animation
+                                        if (board.touchEnabled) {
+                                            menu.homeSet.hide().attr({ opacity: 0 });
+                                            menu.bgOverlayrect.hide().attr({ opacity: 0 });
+                                        } else {
+                                            menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+                                            menu.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
+                                        }
+
+                                        sudoku.solver[i].terminate();
+                                    } else {
+                                        // loop through results checking if we've found a unique solution
+                                        var resetWorkers = true;
+
+                                        for (var i = 0; i < sudoku.workerResults.length; i++) {
+                                            var wResult = sudoku.workerResults[i];
+
+                                            if (wResult.finished == true && wResult.result == sudokuUniqueResult.unique) {
+                                                resetWorkers = false;
+                                                break;
+                                            }
+                                        }
+
+                                        if (resetWorkers && !sudoku.foundUnique) {
+                                            console.log('resetting');
+                                            sudoku.sendNewBoardsToSolver(sudoku.cullNumber);
+                                        }
+                                    }
+                                }, 50, e.data.threadNum);
                             }
 
                             break;
 
-                        case sudokuUniqueResult.notUnique:
-                            //sudoku.workerResults[e.data.threadNum] = { 'result': sudokuUniqueResult.notUnique };
-
-                            break;
-
                         case sudokuUniqueResult.noSolution:
-                            //sudoku.workerResults[e.data.threadNum] = { 'result': sudokuUniqueResult.noSolution };
+                            //console.log('no solution thread: ' + e.data.threadNum);
+                            sudoku.workerResults[e.data.threadNum] = { 'result': sudokuUniqueResult.noSolution, 'board': sudoku.workerResults[e.data.threadNum].board,
+                                'successCount': successCount, 'finished': true
+                            };
+
+                            this.terminate();
 
                             break;
                     }
@@ -121,24 +170,6 @@ var sudoku = {
                 default:
 
                     break;
-            }
-
-            var resetWorkers = true;
-
-            for (var i = 0; i < sudoku.workerResults.length; i++) {
-                var wResult = sudoku.workerResults[i];
-
-                console.log(wResult.result);
-
-                if (wResult.result == 0) {
-                    resetWorkers = false;
-                    break;
-                }
-            }
-
-            if (resetWorkers && !sudoku.foundUnique) {
-                console.log('resetting');
-                sudoku.sendNewBoardsToSolver(sudoku.cullNumber);
             }
         }, false);
     },
@@ -231,20 +262,23 @@ var sudoku = {
     sendNewBoardsToSolver: function (numCellsToRemove) {
         this.foundUnique = false;
 
-        this.initialize();
+        this.clearBoards();
         this.generate();
 
         for (var i = 0; i < this.numOfWorkers; i++) {
-            //            if (i % 5 == 0) {
-            //                this.initialize();
-            //                this.generate();
-            //            }
+            if (i % 5 == 0) {
+                this.clearBoards();
+                this.generate();
+            }
 
             // re-cull with number to remove
             this.cull(numCellsToRemove);
 
-            this.workerResults[i] = { 'board': this.culledBoard, 'result': 0 };
-            this.solver.postMessage({ 'board': this.culledBoard, 'successCount': 0, 'threadNum': i });
+            console.log(this.toString(this.culledBoard));
+
+            this.workerResults[i] = { 'board': this.culledBoard, 'successCount': 0 };
+            this.createWorker(i);
+            this.solver[i].postMessage({ 'board': this.culledBoard, 'successCount': 0, 'threadNum': i });
         }
     },
 
@@ -255,7 +289,7 @@ var sudoku = {
     */
     guaranteeUniqueness: function (numCellsToRemove) {
         // grab time started, count and kick off first test
-        var starttime = (new Date()).getTime();
+        this.startTime = new Date().getTime();
         var tryCount = 1;
         this.cullNumber = numCellsToRemove;
 
@@ -263,13 +297,12 @@ var sudoku = {
             // start the workers
             this.sendNewBoardsToSolver(this.cullNumber);
         } else {
-
             var unique = this._testUniqueness(tryCount);
             // while the sudoku puzzle is not unique or unsolvable, keep retrying with different culls / boards
             while (unique != sudokuUniqueResult.unique) {
                 // if we've tried 5 different culls on a board, regenerate a board to try again
                 if (tryCount % 5 == 0) {
-                    this.initialize();
+                    this.clearBoards();
                     this.generate();
                 }
 
@@ -294,14 +327,20 @@ var sudoku = {
 
             board.showBoard();
 
-            // fade out home menu and then hide it
-            menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+            // fade out home menu and then hide it, if touch enabled, skip the animation
+            if (board.touchEnabled) {
+                menu.homeSet.hide().attr({ opacity: 0 });
+                menu.bgOverlayrect.hide().attr({ opacity: 0 });
+            } else {
+                menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+                menu.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
+            }
+
         }
 
         // stop time
         var endtime = (new Date()).getTime();
-        //console.log('Created new board ' + tryCount + ' time(s) and took ' + ((endtime - starttime) / 1000) + ' second(s) to generate a unique board.');
-
+        //console.log('took ' + tryCount + ' tries(s) and ' + ((endtime - starttime) / 1000) + ' sec(s) to generate board. (' + getTime + ')');
     },
 
     /**
@@ -632,10 +671,13 @@ var sudoku = {
     * @method
     * @return {String}
     */
-    toString: function () {
+    toString: function (board) {
         var str = '';
         for (var i = 0; i < 9; i++) {
-            str += this.completeBoard[i].join(' ') + "\r\n";
+            //str += this.completeBoard[i].join(' ') + "\r\n";
+            //str += this.completeBoard[i].join('');
+            //str += this.culledBoard[i].join('');
+            str += board[i].join('');
         }
 
         return str;

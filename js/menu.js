@@ -8,6 +8,7 @@ var menu = {
     initialized: false,
     canvasId: null,
     paper: null,
+    bgOverlayrect: null,
     title: null,
     homeSet: null,
     optionsSet: null,
@@ -23,19 +24,13 @@ var menu = {
     * @method
     * @param {Number} amount
     */
-    initialize: function (canvasId) {
-        this.canvasId = canvasId;
+    initialize: function (paper) {
+        this.paper = paper;
 
         // prevent default of touchmove event so that raphael freetransform plugin works for touch events
         document.getElementById('grid').ontouchmove = function (event) {
             event.preventDefault();
         };
-
-        sudoku.initialize();
-
-        // create paper and store offset
-        this.paper = Raphael(canvasId, 545, 600);
-        board.initialize(this.paper);
 
         this.loadOptions();
         this.createHomeMenu();
@@ -53,6 +48,11 @@ var menu = {
     createHomeMenu: function () {
         // create homeset
         this.homeSet = this.paper.set();
+
+        // create rectangle around menu
+        this.bgOverlayrect = this.paper.rect(3, 50, 540, 450).attr({ fill: '#E0F8E0', opacity: .5, 'stroke-width': 0 });
+        this.bgOverlayrect.id = 999;
+        this.bgOverlayrect.node.setAttribute('id', 'bgrect');
 
         // create title for menu
         this.title = this.paper.text(275, 35, 'Sudoku JS');
@@ -146,8 +146,6 @@ var menu = {
         this.optionsSet = this.paper.set();
         this.optionsCheckSet = this.paper.set();
 
-        this.createCheckSet();
-
         // create options, set their id's and their data
         var timerOptionText = this.paper.text(263, 185, 'Enable Timer');
         timerOptionText.id = 1101;
@@ -192,16 +190,23 @@ var menu = {
     * @param {Boolean} checked
     * @param {optionType} type
     */
-    createCheckSet: function (xPos, yPos, checked, type) {
-        var checkSet = this.paper.set();
+    createCheckSet: function (xPos, yPos, checked, type, sizeModifier, clickEvent) {
+        var checkSet = board.paper.set();
+        var sizeModifier;
 
         // create box and tick based on x/y position
-        var box = this.paper.rect(xPos, yPos, 28, 28, 5).attr({ 'fill': '#fff', 'stroke': '#000', 'stroke-width': '2' }).data({ 'checked': checked, 'type': type });
-        var tick = this.paper.path('M 197.67968,534.31563 C 197.40468,534.31208 196.21788,532.53719 195.04234,530.37143 L 192.905,526.43368 L 193.45901,525.87968 C 193.76371,525.57497 ' +
+        var box = board.paper.rect(xPos, yPos, 28, 28, 5).attr({ 'fill': '#fff', 'stroke': '#000', 'stroke-width': '2' }).data({ 'checked': checked, 'type': type });
+        var tick = board.paper.path('M 197.67968,534.31563 C 197.40468,534.31208 196.21788,532.53719 195.04234,530.37143 L 192.905,526.43368 L 193.45901,525.87968 C 193.76371,525.57497 ' +
                                     '194.58269,525.32567 195.27896,525.32567 L 196.5449,525.32567 L 197.18129,527.33076 L 197.81768,529.33584 L 202.88215,523.79451 C 205.66761,520.74678 ' +
                                     '208.88522,517.75085 210.03239,517.13691 L 212.11815,516.02064 L 207.90871,520.80282 C 205.59351,523.43302 202.45735,527.55085 200.93947,529.95355 C ' +
                                     '199.42159,532.35625 197.95468,534.31919 197.67968,534.31563 z').attr({ 'fill': '#000' }).data({ 'checked': checked, 'type': type });
-        tick.transform('t167, ' + (-345 + (yPos - 170)) + ', s1.5');
+
+        if (sizeModifier != null && sizeModifier > 0) {
+            box.transform('s' + sizeModifier);
+            tick.transform('t' + (xPos - 182) + ', ' + (-345 + (yPos - 170)) + ', s' + (1.5 * sizeModifier));
+        } else {
+            tick.transform('t' + (xPos - 182) + ', ' + (-345 + (yPos - 170)) + ', s' + 1.5);
+        }
 
         // push it to the set
         checkSet.push(box, tick);
@@ -209,8 +214,22 @@ var menu = {
         // hide set and set attributes/data
         checkSet.hide();
         checkSet.attr({ opacity: 0, 'cursor': 'pointer' });
-        checkSet.data({ 'checked': checked, 'type': type });
-        checkSet.mousedown(this.checkMouseDown);
+        $(box.node).data({ 'checked': checked, 'type': type });
+        $(tick.node).data({ 'checked': checked, 'type': type })
+
+        if (!checked) {
+            tick.hide();
+            tick.attr({ opacity: 1 });
+        }
+
+        // check type of obj passed in, then add either touch or click event to checkSet
+        if (typeof (clickEvent) == 'function' || typeof (clickEvent) == 'undefined') {
+            if (board.touchEnabled) {
+                checkSet.touchstart(function (e) { menu.checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
+            } else {
+                checkSet.click(function (e) { menu.checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
+            }
+        }
 
         return checkSet;
     },
@@ -220,37 +239,45 @@ var menu = {
     * @method
     * @param {Event} event
     */
-    checkMouseDown: function (event) {
+    checkboxHit: function (event) {
         // create holder vars and get the opposite of the current checked state to get the new checked state
         var check = null;
         var box = null;
-        var checkState = !this.data('checked');
+        var target = $(event.currentTarget);
+
+        // change over to text's stored raphael object Id
+        if (target[0].nodeName == 'text') {
+            target = $('#' + board.paper.getById($(event.currentTarget).data('checkRId')).node.id);
+        }
 
         // depending on the type, set the check and box objects
-        switch (this.type) {
+        switch (target[0].nodeName) {
+
             case 'path':
-                check = this;
-                box = this.prev;
+                check = target;
+                box = target.prev();
 
                 break;
 
             case 'rect':
-                box = this;
-                check = this.next;
+                box = target;
+                check = target.next();
 
                 break;
         }
 
+        var checkState = !target.data('checked');
+
         // set the checked state data
-        box.data({ 'checked': checkState });
-        check.data({ 'checked': checkState });
+        check.data('checked', checkState);
+        box.data('checked', checkState);
 
         // if it's true checkState, show check, otherwise hide check
         if (checkState) {
             check.show();
-            check.attr({ opacity: 1 });
+            check.css({ opacity: 1 });
         } else {
-            check.attr({ opacity: 0 });
+            check.css({ opacity: 0 });
             check.hide();
         }
     },
@@ -322,37 +349,48 @@ var menu = {
     homeView: function (resume) {
         // check if we're coming from the options menu
         if (this.view == gameView.options) {
+            // save the options and then do animation to bring options text down and home menu items to show
             this.saveOptions();
-            // animate down options text /  hide back button and push down options menu item
-            this.homeSet.items[5].animate({ y: 425 }, 300);
-            board.backButton.animate({ opacity: 0 }, function () { this.hide(); });
-            board.pauseButton.animate({ opacity: 0 }, 250, function () { this.hide() });
-            menu.optionsSet.animate({ opacity: 0 }, 250, function () { this.hide(); });
-            menu.optionsCheckSet.animate({ opacity: 0 }, 250, function () { this.hide(); });
-        } else {
 
+            // if touch enabled, skip the animation
+            if (board.touchEnabled) {
+                this.homeSet.items[5].attr({ y: 425 });
+                this.optionsSet.hide();
+                this.optionsCheckSet.hide();
+                board.backButton.hide();
+                board.pauseButton.hide()
+            } else {
+                this.homeSet.items[5].animate({ y: 425 }, 300);
+                this.optionsSet.animate({ opacity: 0 }, 250, function () { this.hide(); });
+                this.optionsCheckSet.animate({ opacity: 0 }, 250, function () { this.hide(); });
+                board.backButton.animate({ opacity: 0 }, function () { this.hide(); });
+                board.pauseButton.animate({ opacity: 0 }, 250, function () { this.hide() });
+            }
+        } else {
             // reset colors and hide board
             board.resetAllCellColors();
             board.hideBoard();
         }
 
         // show all menu options
-        menu.homeSet.attr({ opacity: 1 });
-        menu.homeSet.show();
+        this.bgOverlayrect.attr({ opacity: .5 });
+        this.bgOverlayrect.show();
+        this.homeSet.attr({ opacity: 1 });
+        this.homeSet.show();
 
         // see if board is filled and complete
         var completeBoard = sudoku.isPlayerBoardFilled() && sudoku.checkPlayerBoard();
 
         // if flag is set or the board is complete, don't show resume
         if (!resume || completeBoard) {
-            menu.homeSet[4].attr({ opacity: 0 });
-            menu.homeSet[4].hide();
+            this.homeSet[4].attr({ opacity: 0 });
+            this.homeSet[4].hide();
         }
 
         // check if there is a saved game available
         if (!sudoku.isSaveAvailable()) {
-            menu.homeSet[3].attr({ opacity: 0 });
-            menu.homeSet[3].hide();
+            this.homeSet[3].attr({ opacity: 0 });
+            this.homeSet[3].hide();
         }
 
         this.view = gameView.menu;
@@ -365,42 +403,69 @@ var menu = {
     optionsView: function () {
         this.loadOptions();
 
-        // animate up options text / back button and push down options menu item
-        this.homeSet.items[5].animate({ y: 125 }, 300, function () {
+        // if touch enabled, skip the animation
+        if (board.touchEnabled) {
+            this.homeSet.items[5].attr({ y: 125 });
             // update back button text and position for view, then show
             board.backButton[2].attr({ x: 70, 'text': 'Save Options' });
-            board.backButton.show();
-            board.backButton.animate({ opacity: .7 }, 250);
+            board.backButton.show().attr({ opacity: .7 });
 
             // animate opacity to 0 for all other homeset elements (except options)
             for (var i = 0; i < menu.optionsSet.length; i++) {
-                menu.optionsSet[i].show();
-                menu.optionsSet[i].animate({ opacity: 1 }, 250);
+                menu.optionsSet[i].show().attr({ opacity: 1 });
             }
 
             // animate the checkboxes correctly
             for (var i = 0; i < menu.optionsCheckSet.length; i++) {
                 // for some reason, this seems to be the only place the box will accept the cursor attribute...
-                menu.optionsCheckSet[i][0].attr({ 'cursor': 'pointer' });
-
                 // show check boxes (not the check mark)
-                menu.optionsCheckSet[i][0].show();
-                menu.optionsCheckSet[i][0].animate({ opacity: 1 }, 250);
+                menu.optionsCheckSet[i][0].show().attr({ opacity: 1, 'cursor': 'pointer' });
 
                 // if check state is true, show check mark, otherwise hide it
                 if (menu.optionsCheckSet[i][0].data('checked')) {
-                    menu.optionsCheckSet[i][1].show();
-                    menu.optionsCheckSet[i][1].animate({ opacity: 1 }, 250);
+                    menu.optionsCheckSet[i][1].show().attr({ opacity: 1 });
                 } else {
-                    menu.optionsCheckSet[i][1].animate({ opacity: 0 }, 250, function () { this.hide(); });
+                    menu.optionsCheckSet[i][1].hide().attr({ opacity: 0 });
                 }
             }
-        }
+        } else {
+            // animate up options text / back button and push down options menu item
+            this.homeSet.items[5].animate({ y: 125 }, 300, function () {
+                // update back button text and position for view, then show
+                board.backButton[2].attr({ x: 70, 'text': 'Save Options' });
+                board.backButton.show().animate({ opacity: .7 }, 250);
+
+                // animate opacity to 0 for all other homeset elements (except options)
+                for (var i = 0; i < menu.optionsSet.length; i++) {
+                    menu.optionsSet[i].show().animate({ opacity: 1 }, 250);
+                }
+
+                // animate the checkboxes correctly
+                for (var i = 0; i < menu.optionsCheckSet.length; i++) {
+                    // for some reason, this seems to be the only place the box will accept the cursor attribute...
+                    // show check boxes (not the check mark)
+                    menu.optionsCheckSet[i][0].show().attr({ 'cursor': 'pointer' }).animate({ opacity: 1 }, 250);
+
+                    // if check state is true, show check mark, otherwise hide it
+                    if (menu.optionsCheckSet[i][0].data('checked')) {
+                        menu.optionsCheckSet[i][1].show().animate({ opacity: 1 }, 250);
+                    } else {
+                        menu.optionsCheckSet[i][1].animate({ opacity: 0 }, 250, function () { this.hide(); });
+                    }
+                }
+            }
         );
+
+        }
 
         // animate opacity to 0 for all other homeset elements (except options)
         for (var i = 0; i < this.homeSet.length - 1; i++) {
-            this.homeSet[i].animate({ opacity: 0 }, 300, function () { this.hide(); });
+            // if touch enabled, skip the animation
+            if (board.touchEnabled) {
+                this.homeSet[i].hide().attr({ opacity: 0 });
+            } else {
+                this.homeSet[i].animate({ opacity: 0 }, 300, function () { this.hide(); });
+            }
         }
 
         this.view = gameView.options;
@@ -419,8 +484,8 @@ var menu = {
                 // based on selected difficulty, cull # of cells
                 switch (menu.difficulty) {
                     case menuOptionType.easy:
-                        sudoku.cull(2);
-                        sudoku.guaranteeUniqueness(2);
+                        sudoku.cull(42);
+                        sudoku.guaranteeUniqueness(42);
                         break;
 
                     case menuOptionType.medium:
@@ -429,8 +494,8 @@ var menu = {
                         break;
 
                     case menuOptionType.hard:
-                        sudoku.cull(54);
-                        sudoku.guaranteeUniqueness(54);
+                        sudoku.cull(60);
+                        sudoku.guaranteeUniqueness(60);
                         break;
 
                     case menuOptionType.expert:
@@ -444,6 +509,8 @@ var menu = {
                         break;
                 }
 
+                board.resetAllCellColors(); // reset all colors
+
                 break;
 
             case boardLoadType.resume:
@@ -454,32 +521,30 @@ var menu = {
                 break;
 
             case boardLoadType.load:
-                // clear board
-                board.clearBoard();
-
-                // load the state
-                sudoku.loadState();
+                board.clearBoard(); // clear board
+                sudoku.loadState(); // load the state
 
                 // place board onto sudoku board
                 board.populate(sudoku.culledBoard);
                 board.populateWithPlayerBoard(sudoku.playerBoard);
 
-                // start timer
-                board.startTimer(loadType);
+                board.startTimer(loadType); // start timer
+                board.resetAllCellColors(); // reset all colors
 
                 break;
         }
 
-        // clear all cell states if this isn't resume
-        if (loadType != boardLoadType.resume) {
-            board.resetAllCellColors();
-        }
-
         if (loadType != boardLoadType.fresh) {
-            board.showBoard();
+            // fade out home menu and then hide it, if touch enabled, skip the animation
+            if (board.touchEnabled) {
+                this.homeSet.hide().attr({ opacity: 0 });
+                this.bgOverlayrect.hide().attr({ opacity: 0 });
+            } else {
+                this.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+                this.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
+            }
 
-            // fade out home menu and then hide it
-            menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+            board.showBoard();  // shows the board
         }
 
         this.view = gameView.board;

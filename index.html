@@ -2,14 +2,14 @@
 <html>
     <head>
         <title>Sudoku JS</title>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="viewport" content="width=device-width, initial-scale=.55" />
+        <!--<meta name="apple-mobile-web-app-capable" content="yes" />-->
         <meta http-equiv="X-UA-Compatible" content="IE=7,IE=9" />
         <link rel="stylesheet" type="text/css" media="all" href="css/base.css" />
+        <script src="js/frameworks/modernizr.custom.88290.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/frameworks/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/frameworks/jquery.total-storage.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/frameworks/raphael-min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/frameworks/raphael.free_transform.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/frameworks/scale.raphael.js" type="text/javascript" charset="utf-8"></script>
 
         <script type="text/javascript">
 //            // google analytics
@@ -27,10 +27,10 @@
     </head>
     <body>
         <div id="grid"></div>
-        <div id="footer">
+<!--        <div id="footer">
             created by <a href="http://www.subtledetour.com">e @ subtledetour.com</a> 
             with <a target="_blank" href="http://www.raphaeljs.com/">RaphaëlJS</a> and <a target="_blank" href="http://www.jquery.com/">jQuery</a>
-        </div>
+        </div>-->
 
         <script src="js/enums.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/utilities.js" type="text/javascript" charset="utf-8"></script>
@@ -42,12 +42,18 @@
 
         <script type="text/javascript">
             Raphael(function () {
-                menu.initialize('grid');
+                var paper = new ScaleRaphael('grid', 545, 620); // create paper
+
+                sudoku.initialize();    // init sudoku engine
+                board.initialize(paper);   // init board UI
+                menu.initialize(paper);    // init menu UI
+
+                resizePaper();  // resize paper based on size of window
             });
 
             $(document).ready(function ()
             {
-
+                $(window).resize(resizePaper);  // set resize event to a utility function
             });
 
             // on unload, save game

@@ -19,10 +19,10 @@ a:hover {
 .menuItem {
     font: bold 35px consolas !important;
     cursor: pointer;
-	text-shadow: #562E60 1px 1px 5px;
+	/*text-shadow: #562E60 1px 1px 5px;
     -webkit-text-shadow: #562E60 1px 1px 5px;
     -khtml-text-shadow: #562E60 1px 1px 5px;
-    -moz-text-shadow: #562E60 1px 1px 5px;
+    -moz-text-shadow: #562E60 1px 1px 5px;*/
 }
 
 .optionItem {
@@ -39,8 +39,8 @@ a:hover {
 
 /* CANVAS GRID CLASSES */
 #grid {
-    width: 545px; 
-    height: 600px;
+    /*width: 545px; 
+    height: 600px;*/
     margin: 20px auto;
     /* DISABLE TEXT SELECTION INSIDE CANVAS ELEMENT*/
     -webkit-touch-callout: none;

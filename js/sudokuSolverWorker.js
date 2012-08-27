@@ -7,7 +7,6 @@
 self.addEventListener('message', function (e) {
     var board = e.data.board;
     var threadNum = e.data.threadNum;
-    var successCount = e.data.successCount;
 
     //Find untouched location with most information
     var rp = 0, cp = 0;
@@ -67,18 +66,18 @@ self.addEventListener('message', function (e) {
 
     // Finished?
     if (cMp == 10) {
-        self.postMessage({ 'cmd': 'result', 'result': 'unique', 'board': board, 'successCount': successCount, 'threadNum': threadNum, 'finished': true });
+        self.postMessage({ 'cmd': 'result', 'result': 'unique', 'board': board, 'threadNum': threadNum });
         //self.postMessage({ 'cmd': 'console', 'message': 'thread ' + threadNum + ' cMp == 10' });
 
-        return;
+        //return;
     }
 
     // Couldn't find a solution?
     if (cMp == 0) {
-        self.postMessage({ 'cmd': 'result', 'result': 'no solution', 'board': board, 'successCount': successCount, 'threadNum': threadNum, 'finished': true });
+        self.postMessage({ 'cmd': 'result', 'result': 'no solution', 'board': board, 'threadNum': threadNum });
         //self.postMessage({ 'cmd': 'console', 'message': 'thread ' + threadNum + ' cMp == 0' });
 
-        return;
+        //return;
     }
 
     // Try elements
@@ -87,24 +86,11 @@ self.addEventListener('message', function (e) {
             if (Mp[i] != 0) {
                 board[rp][cp] = Mp[i];
 
-                //  self.postMessage({ 'cmd': 'console', 'message': 'thread ' + threadNum + ' testing' });
-                self.postMessage({ 'cmd': 'test', 'board': board, 'successCount': successCount, 'threadNum': threadNum, 'finished': false });
+                //self.postMessage({ 'cmd': 'console', 'message': 'THREADED row: ' + rp + ' col: ' + cp + ' value: ' + Mp[i] });
+                self.postMessage({ 'cmd': 'test', 'board': board, 'threadNum': threadNum });
 
-                
-                ////self.postMessage({ 'cmd': 'console', 'message': 'THREADED row: ' + rp + ' col: ' + cp + ' value: ' + Mp[i] });
+                //return;
             }
         }
-    }
-
-    if (successCount == 0) {
-        self.postMessage({ 'cmd': 'result', 'result': 'no solution', 'board': board, 'successCount': successCount, 'threadNum': threadNum, 'finished': false });
-        //self.postMessage({ 'cmd': 'console', 'message': 'thread ' + threadNum + ' success switch (success == 0)' });
-    } else if (successCount == 1) {
-        self.postMessage({ 'cmd': 'result', 'result': 'unique', 'board': board, 'successCount': successCount, 'threadNum': threadNum, 'finished': false });
-        //self.postMessage({ 'cmd': 'console', 'message': 'thread ' + threadNum + ' success switch (success == 1)' });
-    } else {
-        // Won't happen, not unique
-        self.postMessage({ 'cmd': 'result', 'result': 'not unique', 'board': board, 'successCount': successCount, 'threadNum': threadNum, 'finished': false });
-        //self.postMessage({ 'cmd': 'console', 'message': 'thread ' + threadNum + ' success switch (success == ' + successCount + ')' });
     }
 }, false);

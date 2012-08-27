@@ -1,18 +1,24 @@
 ﻿var clickHoldEvent = 0;
 
+// decide which events to bind to based on touch capability
+var eventsToBindTo = 'contentMenu' + ($('html.touch').length > 0 ? ' touchstart' : ' mousedown');
+
 /**
 * MouseDown and ContextMenu event handler
 * @event
 * @param {Event} event
 */
-$('[data-board=true]').live('mousedown touchstart contextmenu', function (event) {
+$('[data-board=true]').live(eventsToBindTo, function (event) {
     // if this is 0 or 1 (a left click or touch), then highlight cells accordingly
     // if it's a right click, only fire event if it's the contextmenu type
+
+    //console.log('got ' + event.type + ' @ ' + getTime());
+
     switch (event.which) {
         case 0:
         case 1:
             // check that the game board is showing
-            if (menu.view == gameView.board && !board.paused) {
+            if (menu.view == gameView.board && board.visible && !board.paused) {
                 var jObj = $(this);
                 var nodeId = jObj.attr('id');
 
