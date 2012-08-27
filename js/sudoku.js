@@ -10,6 +10,7 @@ var sudoku = {
     workerBoards: [],
     culledBoard: [],
     playerBoard: [],
+    loadedPuzzles: [],
     notes: [],
     savesAvailable: false,
     menuCellsToShow: [0, 2, 16, 18, 26, 36, 43, 71, 75],
@@ -43,6 +44,10 @@ var sudoku = {
             this.menuCellsValues.push(num);
         }
 
+        $.getJSON('puzzles/puzzles.json', function (data) {
+            sudoku.loadedPuzzles = data;
+        })
+
         this.initialized = true;
     },
 
@@ -62,6 +67,36 @@ var sudoku = {
                 this.culledBoard[i][j] = 0;
                 this.playerBoard[i][j] = 0;
             }
+        }
+    },
+
+    loadBoard: function (low, high) {
+        for (i = 0; i < this.loadedPuzzles.length; i++) {
+            // grab random puzzle and check
+            var puzzle = this.loadedPuzzles[Math.floor(Math.random() * (this.loadedPuzzles.length))];
+
+            // If the X = Y the stop looping
+            if (puzzle.grade >= low && puzzle.grade <= high) {
+                this.fromArray(puzzle.board.split(''), this.playerBoard);
+                this.fromArray(puzzle.board.split(''), this.culledBoard);
+                this.fromArray(puzzle.solution.split(''), this.completeBoard);
+
+                break;
+            }
+        }
+
+        board.populate(this.culledBoard);
+        board.startTimer(boardLoadType.fresh);
+
+        board.showBoard();
+
+        // fade out home menu and then hide it, if touch enabled, skip the animation
+        if (board.touchEnabled) {
+            menu.homeSet.hide().attr({ opacity: 0 });
+            menu.bgOverlayrect.hide().attr({ opacity: 0 });
+        } else {
+            menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
+            menu.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
         }
     },
 
@@ -713,7 +748,7 @@ var sudoku = {
             var row = Math.floor(i / 9);
             var col = i - (row * 9);
 
-            boardToFill[row][col] = cells[i];
+            boardToFill[row][col] = parseInt(cells[i]);
         }
 
         return arrayToReturn;

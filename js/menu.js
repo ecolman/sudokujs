@@ -14,6 +14,7 @@ var menu = {
     optionsSet: null,
     checkSet: null,
     menuClass: 'menuItem',
+    smallMenuClass: 'smallMenuItem',
     optionClass: 'optionItem',
     subOptionClass: 'subOptionItem',
     difficulty: menuOptionType.easy,
@@ -75,24 +76,29 @@ var menu = {
         hardOption.node.setAttribute('class', this.menuClass);
         hardOption.data({ 'type': menuOptionType.hard });
 
-        var loadOption = this.paper.text(275, 375, 'Load Last Game').attr({ fill: '#562E60', 'letter-spacing': 2 })
+        var expertOption = this.paper.text(275, 275, 'Expert').attr({ fill: 'black', 'letter-spacing': 12 })
+        expertOption.id = 1005;
+        expertOption.node.setAttribute('class', this.menuClass);
+        expertOption.data({ 'type': menuOptionType.expert });
+
+        var loadOption = this.paper.text(275, 385, 'Load Last Game').attr({ fill: '#562E60', 'letter-spacing': 2 })
         loadOption.id = 1006;
-        loadOption.node.setAttribute('class', this.menuClass);
+        loadOption.node.setAttribute('class', this.smallMenuClass);
         loadOption.data({ 'type': menuOptionType.loadGame });
 
-        var resumeOption = this.paper.text(275, 275, 'Resume Game').attr({ fill: '#562E60', 'letter-spacing': 5 })
+        var resumeOption = this.paper.text(275, 340, 'Resume Game').attr({ fill: '#562E60', 'letter-spacing': 5 })
         resumeOption.id = 1007;
         resumeOption.data({ 'type': menuOptionType.resumeGame });
-        resumeOption.node.setAttribute('class', this.menuClass);
+        resumeOption.node.setAttribute('class', this.smallMenuClass);
         resumeOption.hide();
 
-        var optionsMenuOption = this.paper.text(275, 425, 'Options').attr({ fill: '#562E60', 'letter-spacing': 7 })
+        var optionsMenuOption = this.paper.text(275, 440, 'Options').attr({ fill: '#562E60', 'letter-spacing': 7 })
         optionsMenuOption.id = 1008;
-        optionsMenuOption.node.setAttribute('class', this.menuClass);
+        optionsMenuOption.node.setAttribute('class', this.smallMenuClass);
         optionsMenuOption.data({ 'type': menuOptionType.optionsMenu });
 
         // add all options to homeSet, mainy to make mousedown handlers and animations easier
-        this.homeSet.push(easyOption).push(mediumOption).push(hardOption).push(loadOption).push(resumeOption).push(optionsMenuOption).attr({ opacity: 1 });
+        this.homeSet.push(easyOption).push(mediumOption).push(hardOption).push(expertOption).push(loadOption).push(resumeOption).push(optionsMenuOption).attr({ opacity: 1 });
 
         // set mousedown handler for all homeSet elements
         this.homeSet.mousedown(function (event) {
@@ -252,7 +258,6 @@ var menu = {
 
         // depending on the type, set the check and box objects
         switch (target[0].nodeName) {
-
             case 'path':
                 check = target;
                 box = target.prev();
@@ -290,7 +295,7 @@ var menu = {
         // loop through optionsCheckSet and set options based on the type of the check
         for (var i = 0; i < this.optionsCheckSet.length; i++) {
             var option = this.optionsCheckSet[i][0];
-            var checked = option.data('checked');
+            var checked = $(option.node).data('checked');
 
             switch (option.data('type')) {
                 case optionType.timer:
@@ -354,13 +359,13 @@ var menu = {
 
             // if touch enabled, skip the animation
             if (board.touchEnabled) {
-                this.homeSet.items[5].attr({ y: 425 });
+                this.homeSet.items[6].attr({ y: 425 });
                 this.optionsSet.hide();
                 this.optionsCheckSet.hide();
                 board.backButton.hide();
                 board.pauseButton.hide()
             } else {
-                this.homeSet.items[5].animate({ y: 425 }, 300);
+                this.homeSet.items[6].animate({ y: 425 }, 300);
                 this.optionsSet.animate({ opacity: 0 }, 250, function () { this.hide(); });
                 this.optionsCheckSet.animate({ opacity: 0 }, 250, function () { this.hide(); });
                 board.backButton.animate({ opacity: 0 }, function () { this.hide(); });
@@ -383,8 +388,8 @@ var menu = {
 
         // if flag is set or the board is complete, don't show resume
         if (!resume || completeBoard) {
-            this.homeSet[4].attr({ opacity: 0 });
-            this.homeSet[4].hide();
+            this.homeSet[5].attr({ opacity: 0 });
+            this.homeSet[5].hide();
         }
 
         // check if there is a saved game available
@@ -405,7 +410,7 @@ var menu = {
 
         // if touch enabled, skip the animation
         if (board.touchEnabled) {
-            this.homeSet.items[5].attr({ y: 125 });
+            this.homeSet.items[6].attr({ y: 125 });
             // update back button text and position for view, then show
             board.backButton[2].attr({ x: 70, 'text': 'Save Options' });
             board.backButton.show().attr({ opacity: .7 });
@@ -422,7 +427,7 @@ var menu = {
                 menu.optionsCheckSet[i][0].show().attr({ opacity: 1, 'cursor': 'pointer' });
 
                 // if check state is true, show check mark, otherwise hide it
-                if (menu.optionsCheckSet[i][0].data('checked')) {
+                if ($(menu.optionsCheckSet[i][0].node).data('checked')) {
                     menu.optionsCheckSet[i][1].show().attr({ opacity: 1 });
                 } else {
                     menu.optionsCheckSet[i][1].hide().attr({ opacity: 0 });
@@ -430,7 +435,7 @@ var menu = {
             }
         } else {
             // animate up options text / back button and push down options menu item
-            this.homeSet.items[5].animate({ y: 125 }, 300, function () {
+            this.homeSet.items[6].animate({ y: 125 }, 300, function () {
                 // update back button text and position for view, then show
                 board.backButton[2].attr({ x: 70, 'text': 'Save Options' });
                 board.backButton.show().animate({ opacity: .7 }, 250);
@@ -447,7 +452,7 @@ var menu = {
                     menu.optionsCheckSet[i][0].show().attr({ 'cursor': 'pointer' }).animate({ opacity: 1 }, 250);
 
                     // if check state is true, show check mark, otherwise hide it
-                    if (menu.optionsCheckSet[i][0].data('checked')) {
+                    if ($(menu.optionsCheckSet[i][0].node).data('checked')) {
                         menu.optionsCheckSet[i][1].show().animate({ opacity: 1 }, 250);
                     } else {
                         menu.optionsCheckSet[i][1].animate({ opacity: 0 }, 250, function () { this.hide(); });
@@ -494,13 +499,11 @@ var menu = {
                         break;
 
                     case menuOptionType.hard:
-                        sudoku.cull(60);
-                        sudoku.guaranteeUniqueness(60);
+                        sudoku.loadBoard(250, 350);
                         break;
 
                     case menuOptionType.expert:
-                        sudoku.cull(57);
-                        sudoku.guaranteeUniqueness(57);
+                        sudoku.loadBoard(351, 700);
                         break;
 
                     default:

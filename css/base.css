@@ -25,6 +25,15 @@ a:hover {
     -moz-text-shadow: #562E60 1px 1px 5px;*/
 }
 
+.smallMenuItem {
+    font: bold 30px consolas !important;
+    cursor: pointer;
+	/*text-shadow: #562E60 1px 1px 5px;
+    -webkit-text-shadow: #562E60 1px 1px 5px;
+    -khtml-text-shadow: #562E60 1px 1px 5px;
+    -moz-text-shadow: #562E60 1px 1px 5px;*/
+}
+
 .optionItem {
     fill: #562E60;
     color: #562E60;
@@ -41,7 +50,7 @@ a:hover {
 #grid {
     /*width: 545px; 
     height: 600px;*/
-    margin: 20px auto;
+    margin: 15px auto;
     /* DISABLE TEXT SELECTION INSIDE CANVAS ELEMENT*/
     -webkit-touch-callout: none;
     -webkit-user-select: none;
