@@ -18,6 +18,8 @@ var board = {
     pauseButton: null,
     pauseSymbol: null,
     noteSelector: null,
+    cellDeleteButton: null,
+    difficultyText: null,
     timer: null,
     timerInterval: null,
     timeElapsedInSec: 0,
@@ -79,8 +81,7 @@ var board = {
                                 .attr({ 'stroke-width': .3, opacity: 1 });
                     rect.id = (r * 9) + c;
                     rect.node.id = 'r' + r + 'c' + c;
-                    rect.node.setAttribute('class', this.cellClass);
-                    rect.node.setAttribute('data-board', 'true')
+                    $('#' + rect.node.id).attr({ 'class': this.cellClass, 'data-board': 'true' })
                 }
             }
 
@@ -95,6 +96,8 @@ var board = {
             this.createPauseButton();
             this.createPauseSymbol();
             this.createNoteSelector();
+            this.createDeleteButton();
+            this.createDifficultyText();
         }
     },
 
@@ -320,7 +323,7 @@ var board = {
         if (this.paper !== null) {
             this.noteSelector = this.paper.set();
 
-            var check = menu.createCheckSet(510, 585, false, optionType.notesMode, .85, function (event) {
+            var check = createCheckSet(510, 585, false, optionType.notesMode, .85, function (event) {
                 var target = $(event.currentTarget);
                 board.notesMode = target.data('checked');
             });
@@ -335,7 +338,7 @@ var board = {
 
             $(text.node).data('checkRId', check[0].id).data('notes', false);  // add notes data to text
 
-            // attack text click selector to the noteSelectors events
+            // attach text click selector to the noteSelectors events
             if (board.touchEnabled) {
                 text.touchstart(function (e) { board.noteSelector[0][0].events[0].f(e); });
             } else {
@@ -347,12 +350,54 @@ var board = {
     },
 
     /**
+    * Creates the delete button for a cell, which is moved around based on which is the highlighted cell and if it's prepopulated
+    * @method
+    */
+    createDeleteButton: function () {
+        // the X in the top right corner or a user populated cell
+        this.cellDeleteButton = this.paper.text(5, 5, 'X').attr({ fill: 'red', stroke: 'red', 'font-size': '12px', 'font-weight': 'bold', 'cursor': 'pointer' }).hide();
+        this.cellDeleteButton.node.id = 'cellDeleteButton';
+        $('#' + this.cellDeleteButton.node.id).attr({ 'data-board': 'true', 'data-auto-attach-events': 'false' })
+
+        // attach touch / click event (depending on if it's enabled) to selector
+        if (this.touchEnabled) {
+            this.cellDeleteButton.touchstart(function (event) {
+                var rectId = this.data('rectId');
+
+                board.resetCellClass('.' + board.cellHighlightClass);
+                board.removeCellText(board.paper.getById(rectId), true);
+                this.attr({ opacity: 0 }).hide();
+            });
+        } else {
+            this.cellDeleteButton.click(function (event) {
+                var rectId = this.data('rectId');
+
+                board.resetCellClass('.' + board.cellHighlightClass);
+                board.removeCellText(board.paper.getById(rectId), true);
+                this.attr({ opacity: 0 }).hide();
+            });
+        }
+
+        // attach hover event to change opacity
+        this.cellDeleteButton.hover(function (e) { this.attr({ opacity: 1 }) }, function (e) { this.attr({ opacity: .5 }) });
+    },
+
+    /**
+    * Creates the difficulty text element
+    * @method
+    */
+    createDifficultyText: function () {
+        this.difficultyText = this.paper.text(35, 600, 'Easy').attr({ 'font-size': '20px', 'font-weight': 'bold', 'cursor': 'default' }).hide();
+        this.difficultyText.node.id = 'difficultyText';
+    },
+
+    /**
     * Checkes all selector numbers to see if they've been used 9 times (should disable)
     * @method
     */
     showBoard: function () {
-        // update back button text and position for view
-        this.backButton[2].attr({ x: 40, 'text': 'Menu' });
+        this.backButton[2].attr({ x: 40, 'text': 'Menu' }); // update back button text and position for view
+        this.difficultyText.attr({ 'text': sudoku.difficulty, 'fill': getDifficultyColor(sudoku.difficulty) });    // set color and text for difficulty indicator
 
         // show all elements
         this.gridLines.show();
@@ -363,20 +408,26 @@ var board = {
 
         // if touch enabled, then skip the animation
         if (board.touchEnabled) {
-            this.gridLines.attr({ opacity: .9 });
-            this.backButton.attr({ opacity: .7 });
-            this.pauseButton.attr({ opacity: .7 });
-            this.noteSelector.attr({ opacity: 1 });
+            this.gridLines.attr({ opacity: .9 }).show();
+            this.backButton.attr({ opacity: .7 }).show();
+            this.pauseButton.attr({ opacity: .7 }).show();
+            this.noteSelector.attr({ opacity: 1 }).show();
+            this.difficultyText.attr({ opacity: 1 }).show();
         } else {
             this.gridLines.animate({ opacity: .9 }, 500);
             this.backButton.animate({ opacity: .7 }, 500);
             this.pauseButton.animate({ opacity: .7 }, 500);
             this.noteSelector.animate({ opacity: 1 }, 500);
+            this.difficultyText.show().animate({ opacity: 1 }, 500);
         }
 
-        // set up the bottom options checks
+        // set the selector data element to board.notesMode flag
+        $(this.noteSelector[0][0].node).attr('data-checked', board.notesMode).data('checked', board.notesMode);
+        $(this.noteSelector[0][1].node).attr('data-checked', board.notesMode).data('checked', board.notesMode);
+
+        // hide check if not in notes mode
         if (!board.notesMode) {
-            this.noteSelector[0][1].hide().attr({ opacity: 0 });
+            this.noteSelector[0][1].attr({ opacity: 0 }).hide();
         }
 
         this.noteSelector[0].attr({ 'cursor': 'pointer' }); // stupid hack to have box show the pointer cursor...
@@ -419,9 +470,9 @@ var board = {
             if (this.timer != null) { this.timer.hide(); }
             if (this.noteSelector != null) { this.noteSelector.hide().attr({ opacity: 0 }); }
 
-            this.numSelectors.hide().attr({ opacity: 0 });
+            this.numSelectors.attr({ opacity: 0 }).hide();
+            this.difficultyText.attr({ opacity: 0 }).hide();
         } else {
-
             this.gridLines.animate({ opacity: .1 }, 250);   // set gridlines to opacity of .1
 
             // animate away back button, timer and selector set
@@ -431,6 +482,7 @@ var board = {
             if (this.noteSelector != null) { this.noteSelector.animate({ opacity: 0 }, 250, function () { this.hide() }); }
 
             this.numSelectors.animate({ opacity: 0 }, 250, function () { this.hide() });
+            this.difficultyText.animate({ opacity: 0 }, 250, function () { this.hide() });
         }
 
         // hide all board cell text elements and show all menu cell text elements
@@ -548,6 +600,23 @@ var board = {
     showNoteSelector: function () {
         if (this.noteSelector != null) {
             this.noteSelector({ opacity: 1 });
+        }
+    },
+
+    /**
+    * Shows the delete button ('X') on a specific cell
+    * @method
+    */
+    showDeleteButton: function (rectNodeId) {
+        var cell = $('rect[id="' + rectNodeId + '"]');
+
+        this.cellDeleteButton.attr({ opacity: 0 }).hide();
+
+        if ((cell.attr('data-num') != 0 || cell.attr('data-notes') != undefined) && cell.attr('data-prepopulated') == 'false') {
+            var rId = board.getRaphaelIdFromElementId(rectNodeId);
+            var rect = board.paper.getById(rId);
+
+            this.cellDeleteButton.attr({ x: rect.attr('x') + (this.sudukoRectWidth - 7), y: rect.attr('y') + 9 }).data({ 'rectId': rId }).attr({ opacity: .5 }).show();
         }
     },
 
@@ -757,8 +826,10 @@ var board = {
     */
     resetAllCellColors: function () {
         // reset all highlighted cells to standard cell class
+        this.cellDeleteButton.attr({ opacity: 0 }).hide();
         this.resetCellClass('.' + this.cellHighlightClass);
         this.resetCellClass('.' + this.cellSelectedClass);
+        this.removeSelectedHighlight();
     },
 
     /**
@@ -774,7 +845,7 @@ var board = {
             // check if have a number to highlight
             if (number > 0) {
                 // set all rect with the specific number to highlighted
-                $('#' + this.canvasId).find('rect[data-num=' + number + ']').attr('class', this.cellHighlightClass);
+                $('rect[data-num=' + number + ']').attr('class', this.cellHighlightClass);
             }
         }
     },
@@ -786,12 +857,35 @@ var board = {
     * @param {Text} number
     */
     highlightSelectedCell: function (rectNodeId, number) {
-        this.resetCellClass('rect[data-selected="true"]');
+        var cell = $('rect[id="' + rectNodeId + '"]');
 
         if (!isNaN(number) && number != null && number != undefined) {
-            $('rect[id="' + rectNodeId + '"]').attr('class', this.cellSelectedClass).attr('data-selected', 'true').attr('data-num', number);
+            cell.attr('class', this.cellSelectedClass).attr('data-selected', 'true').attr('data-num', number);
         } else {
-            $('rect[id="' + rectNodeId + '"]').attr('class', this.cellSelectedClass).attr('data-selected', 'true');
+            cell.attr('class', this.cellSelectedClass).attr('data-selected', 'true');
+        }
+    },
+
+    /**
+    * Highlights all cells with a specific number on a board (swap css class)
+    * @method
+    * @param {Number} number
+    */
+    highlightSelectedAndNumberCells: function () {
+        if (this.highlight) {
+            var highlighted = $('rect[data-selected=true]');
+            // parse number and check if it's valid
+            var number = parseInt(highlighted.attr('data-num'));
+
+            board.resetAllCellColors()
+
+            // check if have a number to highlight
+            if (number > 0) {
+                // set all rect with the specific number to highlighted
+                $('rect[data-num=' + number + ']').attr('class', this.cellHighlightClass);
+            }
+
+            highlighted.attr('class', this.cellSelectedClass);
         }
     },
 
@@ -807,12 +901,12 @@ var board = {
             } else {
                 $(this).attr('class', board.cellClass);
             }
-
-            if ($(selector).data('selected') == true) {
-                $(selector).removeData('data-selected');
-                //console.log($(selector).data());
-            }
         });
+    },
+
+    removeSelectedHighlight: function () {
+        // remove selected attribute from all cells which have it
+        $('rect[data-selected=true]').removeAttr('data-selected');
     },
 
     /**
@@ -828,10 +922,12 @@ var board = {
         // add text number to cell (different attributes if prepopulated)
         if (prePopulated) {
             cellText = this.paper.text(rect.attr('x') + (this.sudukoRectWidth / 2), rect.attr('y') + (this.sudukoRectHeight / 2),
-                        number).attr({ 'font-size': this.fontSize, 'font-weight': this.cellFontWeight, 'font-weight': this.prePopulatedFontWeight, 'cursor': 'default' }).data({ 'num': number });
+                        number).attr({ 'font-family': 'Consolas', 'font-size': this.fontSize, 'font-weight': this.cellFontWeight, 'font-weight': this.prePopulatedFontWeight,
+                            'cursor': 'default'
+                        }).data({ 'num': number });
         } else {
             cellText = this.paper.text(rect.attr('x') + (this.sudukoRectWidth / 2), rect.attr('y') + (this.sudukoRectHeight / 2),
-                        number).attr({ 'font-size': this.fontSize, 'font-weight': this.cellFontWeight, 'font-family': 'Consolas', 'cursor': 'pointer' }).data({ 'num': number });
+                        number).attr({ 'font-size': this.fontSize, 'font-weight': this.cellFontWeight, 'cursor': 'pointer' }).data({ 'num': number });
         }
 
         // add cell Id, which is the rect node id + t
@@ -895,7 +991,7 @@ var board = {
 
             // add text number to cell (different attributes if prepopulated)
             cellText = this.paper.text(rect.attr('x') + xOffset + (this.sudukoRectWidth / 5), rect.attr('y') + yOffset + (this.sudukoRectHeight / 5),
-                    number).attr({ 'font-size': this.notesFontSize, 'font-weight': 'bold', 'font-family': 'Consolas', 'cursor': 'pointer' }).data({ 'notenum': number });
+                    number).attr({ 'font-size': this.notesFontSize, 'font-weight': 'bold', 'cursor': 'pointer' }).data({ 'notenum': number });
 
             // add cell Id, which is the rect node id + t
             cellText.node.id = rect.node.id + 'n' + number;
@@ -928,10 +1024,10 @@ var board = {
     * @method
     * @param {Raphael} rect
     */
-    removeCellText: function (rect) {
+    removeCellText: function (rect, clearPlayerBoardValue) {
         if (rect != null && rect != undefined) {
             // purge rect data
-            this.removeCellData(rect, true);
+            this.removeCellData(rect, true, clearPlayerBoardValue);
 
             var textEl = $('text[data-position="' + rect.id + '"]');
 
@@ -969,7 +1065,7 @@ var board = {
     removeCellNumber: function (rect) {
         if (rect != null && rect != undefined) {
             // purge rect data
-            this.removeCellData(rect, false);
+            this.removeCellData(rect, false, true);
 
             var textEl = $('text[data-position="' + rect.id + '"]:not([data-notenum])');
 
@@ -1029,16 +1125,23 @@ var board = {
     * Removes data attached to a rect and removes the number from the player board
     * @method
     */
-    removeCellData: function (rect, removeNotes) {
+    removeCellData: function (rect, removeNotes, removePlayerBoardValue) {
         if (rect != null) {
             // remove data from raphael object, html element and sudoku player board
             rect.data({ 'num': 0 });
 
-            sudoku.setPlayerBoardValue(Math.floor(rect.id / 9), rect.id % 9, 0);
+            $('rect[id=' + rect.node.id + ']').attr({ 'data-num': 0 });
 
+            // if remove notes
             if (removeNotes) {
-                $('#' + this.canvasId).find('rect[id="' + rect.node.id + '"]').removeAttr('data-num');
+                $('rect[id=' + rect.node.id + ']').removeAttr('data-notes');
             }
+
+            // if remove the player board value
+            if (removePlayerBoardValue) {
+                sudoku.setPlayerBoardValue(Math.floor(rect.id / 9), rect.id % 9, 0);
+            }
+
         }
     },
 
@@ -1082,6 +1185,7 @@ var board = {
                 this.resetAllCellColors();
                 this.highlightNumberCells(rect.data('num'));
                 this.highlightSelectedCell(rect.node.id, rect.data('num'));
+                this.showDeleteButton(rect.node.id);
             }
         }
     },
@@ -1103,8 +1207,8 @@ var board = {
                     if (this.notesMode) {
                         this.removeCellNote(rect, number);
                     } else {
-                        this.removeCellText(rect);
-                        selectedCell.removeAttr('data-num');
+                        this.removeCellText(rect, true);
+                        selectedCell.attr({ 'data-num': 0 });
 
                         this.checkSelectors(sudoku.playerBoard, true);
                     }
@@ -1142,6 +1246,7 @@ var board = {
             if (board.notesMode) {
                 this.removeCellNumber(rect);
                 this.addCellNote(rect, number);
+                this.showDeleteButton(rect.node.id);
             } else {
                 // check the number of times number has been placed
                 var numberUsage = this.checkNumberUsage(number, sudoku.playerBoard);
@@ -1169,13 +1274,8 @@ var board = {
 
                         // if it's correct
                         if (isCorrect) {
-                            // remove text from cell
-                            this.removeCellText(rect);
-
-                            this.addCellNumber(rect, number, false);
-
-                            // check bottom selectors and disable if needed
-                            this.checkSelectors(sudoku.playerBoard, true);
+                            this.removeCellText(rect, true);  // remove text from cell
+                            this.addCellNumber(rect, number, false);    // add new text to cell
 
                             // attach number attribute to rect, rect el and player board
                             $('#' + rect.node.id).attr('data-num', number).removeAttr('data-notes');
@@ -1186,6 +1286,7 @@ var board = {
                             this.resetAllCellColors();
                             this.highlightNumberCells(number);
                             this.highlightSelectedCell(rect.node.id, number);
+                            this.showDeleteButton(rect.node.id);
 
                             // check bottom selectors and disable if needed
                             this.checkSelectors(sudoku.playerBoard, true);
@@ -1205,8 +1306,7 @@ var board = {
 
                             if (this.penalize) {
                                 this.showPenaltyText(rect);
-                                // penalize 5 seconds
-                                this.timeElapsedInSec += 5;
+                                this.timeElapsedInSec += 5; // penalize 5 seconds
                             }
                         }
                     }
@@ -1298,7 +1398,7 @@ var board = {
     },
 
     /**
-    * Loops through rect objects, resetting data and clearing number values
+    * Loops through rect objects, resetting data and clearing text from cells
     * @method
     */
     clearBoard: function () {
@@ -1312,11 +1412,11 @@ var board = {
 
                 if (rect != null) {
                     // remove cell text
-                    this.removeCellText(rect);
+                    this.removeCellText(rect, false);
 
                     // remove data from rect el and node of rect
                     rect.data({ 'num': 0, 'prePopulated': false });
-                    $('#' + rect.node.id).attr('class', this.cellClass).attr('data-num', 0).attr('data-prepopulated', 'false').removeAttr('data-notes', '');
+                    $('#' + rect.node.id).attr('class', this.cellClass).attr({ 'data-num': 0, 'data-prepopulated': 'false' }).removeAttr('data-notes', '');
                 }
             }
         }

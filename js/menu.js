@@ -17,7 +17,6 @@ var menu = {
     smallMenuClass: 'smallMenuItem',
     optionClass: 'optionItem',
     subOptionClass: 'subOptionItem',
-    difficulty: menuOptionType.easy,
     view: gameView.menu,
 
     /**
@@ -61,22 +60,22 @@ var menu = {
         this.title.node.setAttribute('id', 'title');
 
         // create options, set their id's and their data
-        var easyOption = this.paper.text(275, 125, 'Easy').attr({ fill: 'green', 'letter-spacing': 15 });
+        var easyOption = this.paper.text(275, 125, 'Easy').attr({ fill: getDifficultyColor(boardDifficulty.easy), 'letter-spacing': 15 });
         easyOption.id = 1001;
         easyOption.node.setAttribute('class', this.menuClass);
         easyOption.data({ 'type': menuOptionType.easy });
 
-        var mediumOption = this.paper.text(275, 175, 'Medium').attr({ fill: 'brown', 'letter-spacing': 13 });
+        var mediumOption = this.paper.text(275, 175, 'Medium').attr({ fill: getDifficultyColor(boardDifficulty.medium), 'letter-spacing': 13 });
         mediumOption.id = 1003;
         mediumOption.node.setAttribute('class', this.menuClass);
         mediumOption.data({ 'type': menuOptionType.medium });
 
-        var hardOption = this.paper.text(275, 225, 'Hard').attr({ fill: 'blue', 'letter-spacing': 15 })
+        var hardOption = this.paper.text(275, 225, 'Hard').attr({ fill: getDifficultyColor(boardDifficulty.hard), 'letter-spacing': 15 })
         hardOption.id = 1004;
         hardOption.node.setAttribute('class', this.menuClass);
         hardOption.data({ 'type': menuOptionType.hard });
 
-        var expertOption = this.paper.text(275, 275, 'Expert').attr({ fill: 'black', 'letter-spacing': 12 })
+        var expertOption = this.paper.text(275, 275, 'Expert').attr({ fill: getDifficultyColor(boardDifficulty.expert), 'letter-spacing': 12 })
         expertOption.id = 1005;
         expertOption.node.setAttribute('class', this.menuClass);
         expertOption.data({ 'type': menuOptionType.expert });
@@ -92,7 +91,7 @@ var menu = {
         resumeOption.node.setAttribute('class', this.smallMenuClass);
         resumeOption.hide();
 
-        var optionsMenuOption = this.paper.text(275, 440, 'Options').attr({ fill: '#562E60', 'letter-spacing': 7 })
+        var optionsMenuOption = this.paper.text(275, 430, 'Options').attr({ fill: '#562E60', 'letter-spacing': 7 })
         optionsMenuOption.id = 1008;
         optionsMenuOption.node.setAttribute('class', this.smallMenuClass);
         optionsMenuOption.data({ 'type': menuOptionType.optionsMenu });
@@ -104,22 +103,22 @@ var menu = {
         this.homeSet.mousedown(function (event) {
             switch (this.data('type')) {
                 case menuOptionType.easy:
-                    menu.difficulty = menuOptionType.easy;
+                    sudoku.difficulty = boardDifficulty.easy;
                     menu.boardView(boardLoadType.fresh);
                     break;
 
                 case menuOptionType.medium:
-                    menu.difficulty = menuOptionType.medium;
+                    sudoku.difficulty = boardDifficulty.medium;
                     menu.boardView(boardLoadType.fresh);
                     break;
 
                 case menuOptionType.hard:
-                    menu.difficulty = menuOptionType.hard;
+                    sudoku.difficulty = boardDifficulty.hard;
                     menu.boardView(boardLoadType.fresh);
                     break;
 
                 case menuOptionType.expert:
-                    menu.difficulty = menuOptionType.expert;
+                    sudoku.difficulty = boardDifficulty.expert;
                     menu.boardView(boardLoadType.fresh);
                     break;
 
@@ -174,10 +173,10 @@ var menu = {
         penalizeOptionSubText.node.setAttribute('class', this.subOptionClass);
 
         // create options checkboxes and also attach mousedown handlers
-        var timerOptionCheck = this.createCheckSet(350, 170, board.timerEnabled, optionType.timer);
-        var highlightOptionCheck = this.createCheckSet(350, 220, board.highlight, optionType.highlight);
-        var feedbackOptionCheck = this.createCheckSet(350, 270, board.feedback, optionType.feedback);
-        var penalizeOptionCheck = this.createCheckSet(350, 320, board.penalize, optionType.penalize);
+        var timerOptionCheck = createCheckSet(350, 170, board.timerEnabled, optionType.timer);
+        var highlightOptionCheck = createCheckSet(350, 220, board.highlight, optionType.highlight);
+        var feedbackOptionCheck = createCheckSet(350, 270, board.feedback, optionType.feedback);
+        var penalizeOptionCheck = createCheckSet(350, 320, board.penalize, optionType.penalize);
 
         // add all options to optionsSet and add all checkboxes to optionsCheckSet
         this.optionsSet.push(timerOptionText).push(highlightOptionText).push(feedbackOptionText).push(penalizeOptionText).push(penalizeOptionSubText);
@@ -186,105 +185,6 @@ var menu = {
         // hide both of the sets
         this.optionsSet.hide().attr({ opacity: 0 });
         this.optionsCheckSet.hide().attr({ opacity: 0 })
-    },
-
-    /**
-    * Creates a box and checkmark for the options on/off.  Creates it where provided (x/y position), sets the checked state and the type
-    * @method
-    * @param {Number} xPos
-    * @param {Number} yPos
-    * @param {Boolean} checked
-    * @param {optionType} type
-    */
-    createCheckSet: function (xPos, yPos, checked, type, sizeModifier, clickEvent) {
-        var checkSet = board.paper.set();
-        var sizeModifier;
-
-        // create box and tick based on x/y position
-        var box = board.paper.rect(xPos, yPos, 28, 28, 5).attr({ 'fill': '#fff', 'stroke': '#000', 'stroke-width': '2' }).data({ 'checked': checked, 'type': type });
-        var tick = board.paper.path('M 197.67968,534.31563 C 197.40468,534.31208 196.21788,532.53719 195.04234,530.37143 L 192.905,526.43368 L 193.45901,525.87968 C 193.76371,525.57497 ' +
-                                    '194.58269,525.32567 195.27896,525.32567 L 196.5449,525.32567 L 197.18129,527.33076 L 197.81768,529.33584 L 202.88215,523.79451 C 205.66761,520.74678 ' +
-                                    '208.88522,517.75085 210.03239,517.13691 L 212.11815,516.02064 L 207.90871,520.80282 C 205.59351,523.43302 202.45735,527.55085 200.93947,529.95355 C ' +
-                                    '199.42159,532.35625 197.95468,534.31919 197.67968,534.31563 z').attr({ 'fill': '#000' }).data({ 'checked': checked, 'type': type });
-
-        if (sizeModifier != null && sizeModifier > 0) {
-            box.transform('s' + sizeModifier);
-            tick.transform('t' + (xPos - 182) + ', ' + (-345 + (yPos - 170)) + ', s' + (1.5 * sizeModifier));
-        } else {
-            tick.transform('t' + (xPos - 182) + ', ' + (-345 + (yPos - 170)) + ', s' + 1.5);
-        }
-
-        // push it to the set
-        checkSet.push(box, tick);
-
-        // hide set and set attributes/data
-        checkSet.hide();
-        checkSet.attr({ opacity: 0, 'cursor': 'pointer' });
-        $(box.node).data({ 'checked': checked, 'type': type });
-        $(tick.node).data({ 'checked': checked, 'type': type })
-
-        if (!checked) {
-            tick.hide();
-            tick.attr({ opacity: 1 });
-        }
-
-        // check type of obj passed in, then add either touch or click event to checkSet
-        if (typeof (clickEvent) == 'function' || typeof (clickEvent) == 'undefined') {
-            if (board.touchEnabled) {
-                checkSet.touchstart(function (e) { menu.checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
-            } else {
-                checkSet.click(function (e) { menu.checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
-            }
-        }
-
-        return checkSet;
-    },
-
-    /**
-    * MouseDown handler for the checkbox, handles switching option on/off
-    * @method
-    * @param {Event} event
-    */
-    checkboxHit: function (event) {
-        // create holder vars and get the opposite of the current checked state to get the new checked state
-        var check = null;
-        var box = null;
-        var target = $(event.currentTarget);
-
-        // change over to text's stored raphael object Id
-        if (target[0].nodeName == 'text') {
-            target = $('#' + board.paper.getById($(event.currentTarget).data('checkRId')).node.id);
-        }
-
-        // depending on the type, set the check and box objects
-        switch (target[0].nodeName) {
-            case 'path':
-                check = target;
-                box = target.prev();
-
-                break;
-
-            case 'rect':
-                box = target;
-                check = target.next();
-
-                break;
-        }
-
-        var checkState = !target.data('checked');
-
-        // set the checked state data
-        check.data('checked', checkState);
-        box.data('checked', checkState);
-
-        // if it's true checkState, show check, otherwise hide check
-        if (checkState) {
-            check.show();
-            check.css({ opacity: 1 });
-        } else {
-            check.css({ opacity: 0 });
-            check.hide();
-        }
     },
 
     /**
@@ -394,8 +294,8 @@ var menu = {
 
         // check if there is a saved game available
         if (!sudoku.isSaveAvailable()) {
-            this.homeSet[3].attr({ opacity: 0 });
-            this.homeSet[3].hide();
+            this.homeSet[4].attr({ opacity: 0 });
+            this.homeSet[4].hide();
         }
 
         this.view = gameView.menu;
@@ -484,25 +384,23 @@ var menu = {
         // load board depending on the load type
         switch (loadType) {
             case boardLoadType.fresh:
-                board.clearBoard();
-
                 // based on selected difficulty, cull # of cells
-                switch (menu.difficulty) {
-                    case menuOptionType.easy:
+                switch (sudoku.difficulty) {
+                    case boardDifficulty.easy:
                         sudoku.cull(42);
                         sudoku.guaranteeUniqueness(42);
                         break;
 
-                    case menuOptionType.medium:
+                    case boardDifficulty.medium:
                         sudoku.cull(50);
                         sudoku.guaranteeUniqueness(50);
                         break;
 
-                    case menuOptionType.hard:
+                    case boardDifficulty.hard:
                         sudoku.loadBoard(250, 350);
                         break;
 
-                    case menuOptionType.expert:
+                    case boardDifficulty.expert:
                         sudoku.loadBoard(351, 700);
                         break;
 
@@ -512,42 +410,16 @@ var menu = {
                         break;
                 }
 
-                board.resetAllCellColors(); // reset all colors
-
                 break;
 
             case boardLoadType.resume:
-                // add one second to timer and then start it
-                board.timeElapsedInSec += 1;
-                board.startTimer(loadType);
-
+                $('body').trigger('loadBoard', boardLoadType.resume); // trigger event that a new board has been created
                 break;
 
             case boardLoadType.load:
-                board.clearBoard(); // clear board
-                sudoku.loadState(); // load the state
-
-                // place board onto sudoku board
-                board.populate(sudoku.culledBoard);
-                board.populateWithPlayerBoard(sudoku.playerBoard);
-
-                board.startTimer(loadType); // start timer
-                board.resetAllCellColors(); // reset all colors
+                $('body').trigger('loadBoard', boardLoadType.load); // trigger event that a new board has been created
 
                 break;
-        }
-
-        if (loadType != boardLoadType.fresh) {
-            // fade out home menu and then hide it, if touch enabled, skip the animation
-            if (board.touchEnabled) {
-                this.homeSet.hide().attr({ opacity: 0 });
-                this.bgOverlayrect.hide().attr({ opacity: 0 });
-            } else {
-                this.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
-                this.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
-            }
-
-            board.showBoard();  // shows the board
         }
 
         this.view = gameView.board;

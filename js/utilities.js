@@ -10,7 +10,7 @@ function resizePaper() {
 
     //    var x = win.width() - (board.touchEnabled ? 5 : 20);
     var x = (win.width() > 900) ? 900 : win.width();
-    var y = (win.height() > 700 && !board.touchEnabled) ? 700: win.height() - 50;
+    var y = (win.height() > 800 && !board.touchEnabled) ? 800: win.height() - 50;
 
     // if touch enabled, change the height slightly
     menu.paper.changeSize(x, y, false, false);
@@ -26,8 +26,8 @@ function getJSONNotes() {
     $('rect[data-notes]').each(function (key, value) {
         var jRect = $(value);
 
-        if (jRect.attr('data-notes').length > 0) {
-            notes.push({ rect: board.getRaphaelIdFromElementId(jRect.attr('id')), notes: jRect.attr('data-notes') });
+        if (jRect.data('notes').length > 0) {
+            notes.push({ rect: board.getRaphaelIdFromElementId(jRect.attr('id')), notes: jRect.data('notes') });
         }
     });
 
