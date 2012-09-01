@@ -20,14 +20,17 @@ var board = {
     noteSelector: null,
     cellDeleteButton: null,
     difficultyText: null,
+    instructionsText: null,
     timer: null,
     timerInterval: null,
     timeElapsedInSec: 0,
     cellClass: 'sudokuCell',
-    cellSelectedClass: 'selectedCell',
+    textCellClass: 'sudokuText',
     cellHighlightClass: 'highlightCell',
+    cellSelectedClass: 'selectedCell',
     cellIncorrectClass: 'incorrectCell',
     cellPrePopulatedClass: 'prePopulatedCell',
+    textPrePopulatedClass: 'prePopulatedText',
     selectorClass: 'numSelector',
     selectorClassText: 'numSelectorText',
     menuTextClass: 'menuCellText',
@@ -98,6 +101,7 @@ var board = {
             this.createNoteSelector();
             this.createDeleteButton();
             this.createDifficultyText();
+            this.createInstructionText();
         }
     },
 
@@ -362,19 +366,17 @@ var board = {
         // attach touch / click event (depending on if it's enabled) to selector
         if (this.touchEnabled) {
             this.cellDeleteButton.touchstart(function (event) {
-                var rectId = this.data('rectId');
-
-                board.resetCellClass('.' + board.cellHighlightClass);
-                board.removeCellText(board.paper.getById(rectId), true);
-                this.attr({ opacity: 0 }).hide();
+                if (this.is_visible()) {
+                    board.removeCellText($('.' + board.cellSelectedClass), true);
+                    this.attr({ opacity: 0 }).hide();
+                }
             });
         } else {
             this.cellDeleteButton.click(function (event) {
-                var rectId = this.data('rectId');
-
-                board.resetCellClass('.' + board.cellHighlightClass);
-                board.removeCellText(board.paper.getById(rectId), true);
-                this.attr({ opacity: 0 }).hide();
+                if (this.is_visible()) {
+                    board.removeCellText($('.' + board.cellSelectedClass), true);
+                    this.attr({ opacity: 0 }).hide();
+                }
             });
         }
 
@@ -387,8 +389,29 @@ var board = {
     * @method
     */
     createDifficultyText: function () {
-        this.difficultyText = this.paper.text(35, 600, 'Easy').attr({ 'font-size': '20px', 'font-weight': 'bold', 'cursor': 'default' }).hide();
+        this.difficultyText = this.paper.text(38, 600, 'Easy').attr({ 'font-size': '20px', 'font-weight': 'bold', 'cursor': 'default' }).hide();
         this.difficultyText.node.id = 'difficultyText';
+    },
+
+    /**
+    * Creates the instructions text element
+    * @method
+    */
+    createInstructionText: function () {
+        this.instructionsText = this.paper.set();
+        this.instructionsText.push(this.paper.text(250, 583, 'Instructions').attr({ 'font-size': '12px', 'font-weight': 'bold', 'cursor': 'default' }));
+
+        if (this.touchEnabled) {
+            this.instructionsText.push(this.paper.text(250, 596, 'You can use your mouse, keyboard or finger.').attr({ 'font-size': '12px', 'cursor': 'default' }));
+        } else {
+            this.instructionsText.push(this.paper.text(250, 596, 'You can use your mouse or keyboard.').attr({ 'font-size': '12px', 'cursor': 'default' }));
+        }
+
+        this.instructionsText.push(this.paper.text(250, 610, 'Clicking the red X in a cell will delete the cell.').attr({ 'font-size': '12px', 'cursor': 'default' }));
+        //this.instructionsText.push(this.paper.text(this.instructionsText[2].getBBox().x + 70, 610, 'X').attr({ fill: 'red', 'font-size': '12px', 'font-weight': 'bold', 'cursor': 'default' }));
+        //this.instructionsText.push(this.paper.text(this.instructionsText[3].getBBox().x + 83, 610, 'in a cell will delete the cell.').attr({ 'font-size': '12px', 'cursor': 'default' }));
+
+        this.instructionsText.hide().attr({ opacity: 0 });
     },
 
     /**
@@ -413,17 +436,19 @@ var board = {
             this.pauseButton.attr({ opacity: .7 }).show();
             this.noteSelector.attr({ opacity: 1 }).show();
             this.difficultyText.attr({ opacity: 1 }).show();
+            this.instructionsText.attr({ opacity: 1 }).show();
         } else {
             this.gridLines.animate({ opacity: .9 }, 500);
             this.backButton.animate({ opacity: .7 }, 500);
             this.pauseButton.animate({ opacity: .7 }, 500);
             this.noteSelector.animate({ opacity: 1 }, 500);
             this.difficultyText.show().animate({ opacity: 1 }, 500);
+            this.instructionsText.show().animate({ opacity: 1 }, 500);
         }
 
         // set the selector data element to board.notesMode flag
-        $(this.noteSelector[0][0].node).attr('data-checked', board.notesMode).data('checked', board.notesMode);
-        $(this.noteSelector[0][1].node).attr('data-checked', board.notesMode).data('checked', board.notesMode);
+        $(this.noteSelector[0][0].node).attr('data-checked', board.notesMode);
+        $(this.noteSelector[0][1].node).attr('data-checked', board.notesMode);
 
         // hide check if not in notes mode
         if (!board.notesMode) {
@@ -444,7 +469,7 @@ var board = {
             }
         }
 
-        $('text[data-board=true]').show();  // show all board elements
+        $('text[data-board="true"]').show();  // show all board elements
         $('text[data-menu=true]').hide();   // hide all menu elements
         $('rect[data-prepopulated=false]').css('cursor', 'pointer');    // change cursor for non-pre-populated cells to pointer
 
@@ -472,6 +497,7 @@ var board = {
 
             this.numSelectors.attr({ opacity: 0 }).hide();
             this.difficultyText.attr({ opacity: 0 }).hide();
+            this.instructionsText.attr({ opacity: 0 }).hide();
         } else {
             this.gridLines.animate({ opacity: .1 }, 250);   // set gridlines to opacity of .1
 
@@ -483,10 +509,11 @@ var board = {
 
             this.numSelectors.animate({ opacity: 0 }, 250, function () { this.hide() });
             this.difficultyText.animate({ opacity: 0 }, 250, function () { this.hide() });
+            this.instructionsText.animate({ opacity: 0 }, 250, function () { this.hide() });
         }
 
         // hide all board cell text elements and show all menu cell text elements
-        $('text[data-board=true]').hide();
+        $('text[data-board="true"]').hide();
         $('text[data-menu=true]').show();
 
         $('rect').css('cursor', 'default'); // change cursor for all rects to default
@@ -500,15 +527,10 @@ var board = {
     */
     pauseBoard: function () {
         this.paused = true;
-
-        // save paused state
-        this.pauseButton.data({ 'paused': this.paused });
-
-        this.timeElapsedInSec += 1;
-
-        this.stopTimer();
-
-        this.resetAllCellColors();
+        this.pauseButton.data({ 'paused': this.paused });   // save paused state
+        this.timeElapsedInSec += 1; // add one second to timer
+        this.stopTimer();   // stop timer
+        this.resetAllCellColors();  // reset all board colors
 
         // if touch enabled, skip the animation
         if (board.touchEnabled) {
@@ -517,16 +539,13 @@ var board = {
             this.pauseButton[1].animate({ path: 'M 111 15 l 0 20 l 10 -10 z' }, 100, '<>').attr({ 'stroke-width': 2 });
         }
 
-        this.pauseButton[2].attr({ x: 86, 'text': '| Play' });
+        this.pauseButton[2].attr({ x: 86, 'text': '| Play' }); // replace text with play
 
         this.pauseSymbol.show();
         this.pauseSymbol[1].animate({ opacity: .4 }, 200);
 
-        // hide all board cell text elements and show all menu cell text elements
-        $('text[data-board=true]').hide();
-
-        // change cursor for non-pre-populated cells to pointer
-        $('rect[data-prepopulated=false]').css('cursor', 'default');
+        $('text[data-board="true"]').hide();  // hide all board cell text elements and show all menu cell text elements
+        $('rect[data-prepopulated=false]').css('cursor', 'default');    // change cursor for non-pre-populated cells to pointer
     },
 
     /**
@@ -536,10 +555,8 @@ var board = {
     unPauseBoard: function () {
         this.paused = false;
 
-        // save paused state
-        this.pauseButton.data({ 'paused': this.paused });
-
-        this.startTimer();
+        this.pauseButton.data({ 'paused': this.paused });           // save paused state
+        this.startTimer();  // start timer
 
         // if touch enabled, skip the animation
         if (board.touchEnabled) {
@@ -548,17 +565,11 @@ var board = {
             this.pauseButton[1].animate({ path: 'M 127 15 l 0 21 l 5 0 l 0 -21 l -6.1 0 M 138 15 l 0 21 l 5 0 l 0 -21 z' }, 100, '<>').attr({ 'stroke-width': 2 });
         }
 
-        // animate the pause button and replace text
+        this.pauseButton[2].attr({ x: 93, 'text': '| Pause' }); // replace text with pause
+        this.pauseSymbol.animate({ opacity: 0 }, 200, function () { this.hide(); }); // animate the pause button
 
-        this.pauseButton[2].attr({ x: 93, 'text': '| Pause' });
-
-        this.pauseSymbol.animate({ opacity: 0 }, 200, function () { this.hide(); });
-
-        // hide all board cell text elements and show all menu cell text elements
-        $('text[data-board=true]').show();
-
-        // change cursor for all rects to default
-        $('rect[data-prepopulated=false]').css('cursor', 'pointer');
+        $('text[data-board=true]').show(); // hide all board cell text elements and show all menu cell text elements
+        $('rect[data-prepopulated=false]').css('cursor', 'pointer'); // change cursor for all rects to default
     },
 
     /**
@@ -613,10 +624,10 @@ var board = {
         this.cellDeleteButton.attr({ opacity: 0 }).hide();
 
         if ((cell.attr('data-num') != 0 || cell.attr('data-notes') != undefined) && cell.attr('data-prepopulated') == 'false') {
-            var rId = board.getRaphaelIdFromElementId(rectNodeId);
+            var rId = getRaphaelIdFromElementId(rectNodeId);
             var rect = board.paper.getById(rId);
 
-            this.cellDeleteButton.attr({ x: rect.attr('x') + (this.sudukoRectWidth - 7), y: rect.attr('y') + 9 }).data({ 'rectId': rId }).attr({ opacity: .5 }).show();
+            this.cellDeleteButton.attr({ opacity: .5, x: rect.attr('x') + (this.sudukoRectWidth - 7), y: rect.attr('y') + 9 }).data({ 'rectId': rId }).show();
         }
     },
 
@@ -792,35 +803,6 @@ var board = {
     },
 
     /**
-    * Parse an element Id to a Raphael object Id (get row and column combination)
-    * @method
-    * @param {String} elementId
-    */
-    getRaphaelIdFromElementId: function (elementId) {
-        if (elementId != null) {
-            // element Id follows rXcX, parse out row and column via substring
-            var row = parseInt(elementId.substring(1, 2));
-            var col = parseInt(elementId.substring(3, 4));
-
-            // calculate Raphael id by multiplying row * 9 and adding column position
-            return ((row * 9) + col);
-        }
-    },
-
-    /**
-    * Parse a Raphael object Id to an element Id
-    * @method
-    * @param {Number} raphaelId
-    */
-    getElementIdFromRaphaelId: function (raphaelId) {
-        // break out row and column from raphaelId
-        var row = Math.floor(raphaelId / 9);
-        var col = raphaelId % 9;
-
-        return 'r' + row + 'c' + col;
-    },
-
-    /**
     * Resets all highlighted board cells to regular css cell color class via jQuery
     * @method
     */
@@ -845,7 +827,7 @@ var board = {
             // check if have a number to highlight
             if (number > 0) {
                 // set all rect with the specific number to highlighted
-                $('rect[data-num=' + number + ']').attr('class', this.cellHighlightClass);
+                $('rect[data-num=' + number + ']').attr({ class: this.cellHighlightClass });
             }
         }
     },
@@ -860,7 +842,7 @@ var board = {
         var cell = $('rect[id="' + rectNodeId + '"]');
 
         if (!isNaN(number) && number != null && number != undefined) {
-            cell.attr('class', this.cellSelectedClass).attr('data-selected', 'true').attr('data-num', number);
+            cell.attr('class', this.cellSelectedClass).attr({ 'data-selected': 'true', 'data-num': number });
         } else {
             cell.attr('class', this.cellSelectedClass).attr('data-selected', 'true');
         }
@@ -882,10 +864,10 @@ var board = {
             // check if have a number to highlight
             if (number > 0) {
                 // set all rect with the specific number to highlighted
-                $('rect[data-num=' + number + ']').attr('class', this.cellHighlightClass);
+                $('rect[data-num=' + number + ']').addClass(this.cellHighlightClass);
             }
 
-            highlighted.attr('class', this.cellSelectedClass);
+            highlighted.addClass(this.cellSelectedClass);
         }
     },
 
@@ -904,6 +886,11 @@ var board = {
         });
     },
 
+    /**
+    * Removes the data-selected attribute
+    * @method
+    * @param {Text} classToReset
+    */
     removeSelectedHighlight: function () {
         // remove selected attribute from all cells which have it
         $('rect[data-selected=true]').removeAttr('data-selected');
@@ -916,25 +903,28 @@ var board = {
     * @param {Number} number
     * @param {Boolean} prePopulated
     */
-    addCellNumber: function (rect, number, prePopulated) {
-        var cellText = null;
+    addCellNumber: function (rect, number, prePopulated, dummy) {
+        var cellText, textClass, cellClass;
 
         // add text number to cell (different attributes if prepopulated)
         if (prePopulated) {
-            cellText = this.paper.text(rect.attr('x') + (this.sudukoRectWidth / 2), rect.attr('y') + (this.sudukoRectHeight / 2),
-                        number).attr({ 'font-family': 'Consolas', 'font-size': this.fontSize, 'font-weight': this.cellFontWeight, 'font-weight': this.prePopulatedFontWeight,
-                            'cursor': 'default'
-                        }).data({ 'num': number });
+            cellText = this.paper.text(parseInt(rect.attr('x')) + (this.sudukoRectWidth / 2), parseInt(rect.attr('y')) + (this.sudukoRectHeight / 1.45), number)
+                        .data({ 'num': number });
+
+            cellClass = this.cellPrePopulatedClass;
+            textClass = this.textPrePopulatedClass;
         } else {
-            cellText = this.paper.text(rect.attr('x') + (this.sudukoRectWidth / 2), rect.attr('y') + (this.sudukoRectHeight / 2),
-                        number).attr({ 'font-size': this.fontSize, 'font-weight': this.cellFontWeight, 'cursor': 'pointer' }).data({ 'num': number });
+            cellText = this.paper.text(parseInt(rect.attr('x')) + (this.sudukoRectWidth / 2), parseInt(rect.attr('y')) + (this.sudukoRectHeight / 1.45), number)
+                        .data({ 'num': number });
+
+            cellClass = this.cellClass;
+            textClass = this.textCellClass;
         }
 
-        // add cell Id, which is the rect node id + t
-        cellText.node.id = rect.node.id + 't';
-
-        // set position relationship for text to what rectangle it's in, data-board, data-num and if it's pre-populated
-        $('#' + cellText.node.id).attr('data-position', rect.id).attr('data-board', 'true').attr('data-num', number).attr('data-prepopulated', prePopulated);
+        cellText.node.id = rect.attr('id') + 't';   // add cell Id, which is the rect node id + t and the class
+        $('#' + cellText.node.id).attr({ 'class': textClass, 'data-board': 'true' });   // set class and data-board attributes
+        rect.attr({ 'data-board': 'true', 'data-num': number, 'data-prepopulated': prePopulated }); // set rect attributes
+        rect.addClass(cellClass);   // set rect class
     },
 
     /**
@@ -1026,33 +1016,29 @@ var board = {
     */
     removeCellText: function (rect, clearPlayerBoardValue) {
         if (rect != null && rect != undefined) {
-            // purge rect data
-            this.removeCellData(rect, true, clearPlayerBoardValue);
+            if (rect.length > 0) {
 
-            var textEl = $('text[data-position="' + rect.id + '"]');
+                this.removeCellData(rect, true, clearPlayerBoardValue); // purge rect data
 
-            // if the text element exists for the rect, then remove it
-            if (textEl.length > 0) {
-                var numText = parseFloat(textEl.text());
+                var textEl = $('#' + rect.attr('id') + 't')
+                var numText = parseFloat(textEl.text());  // if the text element exists for the rect, then remove it
 
                 if (!isNaN(numText) && numText > -1) {
-                    textEl.remove();
+                    textEl.remove();    // remove text element
                 }
             }
 
-            // remove any notes on cells
-            var jRect = $('#' + rect.node.id);
             var currentNotes = [];
 
             // fill up array of current notes
-            if (jRect.attr('data-notes') != undefined) {
-                currentNotes = jRect.attr('data-notes').split(',');
-            }
+            if (rect.attr('data-notes') != undefined) {
+                currentNotes = rect.attr('data-notes').split(',');
 
-            // remove all notes
-            for (var i = 0; i < currentNotes.length; i++) {
-                var notesEl = $('text[data-position="' + rect.id + '"][data-notesnum="' + currentNotes[i] + '"]');
-                notesEl.remove();
+                // remove all notes
+                for (var i = 0; i < currentNotes.length; i++) {
+                    var notes = rect.find('[data-notesnum="' + currentNotes[i] + '"]');
+                    notesEl.remove();
+                }
             }
         }
     },
@@ -1128,13 +1114,13 @@ var board = {
     removeCellData: function (rect, removeNotes, removePlayerBoardValue) {
         if (rect != null) {
             // remove data from raphael object, html element and sudoku player board
-            rect.data({ 'num': 0 });
-
-            $('rect[id=' + rect.node.id + ']').attr({ 'data-num': 0 });
+            //console.log('before: ' + rect.attr('data-num'));
+            rect.attr({ 'data-num': 0 });
+            console.log('after: ' + rect.attr('data-num'));
 
             // if remove notes
             if (removeNotes) {
-                $('rect[id=' + rect.node.id + ']').removeAttr('data-notes');
+                rect.removeAttr('data-notes');
             }
 
             // if remove the player board value
@@ -1175,16 +1161,17 @@ var board = {
             }
 
             // calculate new cell to highlight
-            var position = this.getRaphaelIdFromElementId(selectedCell.attr('id')) + positionChange;
+            var position = getRaphaelIdFromElementId(selectedCell.attr('id')) + positionChange;
 
             // if we have a valid cell (id between 0 - 80), then highlight new cell
             if (position >= 0 && position < 81) {
                 var rect = this.paper.getById(position);
+                var jRect = $('#' + rect.node.id);
 
                 // reset colors, highlight cell based on data from rect object and highlight selected cell
                 this.resetAllCellColors();
-                this.highlightNumberCells(rect.data('num'));
-                this.highlightSelectedCell(rect.node.id, rect.data('num'));
+                this.highlightNumberCells(jRect.attr('data-num'));
+                this.highlightSelectedCell(rect.node.id, jRect.attr('data-num'));
                 this.showDeleteButton(rect.node.id);
             }
         }
@@ -1196,19 +1183,20 @@ var board = {
     */
     deleteSelectedCell: function (number) {
         // find selected cell and pre populated via jQuery
-        var selectedCell = $('#' + this.canvasId).find('.' + this.cellSelectedClass);
+        var selectedCell = $('.' + this.cellSelectedClass);
 
         if (selectedCell.length > 0) {
             // from element id, get raphael object Id
-            var rect = this.paper.getById(this.getRaphaelIdFromElementId(selectedCell.attr('id')));
+            var rect = this.paper.getById(getRaphaelIdFromElementId(selectedCell.attr('id')));
 
             if (rect != null) {
-                if (!this.isPrePopulated(rect)) {
+                if (!this.isPrePopulated(selectedCell)) {
                     if (this.notesMode) {
-                        this.removeCellNote(rect, number);
+                        this.removeCellText(selectedCell, false);
+                        this.cellDeleteButton.attr({ opacity: 0 }).hide();
                     } else {
-                        this.removeCellText(rect, true);
-                        selectedCell.attr({ 'data-num': 0 });
+                        this.removeCellText(selectedCell, true);
+                        this.cellDeleteButton.attr({ opacity: 0 }).hide();
 
                         this.checkSelectors(sudoku.playerBoard, true);
                     }
@@ -1237,11 +1225,11 @@ var board = {
     * @param {Number} number
     */
     addNumberToSelectedCell: function (number) {
-        var selectedCell = $('#' + this.canvasId).find('.' + this.cellSelectedClass);
-        var rect = this.paper.getById(this.getRaphaelIdFromElementId(selectedCell.attr('id')));
+        var selectedCell = $('.' + this.cellSelectedClass);
+        var rect = this.paper.getById(getRaphaelIdFromElementId(selectedCell.attr('id')));
 
         // if we have a jquery object representing the cell, then grab info from it and add number
-        if (selectedCell.length > 0 && rect != null && rect != undefined) {
+        if (selectedCell.length > 0 && selectedCell.data('prepopulated') == false && rect != null && rect != undefined) {
             // if notes are enabled, just add the note text
             if (board.notesMode) {
                 this.removeCellNumber(rect);
@@ -1252,7 +1240,7 @@ var board = {
                 var numberUsage = this.checkNumberUsage(number, sudoku.playerBoard);
 
                 if (numberUsage < 9) {
-                    if (!this.isPrePopulated(rect) && rect.data('num') != number) {
+                    if (!this.isPrePopulated(selectedCell) && rect.data('num') != number) {
                         var isCorrect = true;
 
                         // instant feeback feature alerts user to incorrect number entry to a cell
@@ -1274,8 +1262,8 @@ var board = {
 
                         // if it's correct
                         if (isCorrect) {
-                            this.removeCellText(rect, true);  // remove text from cell
-                            this.addCellNumber(rect, number, false);    // add new text to cell
+                            this.removeCellText(selectedCell, true);  // remove text from cell
+                            this.addCellNumber($('#' + rect.node.id), number, false);    // add new text to cell
 
                             // attach number attribute to rect, rect el and player board
                             $('#' + rect.node.id).attr('data-num', number).removeAttr('data-notes');
@@ -1304,7 +1292,7 @@ var board = {
                             setTimeout(function () { selectedCell.attr('class', board.cellIncorrectClass); }, 200, selectedCell);
                             setTimeout(function () { selectedCell.attr('class', board.cellSelectedClass); }, 300, selectedCell);
 
-                            if (this.penalize) {
+                            if (this.penalize && this.timerEnabled) {
                                 this.showPenaltyText(rect);
                                 this.timeElapsedInSec += 5; // penalize 5 seconds
                             }
@@ -1322,35 +1310,20 @@ var board = {
     */
     populate: function (numberArray) {
         // loop through array
-        for (var i = 0; i < 9; i++) {
-            for (var j = 0; j < 9; j++) {
-                position = (i * 9) + j;
+        for (var r = 0; r < 9; r++) {
+            for (var c = 0; c < 9; c++) {
+                var rect = $('#r' + r + 'c' + c);
 
-                // get rectangle by raphael id
-                var rect = this.paper.getById(position);
-
-                if (rect != null) {
-                    // make sure it's not empty (0) and under 10
-                    if (numberArray[i][j] > 0 && numberArray[i][j] < 10) {
-                        // add data of what number it contains to element
-                        rect.data({ 'num': numberArray[i][j], 'prePopulated': true });
-                        rect.attr({ 'cursor': 'default' });
-
-                        // set pre populated class, data-num and data-prepopulated attributes on rect.node
-                        $('#' + rect.node.id).attr('class', this.cellPrePopulatedClass).attr('data-num', numberArray[i][j])
-                            .attr('data-prepopulated', 'true').removeAttr('data-notes');
-
-                        // add the cell text to the rect
-                        this.addCellNumber(rect, numberArray[i][j], true);
-
-                    } else if (numberArray[i][j] == 0) {
-                        // add data of what number it contains to element
-                        rect.data({ 'num': 0, 'prePopulated': false });
-
-                        // set pre populated class, data-num and data-prepopulated attributes on rect.node
-                        $('#' + rect.node.id).attr('class', this.cellClass).attr('data-num', 0).attr('data-prepopulated', 'false').removeAttr('data-notes');
-                    }
+                // make sure it's not empty (0) and under 10
+                if (numberArray[r][c] > 0 && numberArray[r][c] < 10) {
+                    // set pre populated class, data-num and data-prepopulated attributes on rect.node
+                    this.addCellNumber(rect, numberArray[r][c], true, 1);
+                } else if (numberArray[r][c] == 0) {
+                    // set regular cell class, data-num and data-prepopulated attributes on rect.node
+                    rect.addClass(this.cellClass).attr({ 'data-num': 0, 'data-prepopulated': 'false' });
                 }
+
+                rect.removeAttr('data-notes');
             }
         }
     },
@@ -1362,33 +1335,23 @@ var board = {
     */
     populateWithPlayerBoard: function (numberArray) {
         // loop through array
-        for (var i = 0; i < 9; i++) {
-            for (var j = 0; j < 9; j++) {
-                position = (i * 9) + j;
+        for (var r = 0; r < 9; r++) {
+            for (var c = 0; c < 9; c++) {
+                var rect = $('#r' + r + 'c' + c);
 
-                // get rectangle by raphael id
-                var rect = this.paper.getById(position);
+                // make sure it's not empty (0) and under 10
+                if (!this.isPrePopulated(rect)) {
+                    if (numberArray[r][c] > 0 && numberArray[r][c] < 10) {
+                        rect.attr({ 'data-num': numberArray[r][c], 'data-prepopulated': false });   // add data of what number it contains to element
+                        this.addCellNumber(rect, numberArray[r][c], false);    // add the cell text to the rect
+                    } else {
+                        var rectNotes = $.grep(sudoku.notes, function (note) { return note.rect == position; });
 
-                if (rect != null) {
-                    // make sure it's not empty (0) and under 10
-                    if (!this.isPrePopulated(rect)) {
-                        if (numberArray[i][j] > 0 && numberArray[i][j] < 10) {
+                        if (rectNotes.length == 1) {
+                            var notes = rectNotes[0].notes.trim().split(',');
 
-                            // add data of what number it contains to element
-                            $('#' + rect.node.id).attr('data-num', numberArray[i][j]).attr('data-prepopulated', false).attr('cursor', 'pointer');
-                            rect.data({ 'num': numberArray[i][j], 'prePopulated': false });
-
-                            // add the cell text to the rect
-                            this.addCellNumber(rect, numberArray[i][j], false);
-                        } else {
-                            var rectNotes = $.grep(sudoku.notes, function (note) { return note.rect == position; });
-
-                            if (rectNotes.length == 1) {
-                                var notes = rectNotes[0].notes.trim().split(',');
-
-                                for (var n = 0; n < notes.length; n++) {
-                                    this.addCellNote(rect, notes[n]);
-                                }
+                            for (var n = 0; n < notes.length; n++) {
+                                this.addCellNote(rect, notes[n]);
                             }
                         }
                     }
@@ -1403,21 +1366,12 @@ var board = {
     */
     clearBoard: function () {
         // loop through array
-        for (var i = 0; i < 9; i++) {
-            for (var j = 0; j < 9; j++) {
-                var position = (i * 9) + j;
+        for (var r = 0; r < 9; r++) {
+            for (var c = 0; c < 9; c++) {
+                var rect = $('#r' + r + 'c' + c);
 
-                // get rectangle by raphael id
-                var rect = this.paper.getById(position);
-
-                if (rect != null) {
-                    // remove cell text
-                    this.removeCellText(rect, false);
-
-                    // remove data from rect el and node of rect
-                    rect.data({ 'num': 0, 'prePopulated': false });
-                    $('#' + rect.node.id).attr('class', this.cellClass).attr({ 'data-num': 0, 'data-prepopulated': 'false' }).removeAttr('data-notes', '');
-                }
+                this.removeCellText(rect, false);   // remove cell text
+                rect.addClass(this.cellClass).attr({ 'data-num': 0, 'data-prepopulated': 'false' }).removeAttr('data-notes', '');   // remove data from rect el and node of rect
             }
         }
     }

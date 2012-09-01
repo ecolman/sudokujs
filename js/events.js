@@ -7,8 +7,9 @@ var eventsToBindTo = 'contentMenu' + ($('html.touch').length > 0 ? ' touchstart'
 * Custom Event to populate board, start timer and show board
 * @event
 */
-$('body').bind('loadBoard', function (event, loadType)
-{
+$('body').bind('loadBoard', function (event, loadType) {
+    var startTime = new Date().getTime();
+
     switch (loadType) {
         case boardLoadType.fresh:
             board.clearBoard(true); // clear board
@@ -43,6 +44,9 @@ $('body').bind('loadBoard', function (event, loadType)
         menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
         menu.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
     }
+
+    var endtime = (new Date()).getTime();
+    //console.log('finished board load: ' + ((endtime - startTime) / 1000) + ' sec(s)');
 });
 
 /**

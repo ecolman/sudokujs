@@ -90,8 +90,12 @@ a:hover {
 .sudokuCell {
     fill: #E0F8E0;
     background-color: #E0F8E0;
-    font-weight: lighter;
-    cursor: pointer;
+}
+
+.sudokuText {
+    font-size: 40px !important;
+    font-weight: bolder !important;
+    cursor: pointer !important;
 }
 
 .highlightCell {
@@ -112,6 +116,14 @@ a:hover {
 .prePopulatedCell {
     fill: #E0F8E0;
     background-color: #E0F8E0;
+    cursor: default;
+}
+
+.prePopulatedText {
+    font-family: 'Consolas' !important;
+    font-weight: lighter !important;
+    font-size: 40px !important;
+    cursor: default !important;
 }
 
 /* TIMER CLASSES */

@@ -168,7 +168,7 @@ var menu = {
         penalizeOptionText.id = 1104;
         penalizeOptionText.node.setAttribute('class', this.optionClass);
 
-        var penalizeOptionSubText = this.paper.text(200, 360, '(when instant feedback enabled)').attr({ 'font-size': 15 + 'px !important' });
+        var penalizeOptionSubText = this.paper.text(200, 360, '(when instant feedback enabled)').attr({ 'font-size': '15px' });
         penalizeOptionSubText.id = 1105;
         penalizeOptionSubText.node.setAttribute('class', this.subOptionClass);
 

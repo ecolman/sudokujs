@@ -345,8 +345,8 @@ var sudoku = {
             }
 
             // stop time
-//            var endtime = (new Date()).getTime();
-//            console.log('took ' + tryCount + ' tries(s) and ' + ((endtime - this.startTime) / 1000) + ' sec(s) to generate board.');
+            var endtime = (new Date()).getTime();
+            //console.log('culled ' + numCellsToRemove + ' cells, took ' + tryCount + ' tries(s) and ' + ((endtime - this.startTime) / 1000) + ' sec(s) to generate board.');
 
             $('body').trigger('loadBoard', boardLoadType.fresh); // trigger event that a new board has been created
         }
