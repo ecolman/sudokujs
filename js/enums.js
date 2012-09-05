@@ -9,7 +9,7 @@ var sudokuUniqueResult = { unique: 'unique', notUnique: 'not unique', noSolution
 
 // menu enums
 var gameView = { menu: 'menu', board: 'board', options: 'options' };
-var menuOptionType = { easy: 'easy', medium: 'medium', hard: 'hard', expert: 'expert', loadGame: 'loadGame', resumeGame: 'resumeGame', optionsMenu: 'optionsMenu' };
+var menuOptionType = { easy: 'easy', medium: 'medium', hard: 'hard', expert: 'expert', load: 'load', resume: 'resume', options: 'options' };
 var optionType = { timer: 'timer', highlight: 'highlight', feedback: 'feedback', penalize: 'penalize', notesMode: 'notesMode' };
 var boardLoadType = { fresh: 'fresh', resume: 'resume', load: 'load' };
 var boardDifficulty = { easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert' };

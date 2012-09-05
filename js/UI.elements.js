@@ -6,16 +6,16 @@
 * @param {Boolean} checked
 * @param {optionType} type
 */
-function createCheckSet(xPos, yPos, checked, type, sizeModifier, clickEvent) {
+function createCheckSet(xPos, yPos, type, sizeModifier, clickEvent) {
     var checkSet = board.paper.set();
     var sizeModifier;
 
     // create box and tick based on x/y position
-    var box = board.paper.rect(xPos, yPos, 28, 28, 5).attr({ 'fill': '#fff', 'stroke': '#000', 'stroke-width': '2' }).data({ 'checked': checked, 'type': type });
+    var box = board.paper.rect(xPos, yPos, 28, 28, 5).attr({ 'fill': '#fff', 'stroke': '#000', 'stroke-width': '2' });
     var tick = board.paper.path('M 197.67968,534.31563 C 197.40468,534.31208 196.21788,532.53719 195.04234,530.37143 L 192.905,526.43368 L 193.45901,525.87968 C 193.76371,525.57497 ' +
                                 '194.58269,525.32567 195.27896,525.32567 L 196.5449,525.32567 L 197.18129,527.33076 L 197.81768,529.33584 L 202.88215,523.79451 C 205.66761,520.74678 ' +
                                 '208.88522,517.75085 210.03239,517.13691 L 212.11815,516.02064 L 207.90871,520.80282 C 205.59351,523.43302 202.45735,527.55085 200.93947,529.95355 C ' +
-                                '199.42159,532.35625 197.95468,534.31919 197.67968,534.31563 z').attr({ 'fill': '#000' }).data({ 'checked': checked, 'type': type });
+                                '199.42159,532.35625 197.95468,534.31919 197.67968,534.31563 z').attr({ 'fill': '#000' });
 
     if (sizeModifier != null && sizeModifier > 0) {
         box.transform('s' + sizeModifier);
@@ -24,17 +24,16 @@ function createCheckSet(xPos, yPos, checked, type, sizeModifier, clickEvent) {
         tick.transform('t' + (xPos - 182) + ', ' + (-345 + (yPos - 170)) + ', s' + 1.5);
     }
 
+    box.node.id = type + 'C';
+    tick.node.id = type + 'T';
+
     // push it to the set
     checkSet.push(box, tick);
 
     // hide set and set attributes/data
-    checkSet.attr({ opacity: 0, 'cursor': 'pointer' }).hide();
-    $(box.node).attr({ 'data-checked': checked, 'data-type': type });
-    $(tick.node).attr({ 'data-checked': checked, 'data-type': type })
-
-    if (!checked) {
-        tick.attr({ opacity: 1 }).hide();
-    }
+    checkSet.attr({ opacity: 0, 'cursor': 'pointer' });
+    $('#' + box.node.id).attr({ 'data-checked': false, 'data-type': type });
+    $('#' + tick.node.id).attr({ 'data-checked': false, 'data-type': type })
 
     // check type of obj passed in, then add either touch or click event to checkSet
     if (typeof (clickEvent) == 'function' || typeof (clickEvent) == 'undefined') {
@@ -61,7 +60,7 @@ function checkboxHit(event) {
 
     // change over to text's stored raphael object Id
     if (target[0].nodeName == 'text') {
-        target = $('#' + board.paper.getById($(event.currentTarget).data('checkRId')).node.id);
+        target = $('#' + board.paper.getById($(event.currentTarget).attr('data-checkRId')).node.id);
     }
 
     // depending on the type, set the check and box objects
@@ -79,11 +78,11 @@ function checkboxHit(event) {
             break;
     }
 
-    var checkState = !target.data('checked');
+    var checkState = !(check.data('checked'));
 
     // set the checked state data
-    $(check).attr({ 'data-checked': checkState }).data('checked', checkState);
-    $(box).attr({ 'data-checked': checkState }).data('checked', checkState);
+    check.attr({ 'data-checked': checkState });
+    box.attr({ 'data-checked': checkState });
 
     // if it's true checkState, show check, otherwise hide check
     if (checkState) {

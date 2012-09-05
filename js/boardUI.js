@@ -1,16 +1,15 @@
-﻿/*global board, alert, jQuery, $, document, window, event */
-
-/**
+﻿/**
 * Board UI controlling most aspects of what the user sees
 **/
 
 var board = {
     initialized: false,
     paper: null,
-    canvasId: null,
-    offset: null,
-    visible: false,
-    touchEnabled: $('html.touch').length > 0,
+
+    timerInterval: null,    // holder for timer interval delegate
+    timeElapsedInSec: 0,    // board time holder
+
+    /* Control Holders */
     gridLines: null,
     numSelectors: null,
     menuCells: null,
@@ -22,8 +21,8 @@ var board = {
     difficultyText: null,
     instructionsText: null,
     timer: null,
-    timerInterval: null,
-    timeElapsedInSec: 0,
+
+    /* CSS Classes */
     cellClass: 'sudokuCell',
     textCellClass: 'sudokuText',
     cellHighlightClass: 'highlightCell',
@@ -31,19 +30,20 @@ var board = {
     cellIncorrectClass: 'incorrectCell',
     cellPrePopulatedClass: 'prePopulatedCell',
     textPrePopulatedClass: 'prePopulatedText',
+    noteClass: 'note',
     selectorClass: 'numSelector',
     selectorClassText: 'numSelectorText',
-    menuTextClass: 'menuCellText',
-    fontSize: '40px',
-    notesFontSize: '15px',
-    prePopulatedFontWeight: 'light',
-    cellFontWeight: 'bold',
+
+    /* Rect/Selector Dimensions & Gridlines width */
     sudukoRectWidth: 60,
     sudukoRectHeight: 50,
     selectorWidth: 45,
     selectorHeight: 45,
-    boardY: 50,
     strokeWidth: 4,
+
+    /* State Holders */
+    visible: false,
+    touchEnabled: $('html.touch').length > 0,   // using modernizer to check for existance of touch class
     notesMode: false,
     paused: false,
     timerEnabled: true,
@@ -54,21 +54,12 @@ var board = {
     /**
     * Initialize the raphael JS paper object and calls board creation methods
     * @method
-    * @param {String} canvasId
+    * @param {Raphael} raphael paper object
     */
     initialize: function (paper) {
-        // create paper and store offset
-        this.paper = paper;
-
-        this.offset = $(this.paper.canvas).offset();
-
-        // set canvasId for object
-        this.canvasId = paper.canvas.parentNode.id;
-
-        // create sections of UI
-        this.createBoard();
-
-        this.initialized = true;
+        this.paper = paper; // set paper
+        this.createBoard(); // create sections of UI
+        this.initialized = true;    // set initialized
     },
 
     /**
@@ -80,18 +71,16 @@ var board = {
             // create suduko board rects then set id and class
             for (var r = 0; r < 9; r++) {
                 for (var c = 0; c < 9; c++) {
-                    var rect = this.paper.rect(this.sudukoRectWidth * c + 3, this.sudukoRectHeight * r + this.boardY, this.sudukoRectWidth, this.sudukoRectHeight)
+                    var rect = this.paper.rect(this.sudukoRectWidth * c + 3, this.sudukoRectHeight * r + this.sudukoRectHeight, this.sudukoRectWidth, this.sudukoRectHeight)
                                 .attr({ 'stroke-width': .3, opacity: 1 });
-                    rect.id = (r * 9) + c;
-                    rect.node.id = 'r' + r + 'c' + c;
-                    $('#' + rect.node.id).attr({ 'class': this.cellClass, 'data-board': 'true' })
+                    rect.id = (r * 9) + c;  // set raphael id
+                    rect.node.id = 'r' + r + 'c' + c;   // set node id
+                    $('#' + rect.node.id).attr({ 'class': this.cellClass, 'data-board': 'true' });  // set class and data-board attribute
                 }
             }
 
-            // creates grid lines, selectors, timer, back button and menu sudoku cell text
-            this.createGridLines();
-            this.createSelectors();
-            this.createMenuCellText();
+            this.createGridLines(); // creates grid lines
+            this.createSelectors(); // create selectors
 
             // create secondary board elements 
             this.createTimer(false);
@@ -113,21 +102,21 @@ var board = {
         this.gridLines = this.paper.set();
 
         // outline line
-        this.gridLines.push(this.paper.path('M1,' + this.boardY + 'L' + ((this.sudukoRectWidth * 9) + 5) + ',' + this.boardY).attr({ opacity: 0, 'stroke-width': this.strokeWidth }).toFront()); // top lattitude
-        this.gridLines.push(this.paper.path('M1,' + (this.sudukoRectHeight * 9 + this.boardY) + 'L' + ((this.sudukoRectWidth * 9) + 6) + ',' + (this.sudukoRectHeight * 9 + this.boardY))
+        this.gridLines.push(this.paper.path('M1,' + this.sudukoRectHeight + 'L' + ((this.sudukoRectWidth * 9) + 5) + ',' + this.sudukoRectHeight).attr({ opacity: 0, 'stroke-width': this.strokeWidth }).toFront()); // top lattitude
+        this.gridLines.push(this.paper.path('M1,' + (this.sudukoRectHeight * 9 + this.sudukoRectHeight) + 'L' + ((this.sudukoRectWidth * 9) + 6) + ',' + (this.sudukoRectHeight * 9 + this.sudukoRectHeight))
                             .attr({ opacity: 0.1, 'stroke-width': this.strokeWidth }).toFront()); // bottom lattitude
-        this.gridLines.push(this.paper.path('M' + ((this.sudukoRectWidth * 9) + 3) + ',' + (this.boardY - 2) + 'L' + ((this.sudukoRectWidth * 9) + 3) + ',' + (this.sudukoRectHeight * 9 + this.boardY + 2))
+        this.gridLines.push(this.paper.path('M' + ((this.sudukoRectWidth * 9) + 3) + ',' + (this.sudukoRectHeight - 2) + 'L' + ((this.sudukoRectWidth * 9) + 3) + ',' + (this.sudukoRectHeight * 9 + this.sudukoRectHeight + 2))
                             .attr({ opacity: 0.1, 'stroke-width': this.strokeWidth })); // right lattitude
-        this.gridLines.push(this.paper.path('M3,' + (this.boardY - 2) + 'L3,' + ((this.sudukoRectHeight * 9) + 1 + (this.boardY + 1))).attr({ opacity: 0, 'stroke-width': this.strokeWidth })); // left lattitude
+        this.gridLines.push(this.paper.path('M3,' + (this.sudukoRectHeight - 2) + 'L3,' + ((this.sudukoRectHeight * 9) + 1 + (this.sudukoRectHeight + 1))).attr({ opacity: 0, 'stroke-width': this.strokeWidth })); // left lattitude
 
         // interior lines
-        this.gridLines.push(this.paper.path('M1,' + (this.sudukoRectHeight * 3 + this.boardY) + 'L' + ((this.sudukoRectWidth * 9) + 5) + ',' + (this.sudukoRectHeight * 3 + this.boardY))
+        this.gridLines.push(this.paper.path('M1,' + (this.sudukoRectHeight * 3 + this.sudukoRectHeight) + 'L' + ((this.sudukoRectWidth * 9) + 5) + ',' + (this.sudukoRectHeight * 3 + this.sudukoRectHeight))
                         .attr({ opacity: 0.1, 'stroke-width': this.strokeWidth }));
-        this.gridLines.push(this.paper.path('M1,' + (this.sudukoRectHeight * 6 + this.boardY) + 'L' + ((this.sudukoRectWidth * 9) + 5) + ',' + (this.sudukoRectHeight * 6 + this.boardY))
+        this.gridLines.push(this.paper.path('M1,' + (this.sudukoRectHeight * 6 + this.sudukoRectHeight) + 'L' + ((this.sudukoRectWidth * 9) + 5) + ',' + (this.sudukoRectHeight * 6 + this.sudukoRectHeight))
                         .attr({ opacity: 0.1, 'stroke-width': this.strokeWidth }));
-        this.gridLines.push(this.paper.path('M' + ((this.sudukoRectWidth * 3) + 3) + ',' + (this.boardY - 2) + 'L' + ((this.sudukoRectWidth * 3) + 3) + ',' + (this.sudukoRectHeight * 9 + this.boardY + 2))
+        this.gridLines.push(this.paper.path('M' + ((this.sudukoRectWidth * 3) + 3) + ',' + (this.sudukoRectHeight - 2) + 'L' + ((this.sudukoRectWidth * 3) + 3) + ',' + (this.sudukoRectHeight * 9 + this.sudukoRectHeight + 2))
                         .attr({ opacity: 0.1, 'stroke-width': this.strokeWidth }));
-        this.gridLines.push(this.paper.path('M' + ((this.sudukoRectWidth * 6) + 3) + ',' + (this.boardY - 2) + 'L' + ((this.sudukoRectWidth * 6) + 3) + ',' + (this.sudukoRectHeight * 9 + this.boardY + 2))
+        this.gridLines.push(this.paper.path('M' + ((this.sudukoRectWidth * 6) + 3) + ',' + (this.sudukoRectHeight - 2) + 'L' + ((this.sudukoRectWidth * 6) + 3) + ',' + (this.sudukoRectHeight * 9 + this.sudukoRectHeight + 2))
                         .attr({ opacity: 0.1, 'stroke-width': this.strokeWidth }));
     },
 
@@ -142,58 +131,38 @@ var board = {
 
             // create selector sets
             for (var i = 0; i < 9; i++) {
-                var rect = this.paper.rect((i * this.sudukoRectWidth) + 10, ((this.sudukoRectHeight * 9) + (this.selectorHeight / 2.5) + this.boardY), this.selectorWidth, this.selectorHeight)
-                            .attr({ opacity: 0 }).data({ 'num': i + 1, 'enabled': true });
-                rect.node.setAttribute('class', this.selectorClass);
+                // create rect
+                var rect = this.paper.rect((i * this.sudukoRectWidth) + 10, ((this.sudukoRectHeight * 9) + (this.selectorHeight / 2.5) + this.sudukoRectHeight), this.selectorWidth, this.selectorHeight)
+                            .attr({ opacity: 0 });
 
-                var text = this.paper.text(((i * this.sudukoRectWidth) + (this.sudukoRectWidth / 2)) + 3,
-                            ((this.sudukoRectHeight * 9) + (this.sudukoRectHeight / 2) + (this.selectorHeight / 2) + this.boardY - 6), i + 1)
-                            .attr({ opacity: 0, 'font-size': this.fontSize }).data({ 'num': i + 1 });
-                text.node.setAttribute('class', this.selectorClassText);
+                rect.node.id = 'selector' + i;  // set node id
+                // set class, num and enabled
+                $('#' + rect.node.id).attr({ 'class': this.selectorClass, 'data-num': i + 1, 'data-selector': true, 'data-enabled': true, 'data-board': true, 'data-auto-attach-events': false });
 
-                // push to the sets
-                this.numSelectors.push(this.paper.set().push(rect, text).attr({ cursor: 'pointer' }));
+                // create text
+                var text = this.paper.text(((i * this.sudukoRectWidth) + (this.sudukoRectWidth / 2) + 3), ((this.sudukoRectHeight * 9) + this.sudukoRectHeight + this.sudukoRectHeight), i + 1)
+                            .attr({ opacity: 0 });
+
+                text.node.id = 'selector' + i + 't';  // set node id
+                $('#' + text.node.id).attr({ 'class': this.selectorClassText, 'data-num': i + 1, 'data-selector': true, 'data-board': true, 'data-auto-attach-events': false });    // set class of rect
+
+                this.numSelectors.push(this.paper.set().push(rect, text));  // push to the sets
 
                 // attach touch / click event (depending on if it's enabled) to selector
                 if (this.touchEnabled) {
                     this.numSelectors[i].touchstart(function () {
-                        board.addNumberToSelectedCell(this.data('num'));
+                        board.addNumberToSelectedCell($('#' + this.node.id).attr('data-num'));
                     });
                 } else {
                     this.numSelectors[i].click(function () {
-                        board.addNumberToSelectedCell(this.data('num'));
+                        board.addNumberToSelectedCell($('#' + this.node.id).attr('data-num'));
                     });
                 }
             }
-
-            this.numSelectors.hide();
         }
     },
 
-    /**
-    * Creates all text elements for the menu board
-    * @method
-    */
-    createMenuCellText: function () {
-        if (this.paper !== null) {
-            this.menuCells = this.paper.set();
 
-            // create selector sets
-            for (var i = 0; i < sudoku.menuCellsToShow.length; i++) {
-                var rect = this.paper.getById(sudoku.menuCellsToShow[i]);
-
-                if (rect != null && rect != undefined) {
-                    var cellText = this.paper.text(rect.attr('x') + (this.sudukoRectWidth / 2), rect.attr('y') + (this.sudukoRectHeight / 2),
-                                sudoku.menuCellsValues[i]).attr({ 'font-size': this.fontSize }).data({ 'menuCell': true });
-
-                    // add cell Id, give the node a class and a data-menu attribute
-                    cellText.node.id = 'menuCell' + i;
-                    cellText.node.setAttribute('class', this.menuTextClass);
-                    cellText.node.setAttribute('data-menu', 'true');
-                }
-            }
-        }
-    },
 
     /**
     * Creates the timer text reference and sets off interval to update timer
@@ -202,7 +171,7 @@ var board = {
     createTimer: function () {
         if (this.timer == null || this.timer == undefined) {
             // set global timer reference
-            this.timer = this.paper.text(480, this.boardY / 1.75, '00:00').attr({ 'opacity': 0, 'font-size': '30px' }).data({ 'time': '0' });
+            this.timer = this.paper.text(480, this.sudukoRectHeight / 1.75, '00:00').attr({ 'opacity': 0, 'font-size': '30px' }).data({ 'time': '0' });
             this.timer.node.id = 'timer';
         }
     },
@@ -224,7 +193,7 @@ var board = {
         button.id = 5002;
         button.node.id = 'backButton';
 
-        var text = this.paper.text(39, this.boardY / 2, 'Menu ');
+        var text = this.paper.text(39, this.sudukoRectHeight / 2, 'Menu ');
         text.id = 5003;
         text.node.id = 'backButtonText';
 
@@ -232,18 +201,17 @@ var board = {
         this.backButton.push(clickRegion, button, text);
 
         // hide se tand set cursor attribute
-        this.backButton.hide();
         this.backButton.attr({ opacity: 0, 'cursor': 'pointer' });
 
         // attach mousedown handler
         this.backButton.mousedown(function () {
             // check if game was paused, and subtract one second if going to menu from pause
+            menu.homeView(sudoku.isGameInProgress());
+
             if (board.paused) {
                 board.timeElapsedInSec -= 1;
-                board.unPauseBoard();
+                board.pauseSymbol.animate({ opacity: 0 }, 200); // animate the pause button
             }
-
-            menu.homeView(sudoku.isGameInProgress());
         });
     },
 
@@ -258,36 +226,43 @@ var board = {
         var clickRegion = this.paper.rect(65, 10, 80, 30).attr({ fill: "#fff", stroke: '#fff', opacity: 0 });
         clickRegion.id = 5004;
         clickRegion.node.id = 'pauseClickRegion';
-        $('#' + clickRegion.node.id).attr('class', 'clickableRegion');
+        $('#' + clickRegion.node.id).attr({ class: 'clickableRegion', 'data-board': true });
 
         var button = this.paper.path("M 127 15 l 0 21 l 5 0 l 0 -21 l -6.1 0 M 138 15 l 0 21 l 5 0 l 0 -21 z").attr({ opacity: .7, fill: '#000', stroke: '#000', 'stroke-width': 2 });
         button.id = 5005;
 
-        var text = this.paper.text(93, this.boardY / 2, '| Pause').attr({ 'font-size': '17px' });
+        var text = this.paper.text(93, this.sudukoRectHeight / 2, '| Pause').attr({ 'font-size': '17px' });
         text.id = 5006;
         text.node.id = 'pauseButtonText';
+        $('#' + text.node.id).attr({ class: 'clickableRegion', 'data-board': true });
 
         // add elements to set
         this.pauseButton.push(clickRegion, button, text);
 
         // hide set and set cursor attribute
         this.pauseButton.hide();
-        this.pauseButton.attr({ opacity: 0, 'cursor': 'pointer' });
+        this.pauseButton.attr({ opacity: 0 });
 
         // give it data to denote if it's paused
         this.pauseButton.data({ 'paused': this.paused });
 
-        // attach button handler
-        this.pauseButton.mousedown(function () {
-            // get paused state
-            var paused = this.data('paused');
+        // attach text click selector to the pause events
+        if (board.touchEnabled) {
+            this.pauseButton.touchstart(function () {
+                // if paused, then unpause board, if not paused, pause board
+                if (board.paused) { board.unPauseBoard(); }
+                else { board.pauseBoard(); }
+            });
+        } else {
+            this.pauseButton.mousedown(function () {
+                // if paused, then unpause board, if not paused, pause board
+                if (board.paused) { board.unPauseBoard(); }
+                else { board.pauseBoard(); }
+            });
+        }
 
-            if (paused) {
-                board.unPauseBoard();
-            } else {
-                board.pauseBoard();
-            }
-        });
+        // attach button handler
+
     },
 
     /**
@@ -306,41 +281,42 @@ var board = {
         var symbol = this.paper.path("M 230 207 l 0 135 l 30 0 l 0 -135 l -30 0 M 280 207 l 0 135 l 30 0 l 0 -135 z").attr({ fill: '#000', stroke: '#000', opacity: .4 });
         symbol.id = 5008
 
-        // add elements to set
-        this.pauseSymbol.push(clickRegion, symbol);
+        // add elements to set, set attributes and then hide
+        this.pauseSymbol.push(clickRegion, symbol).attr({ opacity: 0, 'cursor': 'pointer' });
 
-        // hide set and set cursor attribute
-        this.pauseSymbol.hide();
-        this.pauseSymbol.attr({ opacity: 0, 'cursor': 'pointer' });
-
-        // attach button handler
-        this.pauseSymbol.mousedown(function () {
-            board.unPauseBoard();
-        });
+        // attach text click selector to the pause events
+        if (board.touchEnabled) {
+            this.pauseSymbol.touchstart(function () { board.unPauseBoard(); });
+        } else {
+            this.pauseSymbol.click(function () { board.unPauseBoard(); });
+        }
     },
 
     /**
-    * Creates the pause symbol element and attaches mousedown event to transition from pause to board
+    * Creates the enable notes mode checkbox
     * @method
     */
     createNoteSelector: function () {
         if (this.paper !== null) {
             this.noteSelector = this.paper.set();
 
-            var check = createCheckSet(510, 585, false, optionType.notesMode, .85, function (event) {
+            var check = createCheckSet(510, 585, optionType.notesMode, .85, function (event) {
                 var target = $(event.currentTarget);
+
                 board.notesMode = target.data('checked');
             });
 
-            check[0].node.id = 'noteCheck';
-            check[1].attr({ fill: 'red', stroke: 'red' });
+            check[0].node.id = 'noteCheckBox'; // box
+            check[1].node.id = 'noteCheckTick'; // tick
+
+            $('#' + check[0].node.id).attr({ 'data-board': true, 'data-form': true, 'data-auto-attach-events': false })
+            $('#' + check[1].node.id).attr({ fill: 'red', stroke: 'red', 'data-board': true, 'data-form': true, 'data-auto-attach-events': false }).hide();
 
             // create text element
-            var text = this.paper.text(460, 600, 'Notes Mode').attr({ 'fill': 'blue', opacity: 0,
-                'font-size': '17px', 'font-weight': 'bold', 'cursor': 'pointer'
-            }).data({ 'notes': false });
+            var text = this.paper.text(460, 600, 'Notes Mode').attr({ fill: 'blue', opacity: 0, 'font-size': '17px', 'font-weight': 'bold', cursor: 'pointer' });
 
-            $(text.node).data('checkRId', check[0].id).data('notes', false);  // add notes data to text
+            text.node.id = 'noteCheckText';
+            $('#' + text.node.id).attr({ 'data-checkRId': check[0].id, 'data-board': true, 'data-form': true, 'data-notes': false, 'data-auto-attach-events': false });  // add notes data to text
 
             // attach text click selector to the noteSelectors events
             if (board.touchEnabled) {
@@ -349,7 +325,7 @@ var board = {
                 text.click(function (e) { board.noteSelector[0][0].events[0].f(e); });
             }
 
-            this.noteSelector.push(check).push(text);
+            this.noteSelector.push(check, text);
         }
     },
 
@@ -361,7 +337,7 @@ var board = {
         // the X in the top right corner or a user populated cell
         this.cellDeleteButton = this.paper.text(5, 5, 'X').attr({ fill: 'red', stroke: 'red', 'font-size': '12px', 'font-weight': 'bold', 'cursor': 'pointer' }).hide();
         this.cellDeleteButton.node.id = 'cellDeleteButton';
-        $('#' + this.cellDeleteButton.node.id).attr({ 'data-board': 'true', 'data-auto-attach-events': 'false' })
+        $('#' + this.cellDeleteButton.node.id).attr({ 'data-auto-attach-events': 'false' })
 
         // attach touch / click event (depending on if it's enabled) to selector
         if (this.touchEnabled) {
@@ -389,8 +365,9 @@ var board = {
     * @method
     */
     createDifficultyText: function () {
-        this.difficultyText = this.paper.text(38, 600, 'Easy').attr({ 'font-size': '20px', 'font-weight': 'bold', 'cursor': 'default' }).hide();
+        this.difficultyText = this.paper.text(38, 600, 'Easy');
         this.difficultyText.node.id = 'difficultyText';
+        $('#' + this.difficultyText.node.id).attr({ 'data-board': true, opacity: 0 });
     },
 
     /**
@@ -426,33 +403,32 @@ var board = {
         this.gridLines.show();
         this.backButton.show();
         this.pauseButton.show();
-        this.noteSelector.show();
-        this.showSelectors();
 
         // if touch enabled, then skip the animation
         if (board.touchEnabled) {
             this.gridLines.attr({ opacity: .9 }).show();
             this.backButton.attr({ opacity: .7 }).show();
             this.pauseButton.attr({ opacity: .7 }).show();
-            this.noteSelector.attr({ opacity: 1 }).show();
-            this.difficultyText.attr({ opacity: 1 }).show();
-            this.instructionsText.attr({ opacity: 1 }).show();
+            //            this.instructionsText.attr({ opacity: 1 }).show();
+            $('text[data-board=true], text[data-board=true][data-selector=true], ' +
+                'rect[data-board=true][data-selector=true], rect[data-board=true][data-form=true]').attr({ opacity: 1 }).show();  // show all board elements
         } else {
             this.gridLines.animate({ opacity: .9 }, 500);
             this.backButton.animate({ opacity: .7 }, 500);
             this.pauseButton.animate({ opacity: .7 }, 500);
-            this.noteSelector.animate({ opacity: 1 }, 500);
-            this.difficultyText.show().animate({ opacity: 1 }, 500);
-            this.instructionsText.show().animate({ opacity: 1 }, 500);
+            //            this.instructionsText.show().animate({ opacity: 1 }, 500);
+
+            $('text[data-board=true], text[data-board=true][data-selector=true], ' +
+                'rect[data-board=true][data-selector=true], rect[data-board=true][data-form=true]').animate({ opacity: 1 }, 500).show();  // show all board elements
         }
 
         // set the selector data element to board.notesMode flag
-        $(this.noteSelector[0][0].node).attr('data-checked', board.notesMode);
-        $(this.noteSelector[0][1].node).attr('data-checked', board.notesMode);
+        $('#' + this.noteSelector[0][0].node.id).attr({ 'data-checked': this.notesMode });
+        $('#' + this.noteSelector[0][1].node.id).attr({ 'data-checked': this.notesMode });
 
         // hide check if not in notes mode
-        if (!board.notesMode) {
-            this.noteSelector[0][1].attr({ opacity: 0 }).hide();
+        if (board.notesMode) {
+            $('#' + this.noteSelector[0][1].node.id).attr({ opacity: 1 }).show();
         }
 
         this.noteSelector[0].attr({ 'cursor': 'pointer' }); // stupid hack to have box show the pointer cursor...
@@ -467,9 +443,10 @@ var board = {
             } else {
                 this.timer.animate({ opacity: 1 }, 500);
             }
+
         }
 
-        $('text[data-board="true"]').show();  // show all board elements
+
         $('text[data-menu=true]').hide();   // hide all menu elements
         $('rect[data-prepopulated=false]').css('cursor', 'pointer');    // change cursor for non-pre-populated cells to pointer
 
@@ -493,11 +470,9 @@ var board = {
             if (this.backButton != null) { this.backButton.hide().attr({ opacity: 0 }); }
             if (this.pauseButton != null) { this.pauseButton.hide().attr({ opacity: 0 }); }
             if (this.timer != null) { this.timer.hide(); }
-            if (this.noteSelector != null) { this.noteSelector.hide().attr({ opacity: 0 }); }
-
-            this.numSelectors.attr({ opacity: 0 }).hide();
-            this.difficultyText.attr({ opacity: 0 }).hide();
-            this.instructionsText.attr({ opacity: 0 }).hide();
+            //            this.instructionsText.attr({ opacity: 0 }).hide();
+            $('text[data-board=true], text[data-board=true][data-selector=true], ' +
+                 'rect[data-board=true][data-selector=true], rect[data-board=true][data-form=true]').attr({ opacity: 0 });
         } else {
             this.gridLines.animate({ opacity: .1 }, 250);   // set gridlines to opacity of .1
 
@@ -505,20 +480,22 @@ var board = {
             if (this.backButton != null) { this.backButton.animate({ opacity: 0 }, 250, function () { this.hide() }); }
             if (this.pauseButton != null) { this.pauseButton.animate({ opacity: 0 }, 250, function () { this.hide() }); }
             if (this.timer != null) { this.timer.animate({ opacity: 0 }, 250, function () { this.hide() }); }
-            if (this.noteSelector != null) { this.noteSelector.animate({ opacity: 0 }, 250, function () { this.hide() }); }
+            //            this.instructionsText.animate({ opacity: 0 }, 250, function () { this.hide() });
 
-            this.numSelectors.animate({ opacity: 0 }, 250, function () { this.hide() });
-            this.difficultyText.animate({ opacity: 0 }, 250, function () { this.hide() });
-            this.instructionsText.animate({ opacity: 0 }, 250, function () { this.hide() });
+            $('text[data-board=true], text[data-board=true][data-selector=true], ' +
+                'rect[data-board=true][data-selector=true], rect[data-board=true][data-form=true]').animate({ opacity: 0 }, 250);
         }
 
-        // hide all board cell text elements and show all menu cell text elements
-        $('text[data-board="true"]').hide();
-        $('text[data-menu=true]').show();
+        // hide check if not in notes mode
+        $('#' + this.noteSelector[0][0].node.id).attr({ opacity: 0 });
+        $('#' + this.noteSelector[0][1].node.id).attr({ opacity: 0 }).hide();
+
+        // set pause button back to normal path and text
+        this.pauseButton[1].attr({ path: 'M 127 15 l 0 21 l 5 0 l 0 -21 l -6.1 0 M 138 15 l 0 21 l 5 0 l 0 -21 z' }).attr({ 'stroke-width': 2 });
+        this.pauseButton[2].attr({ x: 93, text: '| Pause' }); // replace text with pause
 
         $('rect').css('cursor', 'default'); // change cursor for all rects to default
-
-        board.visible = false;   // update board visibility holder
+        this.visible = false;   // update board visibility holder
     },
 
     /**
@@ -539,13 +516,14 @@ var board = {
             this.pauseButton[1].animate({ path: 'M 111 15 l 0 20 l 10 -10 z' }, 100, '<>').attr({ 'stroke-width': 2 });
         }
 
-        this.pauseButton[2].attr({ x: 86, 'text': '| Play' }); // replace text with play
-
-        this.pauseSymbol.show();
+        this.pauseButton[2].attr({ x: 86, text: '| Play' }); // replace text with play
         this.pauseSymbol[1].animate({ opacity: .4 }, 200);
 
-        $('text[data-board="true"]').hide();  // hide all board cell text elements and show all menu cell text elements
+
+        $('text[data-board=true]').hide();  // hide all board cell text elements and show all menu cell text elements
         $('rect[data-prepopulated=false]').css('cursor', 'default');    // change cursor for non-pre-populated cells to pointer
+
+        this.pauseButton[2].show();
     },
 
     /**
@@ -555,7 +533,7 @@ var board = {
     unPauseBoard: function () {
         this.paused = false;
 
-        this.pauseButton.data({ 'paused': this.paused });           // save paused state
+        this.pauseButton.data({ 'paused': this.paused });   // save paused state
         this.startTimer();  // start timer
 
         // if touch enabled, skip the animation
@@ -565,8 +543,8 @@ var board = {
             this.pauseButton[1].animate({ path: 'M 127 15 l 0 21 l 5 0 l 0 -21 l -6.1 0 M 138 15 l 0 21 l 5 0 l 0 -21 z' }, 100, '<>').attr({ 'stroke-width': 2 });
         }
 
-        this.pauseButton[2].attr({ x: 93, 'text': '| Pause' }); // replace text with pause
-        this.pauseSymbol.animate({ opacity: 0 }, 200, function () { this.hide(); }); // animate the pause button
+        this.pauseButton[2].attr({ x: 93, text: '| Pause' }); // replace text with pause
+        this.pauseSymbol.animate({ opacity: 0 }, 200); // animate the pause button
 
         $('text[data-board=true]').show(); // hide all board cell text elements and show all menu cell text elements
         $('rect[data-prepopulated=false]').css('cursor', 'pointer'); // change cursor for all rects to default
@@ -580,25 +558,22 @@ var board = {
         // check board
         this.checkSelectors(sudoku.playerBoard, false);
 
-        // make sure set it showing
-        this.numSelectors.show();
-
         // loop through set, animating opacity according to enabled state
         for (var i = 0; i < this.numSelectors.length; i++) {
-            if (this.numSelectors[i][0].data('enabled')) {
+            var selector = $('#' + this.numSelectors[i][0].node.id);
+            if (selector.attr('data-enabled')) {
                 // if touch enabled, skip the animation
                 if (board.touchEnabled) {
-                    this.numSelectors[i].attr({ opacity: 1 });
+                    selector.attr({ opacity: 1 });
                 } else {
-                    this.numSelectors[i].animate({ opacity: 1 }, 350);
+                    selector.animate({ opacity: 1 }, 350);
                 }
             } else {
                 // if touch enabled, skip the animation
                 if (board.touchEnabled) {
-                    this.numSelectors[i].attr({ opacity: .4 });
+                    selector.attr({ opacity: .4 });
                 } else {
-
-                    this.numSelectors[i].animate({ opacity: .4 }, 350);
+                    selector.animate({ opacity: .4 }, 350);
                 }
             }
         }
@@ -658,7 +633,7 @@ var board = {
         // run through selectors array to see if any number has been used 9 times or more
         // if so, disable, otherwise, enable
         for (var i = 1; i < 10; i++) {
-            var count = $('rect[data-num="' + i + '"]').length;
+            var count = $('rect[data-num="' + i + '"][data-selector!=true]').length;
             var opacityVal = 1;
 
             if (count >= 9) {
@@ -684,7 +659,7 @@ var board = {
 
         // set appropriate properties
         selectorNum.attr({ cursor: 'default' });
-        selectorNum[0].data({ 'enabled': false });
+        selectorNum[0].attr({ 'data-enabled': false });
     },
 
     /**
@@ -697,7 +672,7 @@ var board = {
 
         // set appropriate properties
         selectorNum.attr({ cursor: 'pointer' });
-        selectorNum[0].data({ 'enabled': true });
+        selectorNum[0].attr({ 'data-enabled': true });
     },
 
     /**
@@ -827,7 +802,7 @@ var board = {
             // check if have a number to highlight
             if (number > 0) {
                 // set all rect with the specific number to highlighted
-                $('rect[data-num=' + number + ']').attr({ class: this.cellHighlightClass });
+                $('rect[data-num=' + number + '][data-selector!=true]').attr({ class: this.cellHighlightClass });
             }
         }
     },
@@ -838,14 +813,8 @@ var board = {
     * @param {Text} rectNodeId
     * @param {Text} number
     */
-    highlightSelectedCell: function (rectNodeId, number) {
-        var cell = $('rect[id="' + rectNodeId + '"]');
-
-        if (!isNaN(number) && number != null && number != undefined) {
-            cell.attr('class', this.cellSelectedClass).attr({ 'data-selected': 'true', 'data-num': number });
-        } else {
-            cell.attr('class', this.cellSelectedClass).attr('data-selected', 'true');
-        }
+    highlightSelectedCell: function (rectNodeId) {
+        $('rect[id="' + rectNodeId + '"]').attr({ 'class': this.cellSelectedClass, 'data-selected': 'true' });
     },
 
     /**
@@ -922,7 +891,7 @@ var board = {
         }
 
         cellText.node.id = rect.attr('id') + 't';   // add cell Id, which is the rect node id + t and the class
-        $('#' + cellText.node.id).attr({ 'class': textClass, 'data-board': 'true' });   // set class and data-board attributes
+        $('#' + cellText.node.id).attr({ 'class': textClass, 'data-num': number, 'data-board': true });   // set class and data-board attributes
         rect.attr({ 'data-board': 'true', 'data-num': number, 'data-prepopulated': prePopulated }); // set rect attributes
         rect.addClass(cellClass);   // set rect class
     },
@@ -949,9 +918,7 @@ var board = {
 
         // check if the number is already in the notes array
         if ($.inArray(number.toString(), currentNotes) == -1) {
-
-            // add notes number to rect
-            var noteNums = '';
+            var noteNums = '';  // add notes number to rect
 
             // create array string to add to data-notes attribute
             for (var i = 0; i < currentNotes.length; i++) {
@@ -962,10 +929,9 @@ var board = {
                 noteNums += currentNotes[i];
             }
 
-            // add the latest number to attribute
-            jRect.attr('data-notes', (noteNums == '' ? number : (noteNums + ',' + number)));
+            jRect.attr('data-notes', (noteNums == '' ? number : (noteNums + ',' + number)));    // add the latest number to attribute
 
-            // calculate offset position based on what number was passed in
+            // calculate offset position for individual note based on number
             if (number > 1 && number < 4) {
                 xOffset = (number - 1) * 15;
             } else if (number >= 4 && number < 7) {
@@ -976,18 +942,16 @@ var board = {
                 yOffset += 30;
             }
 
-            // if it's a multiple of 3 + 1, reset the offset to account for newline
-            if (number % 3 == 1) { xOffset = 0 }
+            if (number % 3 == 1) { xOffset = 0 }    // if it's a multiple of 3 + 1, reset the offset to account for newline
 
             // add text number to cell (different attributes if prepopulated)
-            cellText = this.paper.text(rect.attr('x') + xOffset + (this.sudukoRectWidth / 5), rect.attr('y') + yOffset + (this.sudukoRectHeight / 5),
-                    number).attr({ 'font-size': this.notesFontSize, 'font-weight': 'bold', 'cursor': 'pointer' }).data({ 'notenum': number });
+            cellText = this.paper.text(rect.attr('x') + xOffset + (this.sudukoRectWidth / 5), rect.attr('y') + yOffset + (this.sudukoRectHeight / 5), number);
 
             // add cell Id, which is the rect node id + t
             cellText.node.id = rect.node.id + 'n' + number;
 
             // set position relationship for text to what rectangle it's in
-            $('#' + cellText.node.id).attr('data-position', rect.id).attr('data-board', 'true').attr('data-notenum', number);
+            $('#' + cellText.node.id).attr({ class: this.noteClass, 'data-board': 'true', 'data-note-num': number });
         } else {
             this.removeCellNote(rect, number);
         }
@@ -1017,6 +981,17 @@ var board = {
     removeCellText: function (rect, clearPlayerBoardValue) {
         if (rect != null && rect != undefined) {
             if (rect.length > 0) {
+                var currentNotes = [];
+
+                // fill up array of current notes
+                if (rect.attr('data-notes') != undefined) {
+                    currentNotes = rect.attr('data-notes').split(',');
+
+                    // remove all notes
+                    for (var i = 1; i < 9; i++) {
+                        $('#' + rect.attr('id') + 'n' + i).remove();
+                    }
+                }
 
                 this.removeCellData(rect, true, clearPlayerBoardValue); // purge rect data
 
@@ -1025,19 +1000,6 @@ var board = {
 
                 if (!isNaN(numText) && numText > -1) {
                     textEl.remove();    // remove text element
-                }
-            }
-
-            var currentNotes = [];
-
-            // fill up array of current notes
-            if (rect.attr('data-notes') != undefined) {
-                currentNotes = rect.attr('data-notes').split(',');
-
-                // remove all notes
-                for (var i = 0; i < currentNotes.length; i++) {
-                    var notes = rect.find('[data-notesnum="' + currentNotes[i] + '"]');
-                    notesEl.remove();
                 }
             }
         }
@@ -1053,7 +1015,7 @@ var board = {
             // purge rect data
             this.removeCellData(rect, false, true);
 
-            var textEl = $('text[data-position="' + rect.id + '"]:not([data-notenum])');
+            var textEl = $('#' + rect.node.id + 't');
 
             // if the text element exists for the rect, then remove it
             if (textEl.length > 0) {
@@ -1116,7 +1078,7 @@ var board = {
             // remove data from raphael object, html element and sudoku player board
             //console.log('before: ' + rect.attr('data-num'));
             rect.attr({ 'data-num': 0 });
-            console.log('after: ' + rect.attr('data-num'));
+            //console.log('after: ' + rect.attr('data-num'));
 
             // if remove notes
             if (removeNotes) {
@@ -1137,7 +1099,7 @@ var board = {
     * @param {String} direction
     */
     moveSelectedCell: function (direction) {
-        var selectedCell = $('#' + this.canvasId).find('.' + this.cellSelectedClass);
+        var selectedCell = $('.' + this.cellSelectedClass);
         var positionChange = 0;
 
         // calculate position change based off arrow
@@ -1171,7 +1133,7 @@ var board = {
                 // reset colors, highlight cell based on data from rect object and highlight selected cell
                 this.resetAllCellColors();
                 this.highlightNumberCells(jRect.attr('data-num'));
-                this.highlightSelectedCell(rect.node.id, jRect.attr('data-num'));
+                this.highlightSelectedCell(rect.node.id);
                 this.showDeleteButton(rect.node.id);
             }
         }
@@ -1182,8 +1144,7 @@ var board = {
     * @method
     */
     deleteSelectedCell: function (number) {
-        // find selected cell and pre populated via jQuery
-        var selectedCell = $('.' + this.cellSelectedClass);
+        var selectedCell = $('.' + this.cellSelectedClass); // find selected cell
 
         if (selectedCell.length > 0) {
             // from element id, get raphael object Id
@@ -1191,15 +1152,9 @@ var board = {
 
             if (rect != null) {
                 if (!this.isPrePopulated(selectedCell)) {
-                    if (this.notesMode) {
-                        this.removeCellText(selectedCell, false);
-                        this.cellDeleteButton.attr({ opacity: 0 }).hide();
-                    } else {
-                        this.removeCellText(selectedCell, true);
-                        this.cellDeleteButton.attr({ opacity: 0 }).hide();
-
-                        this.checkSelectors(sudoku.playerBoard, true);
-                    }
+                    this.removeCellText(selectedCell, !this.notesMode); // remove cell text
+                    this.cellDeleteButton.attr({ opacity: 0 }).hide();  // hide the X delete button
+                    this.checkSelectors(sudoku.playerBoard, true);  // check the selectors
                 }
             }
         }
@@ -1231,11 +1186,13 @@ var board = {
         // if we have a jquery object representing the cell, then grab info from it and add number
         if (selectedCell.length > 0 && selectedCell.data('prepopulated') == false && rect != null && rect != undefined) {
             // if notes are enabled, just add the note text
-            if (board.notesMode) {
+            if (board.notesMode == true) {
                 this.removeCellNumber(rect);
                 this.addCellNote(rect, number);
                 this.showDeleteButton(rect.node.id);
             } else {
+
+                console.log('here');
                 // check the number of times number has been placed
                 var numberUsage = this.checkNumberUsage(number, sudoku.playerBoard);
 
@@ -1273,11 +1230,8 @@ var board = {
                             // reset colors, highlight cell based on data from rect object and highlight selected cell
                             this.resetAllCellColors();
                             this.highlightNumberCells(number);
-                            this.highlightSelectedCell(rect.node.id, number);
+                            this.highlightSelectedCell(rect.node.id);
                             this.showDeleteButton(rect.node.id);
-
-                            // check bottom selectors and disable if needed
-                            this.checkSelectors(sudoku.playerBoard, true);
 
                             this.checkBoard();
                         } else {
@@ -1300,6 +1254,9 @@ var board = {
                     }
                 }
             }
+
+            // check bottom selectors and disable if needed
+            this.checkSelectors(sudoku.playerBoard, true);
         }
     },
 

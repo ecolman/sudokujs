@@ -16,6 +16,10 @@ a:hover {
     font: bold 40px consolas !important;
 }
 
+#boardBackground {
+    opacity: .5 !important;   
+}
+
 .menuItem {
     font: bold 35px consolas !important;
     cursor: pointer;
@@ -69,11 +73,19 @@ a:hover {
 .numSelector {
     fill: #F3E2A9;
     background-color: #F3E2A9;
-    cursor: move;
+    cursor: pointer;
 }
 
 .numSelectorText {
-    cursor: move;
+    font-size: 40px !important;
+    cursor: pointer !important;
+}
+
+#difficultyText {
+    font-size: 20px !important;
+    font-weight: bold !important;
+    cursor: default !important;
+    display: block !important;
 }
 
 /* BOARD BUTTONS */
@@ -83,8 +95,9 @@ a:hover {
 
 /* CELL CLASSES */
 .menuCellText {
+    font-size: 40px !important;
     font-weight: bold !important;
-    cursor: default;
+    cursor: default !important;
 }
 
 .sudokuCell {
@@ -124,6 +137,13 @@ a:hover {
     font-weight: lighter !important;
     font-size: 40px !important;
     cursor: default !important;
+}
+
+/* NOTES CLASSES */
+.note {
+    font-size: 15px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
 }
 
 /* TIMER CLASSES */

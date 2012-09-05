@@ -38,11 +38,9 @@ $('body').bind('loadBoard', function (event, loadType) {
 
     // fade out home menu and then hide it, if touch enabled, skip the animation
     if (board.touchEnabled) {
-        menu.homeSet.hide().attr({ opacity: 0 });
-        menu.bgOverlayrect.hide().attr({ opacity: 0 });
+        $('[data-menu=true][data-main=true], [data-menu=true][data-background=true]').css({ opacity: 0 });
     } else {
-        menu.homeSet.animate({ opacity: 0 }, 100, function () { menu.homeSet.hide(); });
-        menu.bgOverlayrect.animate({ opacity: 0 }, 100, function () { menu.bgOverlayrect.hide(); });
+        $('[data-menu=true][data-main=true], [data-menu=true][data-background=true]').animate({ opacity: 0 }, 100);
     }
 
     var endtime = (new Date()).getTime();
@@ -54,7 +52,7 @@ $('body').bind('loadBoard', function (event, loadType) {
 * @event
 * @param {Event} event
 */
-$('[data-board=true][data-auto-attach-events!="false"]').live(eventsToBindTo, function (event)
+$('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, function (event)
 {
     // if this is 0 or 1 (a left click or touch), then highlight cells accordingly
     // if it's a right click, only fire event if it's the contextmenu type
@@ -82,7 +80,7 @@ $('[data-board=true][data-auto-attach-events!="false"]').live(eventsToBindTo, fu
                 // reset colors, highlight number cells and then selected cell
                 board.resetAllCellColors();
                 board.highlightNumberCells(number);
-                board.highlightSelectedCell(nodeId, number);
+                board.highlightSelectedCell(nodeId);
                 board.showDeleteButton(nodeId);
 
                 // if this cell is user populatable (sp?), set the timeout for notes popup
