@@ -127,7 +127,7 @@ var sudoku = {
                             successCount += 1;
 
                             if (successCount > 1) {
-                                //console.log('      not unique, board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + new Date().getTime() + ') thread: ' + e.data.threadNum);
+                                //console.log('      not unique, board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + utilities.getTime() + ') thread: ' + e.data.threadNum);
                                 sudoku.workerResults[e.data.threadNum] = { 'result': sudokuUniqueResult.notUnique, 'board': sudoku.workerResults[e.data.threadNum].board,
                                     'successCount': successCount, 'finished': true
                                 };
@@ -135,7 +135,7 @@ var sudoku = {
                                 this.terminate();
                             } else {
                                 sudoku.workerResults[e.data.threadNum] = { 'board': sudoku.workerResults[e.data.threadNum].board, 'successCount': successCount, 'finished': false };
-                                //console.log('got a solution to board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + new Date().getTime() + ') thread: ' + e.data.threadNum);
+                                //console.log('got a solution to board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + utilities.getTime() + ') thread: ' + e.data.threadNum);
 
                                 this.boardsReadyTimeout = setTimeout(function (i)
                                 {
@@ -311,7 +311,7 @@ var sudoku = {
     guaranteeUniqueness: function (numCellsToRemove)
     {
         // grab time started, count and kick off first test
-        this.startTime = new Date().getTime();
+        this.startTime = utilities.getTime();
         var tryCount = 1;
         this.cullNumber = numCellsToRemove;
 
@@ -345,7 +345,7 @@ var sudoku = {
             }
 
             // stop time
-            var endtime = (new Date()).getTime();
+            var endtime = utilities.getTime();
             //console.log('culled ' + numCellsToRemove + ' cells, took ' + tryCount + ' tries(s) and ' + ((endtime - this.startTime) / 1000) + ' sec(s) to generate board.');
 
             $('body').trigger('loadBoard', boardLoadType.fresh); // trigger event that a new board has been created
@@ -780,10 +780,10 @@ var sudoku = {
                 saveData.push(completeBoardArray);
                 saveData.push(this.toArray(this.playerBoard));
                 saveData.push(this.toArray(this.culledBoard));
-                saveData.push(getJSONNotes());
+                saveData.push(utilities.getJSONNotes());
                 saveData.push(sudoku.difficulty);
                 saveData.push(board.timeElapsedInSec);
-                saveData.push((new Date()).getTime());
+                saveData.push((new Date()));
 
                 // save to storage
                 $.totalStorage('sudokuJS.save', saveData);

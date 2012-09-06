@@ -44,12 +44,12 @@
                 board.initialize(paper);   // init board UI
                 menu.initialize(paper);    // init menu UI
 
-                resizePaper();  // resize paper based on size of window
+                utilities.resizePaper();  // resize paper based on size of window
             });
 
             $(document).ready(function ()
             {
-                $(window).resize(resizePaper);  // set resize event to a utility function
+                $(window).resize(utilities.resizePaper);  // set resize event to a utility function
             });
 
             // on unload, save game

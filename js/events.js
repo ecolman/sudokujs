@@ -7,8 +7,9 @@ var eventsToBindTo = 'contentMenu' + ($('html.touch').length > 0 ? ' touchstart'
 * Custom Event to populate board, start timer and show board
 * @event
 */
-$('body').bind('loadBoard', function (event, loadType) {
-    var startTime = new Date().getTime();
+$('body').bind('loadBoard', function (event, loadType)
+{
+    var startTime = utilities.getTime();
 
     switch (loadType) {
         case boardLoadType.fresh:
@@ -43,7 +44,7 @@ $('body').bind('loadBoard', function (event, loadType) {
         $('[data-menu=true][data-main=true], [data-menu=true][data-background=true]').animate({ opacity: 0 }, 100);
     }
 
-    var endtime = (new Date()).getTime();
+    var endtime = utilities.getTime();
     //console.log('finished board load: ' + ((endtime - startTime) / 1000) + ' sec(s)');
 });
 
@@ -57,7 +58,7 @@ $('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, func
     // if this is 0 or 1 (a left click or touch), then highlight cells accordingly
     // if it's a right click, only fire event if it's the contextmenu type
 
-    //console.log('got ' + event.type + ' @ ' + getTime());
+    //console.log('got ' + event.type + ' @ ' + utilities.getTime());
 
     switch (event.which) {
         case 0:
@@ -82,11 +83,6 @@ $('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, func
                 board.highlightNumberCells(number);
                 board.highlightSelectedCell(nodeId);
                 board.showDeleteButton(nodeId);
-
-                // if this cell is user populatable (sp?), set the timeout for notes popup
-                if (jObj.data('prepopulated') == 'false') {
-                    clickHoldEvent = setTimeout(board.showNoteSelector, 750, nodeId);
-                }
             }
 
             break;

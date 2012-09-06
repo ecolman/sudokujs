@@ -24,23 +24,22 @@ function createCheckSet(xPos, yPos, type, sizeModifier, clickEvent) {
         tick.transform('t' + (xPos - 182) + ', ' + (-345 + (yPos - 170)) + ', s' + 1.5);
     }
 
-    box.node.id = type + 'C';
+    box.node.id = type + 'B';
     tick.node.id = type + 'T';
+
+    // hide set and set attributes/data
+    $(box.node).css({ opacity: 0, cursor: 'pointer' }).attr({ 'data-checked': false, 'data-type': type }).hide();
+    $(tick.node).css({ opacity: 0, cursor: 'pointer' }).attr({ 'data-checked': false, 'data-type': type }).hide();
 
     // push it to the set
     checkSet.push(box, tick);
-
-    // hide set and set attributes/data
-    checkSet.attr({ opacity: 0, 'cursor': 'pointer' });
-    $('#' + box.node.id).attr({ 'data-checked': false, 'data-type': type });
-    $('#' + tick.node.id).attr({ 'data-checked': false, 'data-type': type })
 
     // check type of obj passed in, then add either touch or click event to checkSet
     if (typeof (clickEvent) == 'function' || typeof (clickEvent) == 'undefined') {
         if (board.touchEnabled) {
             checkSet.touchstart(function (e) { checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
         } else {
-            checkSet.click(function (e) { checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
+            checkSet.mousedown(function (e) { checkboxHit(e); if (typeof (clickEvent) == 'function') { clickEvent(e); } });
         }
     }
 
@@ -56,11 +55,11 @@ function checkboxHit(event) {
     // create holder vars and get the opposite of the current checked state to get the new checked state
     var check = null;
     var box = null;
-    var target = $(event.currentTarget);
+    var target = $(event.target);
 
     // change over to text's stored raphael object Id
-    if (target[0].nodeName == 'text') {
-        target = $('#' + board.paper.getById($(event.currentTarget).attr('data-checkRId')).node.id);
+    if (target[0].nodeName == 'text' || target[0].nodeName == 'tspan') {
+        target = $('#' + board.paper.getById($(event.currentTarget).attr('data-raphael-id')).node.id);
     }
 
     // depending on the type, set the check and box objects
@@ -78,7 +77,9 @@ function checkboxHit(event) {
             break;
     }
 
-    var checkState = !(check.data('checked'));
+    // for some reason the data-checked isn't parsed correctly
+    // so I do the inverse of whatever I get from the comparison of the attribute to text bool
+    var checkState = !(check.attr('data-checked') == 'true' ? true : false);
 
     // set the checked state data
     check.attr({ 'data-checked': checkState });

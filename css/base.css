@@ -73,7 +73,7 @@ a:hover {
 .numSelector {
     fill: #F3E2A9;
     background-color: #F3E2A9;
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .numSelectorText {
@@ -101,8 +101,8 @@ a:hover {
 }
 
 .sudokuCell {
-    fill: #E0F8E0;
-    background-color: #E0F8E0;
+    fill: #E0F8E0 !important;
+    background-color: #E0F8E0 !important;
 }
 
 .sudokuText {
@@ -148,14 +148,41 @@ a:hover {
 
 /* TIMER CLASSES */
 #timer {
-    cursor: default;
+    opacity: 0;
+    font-size: 30px !important;
+    cursor: default !important;
 }
 
 /* BACK BUTTON CLASSES */
-#backButton {
-    
+#backButton, #backButtonText {
+ opacity: .7 !important;
+ /*font-weight: bold !important;*/
+ cursor: pointer !important;
 }
 
 #backButtonText {
     font-size: 17px !important;
+}
+
+/* PAUSE BUTTON CLASSES */
+#pauseButton, #pauseButtonText {
+ opacity: .7 !important;
+ cursor: pointer !important;
+}
+
+#pauseButtonText {
+    font-size: 17px !important;
+}
+
+#pauseSymbol {
+    /*opacity: .4 !important;*/
+    cursor: pointer !important;   
+}
+
+/* DELETE BUTTON CLASES */
+#deleteButton {
+ fill: red !important;
+ font-size: 12px !important;
+ font-weight: bold !important;
+ cursor: pointer !important;
 }

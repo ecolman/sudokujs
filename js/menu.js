@@ -25,7 +25,8 @@ var menu = {
     * @method
     * @param {Number} amount
     */
-    initialize: function (paper) {
+    initialize: function (paper)
+    {
         this.paper = paper;
 
         this.loadOptions(); // load options from local storage
@@ -42,13 +43,14 @@ var menu = {
     * Creates all text elements for the menu board
     * @method
     */
-    createBgNums: function () {
+    createBgNums: function ()
+    {
         for (var i = 0; i < sudoku.menuCellsToShow.length; i++) {
             var rect = this.paper.getById(sudoku.menuCellsToShow[i]);   // get the holder rectang
             var cellText = this.paper.text(rect.attr('x') + (board.sudukoRectWidth / 2), rect.attr('y') + (board.sudukoRectHeight / 1.45), sudoku.menuCellsValues[i]);  // create numeral
 
             cellText.node.id = 'menuCell' + i;  // set cell node id
-            $('#' + cellText.node.id).attr({ 'class': board.textCellClass, 'data-background': true,  'data-menu': true });    // set class and data-menu
+            $(cellText.node).attr({ class: board.textCellClass, 'data-background': true, 'data-menu': true });    // set class and data-menu
         }
     },
 
@@ -56,7 +58,8 @@ var menu = {
     * Creates all the text elements for the home menu and adds them to a set
     * @method
     */
-    createHomeMenu: function () {
+    createHomeMenu: function ()
+    {
         var bgRect = this.paper.rect(3, 50, 540, 450).attr({ fill: '#E0F8E0', 'stroke-width': 0 });    // create rectangle around menu to make everything opaque
         bgRect.node.id = 'boardBackground'; // set the id
         $(bgRect.node).attr({ 'data-background': true, 'data-menu': true });    // set the data
@@ -90,13 +93,14 @@ var menu = {
 
         // options...option
         var optionsMenuOption = this.paper.text(275, 430, 'Options').attr({ fill: '#562E60', 'letter-spacing': 7 })
-        $(optionsMenuOption.node).attr({ class: this.smallMenuClass, 'data-type': menuOptionType.options, 'data-raphaelId': optionsMenuOption.id, 'data-menu': true,
+        $(optionsMenuOption.node).attr({ class: this.smallMenuClass, 'data-type': menuOptionType.options, 'data-raphael-id': optionsMenuOption.id, 'data-menu': true,
             'data-main': true, 'data-option': true
         });   // set class and data attrs
 
         // add all options to homeSet, mainy to make mousedown handlers and animations easier
 
-        $('[data-menu=true][data-main=true]').mousedown(function (event) {
+        $('[data-menu=true][data-main=true]').mousedown(function (event)
+        {
             var optionType = $(this).attr('data-type');
 
             switch (optionType) {
@@ -144,7 +148,8 @@ var menu = {
     * Creates all the text elements for the home menu and adds them to a set
     * @method
     */
-    createOptionsMenu: function () {
+    createOptionsMenu: function ()
+    {
         // create homeset
         this.optionsCheckSet = this.paper.set();
 
@@ -182,13 +187,14 @@ var menu = {
     * Switches options for board and then saves the options to local storage
     * @method
     */
-    saveOptions: function () {
+    saveOptions: function ()
+    {
         // loop through optionsCheckSet and set options based on the type of the check
         for (var i = 0; i < this.optionsCheckSet.length; i++) {
-            var option = this.optionsCheckSet[i][0];
-            var checked = $(option.node).data('checked');
+            var type = $(this.optionsCheckSet[i][0].node).data('type');
+            var checked = $(this.optionsCheckSet[i][0].node).attr('data-checked') == 'true' ? true : false;
 
-            switch (option.data('type')) {
+            switch (type) {
                 case optionType.timer:
                     board.timerEnabled = checked;
                     break;
@@ -217,28 +223,57 @@ var menu = {
         optionsArray.push(board.penalize);
 
         $.totalStorage('sudokuJS.options', optionsArray);
-
     },
 
     /**
     * Loads options and sets them accordingly
     * @method
     */
-    loadOptions: function () {
+    loadOptions: function ()
+    {
         // get options array from storage and set board options
         var optionsData = $.totalStorage('sudokuJS.options');
 
         if (optionsData != null) {
             if (optionsData.length == 4) {
-                board.timerEnabled = optionsData[0];
-                board.highlight = optionsData[1];
-                board.feedback = optionsData[2];
-                board.penalize = optionsData[3];
+                board.timerEnabled = Boolean(optionsData[0]);
+                board.highlight = Boolean(optionsData[1]);
+                board.feedback = Boolean(optionsData[2]);
+                board.penalize = Boolean(optionsData[3]);
+            }
+        }
+    },
 
+    /**
+    * Fills the options checkboxes with their associated board state values
+    * @method
+    */
+    fillOptionsCheckboxes: function ()
+    {
+        for (var i = 0; i < menu.optionsCheckSet.length; i++) {
+            var box = $(menu.optionsCheckSet[i][0].node);
+            var tick = $(menu.optionsCheckSet[i][1].node);
 
-                check.attr({ 'data-checked': checkState });
-                box.attr({ 'data-checked': checkState });
+            switch (box.data('type')) {
+                case optionType.timer:
+                    box.attr({ 'data-checked': board.timerEnabled });
+                    tick.attr({ 'data-checked': board.timerEnabled });
+                    break;
 
+                case optionType.highlight:
+                    box.attr({ 'data-checked': board.highlight });
+                    tick.attr({ 'data-checked': board.highlight });
+                    break;
+
+                case optionType.feedback:
+                    box.attr({ 'data-checked': board.feedback });
+                    tick.attr({ 'data-checked': board.feedback });
+                    break;
+
+                case optionType.penalize:
+                    box.attr({ 'data-checked': board.penalize });
+                    tick.attr({ 'data-checked': board.penalize });
+                    break;
             }
         }
     },
@@ -247,14 +282,15 @@ var menu = {
     * Addes all text items for menu
     * @method
     */
-    homeView: function (resume) {
+    homeView: function (resume)
+    {
         // check if we're coming from the options menu
         if (this.view == gameView.options) {
             // save the options and then do animation to bring options text down and home menu items to show
             this.saveOptions();
 
             // have to get options text 
-            var rId = $('[data-menu=true][data-type="' + menuOptionType.options + '"]').attr('data-raphaelId');   // get raphaelId from jquery element
+            var rId = $('[data-menu=true][data-type="' + menuOptionType.options + '"]').attr('data-raphael-id');   // get raphaelId from jquery element
             var optionsText = this.paper.getById(rId);  // grab raphael object through id
 
             // if touch enabled, skip the animation
@@ -262,20 +298,14 @@ var menu = {
                 optionsText.attr({ y: 425 });   // move options text to bottom
                 $('[data-menu=true][data-option=true][data-main!=true]').hide();    // hide all option items
 
-                menu.optionsCheckSet.hide();    // hide menu option checks
-                board.backButton.hide();    // hide back button
-                board.pauseButton.hide();    // hide pause button
+                this.optionsCheckSet.hide();    // hide menu option checks
 
                 $('[data-menu=true][data-main=true], text[data-menu=true][data-background=true]').css({ opacity: 1 }); // show all main menu options
             } else {
                 optionsText.animate({ y: 425 }, 300);   // animate options text to bottom
 
+                this.optionsCheckSet.animate({ opacity: 0 }, 300, function () { this.hide(); });    // animate away the option checks
                 $('[data-menu=true][data-option=true][data-main!=true]').animate({ opacity: 0 }, 300, function () { $(this).hide(); });  // animate away the option items
-
-                menu.optionsCheckSet.animate({ opacity: 0 }, 300, function () { this.hide(); });    // animate away the option checks
-                board.backButton.animate({ opacity: 0 }, 300, function () { this.hide(); });    // animate away the back button
-                board.pauseButton.animate({ opacity: 0 }, 300, function () { this.hide() });    // animate away the pause button
-
                 $('[data-menu=true][data-main=true], text[data-menu=true][data-background=true]').show().animate({ opacity: 1 }, 400); // show all menu options
             }
         } else {
@@ -285,7 +315,8 @@ var menu = {
             $('[data-menu=true][data-main=true], text[data-menu=true][data-background=true]').show().animate({ opacity: 1 }, 400);
         }
 
-        $('rect[data-menu=true][data-background=true]').show();
+        $('[data-button=true][data-button-type="back"]').hide();    // hide back button
+        $('rect[data-menu=true][data-background=true]').show(); // show background rect
 
         // see if board is filled and complete
         var completeBoard = sudoku.isPlayerBoardFilled() && sudoku.checkPlayerBoard();
@@ -307,51 +338,54 @@ var menu = {
     * View for options menu
     * @method
     */
-    optionsView: function () {
-        this.loadOptions();
+    optionsView: function ()
+    {
+        this.loadOptions(); // load options from local storage
+        this.fillOptionsCheckboxes();   // parse options from local storage to the related checkboxes
 
-        var rId = $('[data-menu=true][data-type="' + menuOptionType.options + '"]').attr('data-raphaelId');   // get raphaelId from jquery element
+        var rId = $('[data-menu=true][data-type="' + menuOptionType.options + '"]').attr('data-raphael-id');   // get raphaelId from jquery element
         var optionsText = this.paper.getById(rId);  // grab raphael object through id
 
         // if touch enabled, skip the animation
         if (board.touchEnabled) {
             optionsText.attr({ y: 125 });   // set the options header text to y coordiante
-            board.backButton[2].attr({ x: 70, 'text': 'Save Options' });    // change text of top left menu
-            board.backButton.show().attr({ opacity: .7 });  // show the back button and text
 
+            $('text[data-button=true][data-button-type="back"]').text('Save Options').attr({ x: 70, y: 31 });
+            $('[data-button=true][data-button-type="back"]').show();
             $('[data-menu=true][data-options=true]').css({ opacity: 1 }).show();   // show all options items
 
             // animate the checkboxes correctly
             for (var i = 0; i < menu.optionsCheckSet.length; i++) {
                 // for some reason, this seems to be the only place the box will accept the cursor attribute...
                 // show check boxes (not the check mark)
-                menu.optionsCheckSet[i][0].show().attr({ opacity: 1, 'cursor': 'pointer' });
+                menu.optionsCheckSet[i][0].attr({ opacity: 1, cursor: 'pointer' }).show();
 
                 // if check state is true, show check mark, otherwise hide it
-                if ($(menu.optionsCheckSet[i][0].node).data('checked')) {
+                if ($(menu.optionsCheckSet[i][0].node).attr('data-checked') == 'true') {
                     menu.optionsCheckSet[i][1].show().attr({ opacity: 1 });
                 } else {
                     menu.optionsCheckSet[i][1].hide().attr({ opacity: 0 });
                 }
             }
         } else {
-            // animate up options text / back button and push down options menu item
-            optionsText.animate({ y: 125 }, 300, function () {
-                board.backButton[2].attr({ x: 70, 'text': 'Save Options' });    // change text of top left menu
-                board.backButton.show().attr({ opacity: .7 });  // show the back button and text
+            // animate up options text
+            optionsText.animate({ y: 125 }, 300, function ()
+            {
+                $('text[data-button=true][data-button-type="back"]').text('Save Options').attr({ x: 70, y: 31 });   // change back button text
+                $('[data-button=true][data-button-type="back"]').show();    // show options menu items
             });
 
             // animate the checkboxes correctly
             for (var i = 0; i < menu.optionsCheckSet.length; i++) {
                 // for some reason, this seems to be the only place the box will accept the cursor attribute...
                 // show check boxes (not the check mark)
-                menu.optionsCheckSet[i][0].show().attr({ 'cursor': 'pointer' }).animate({ opacity: 1 }, 300);
+                menu.optionsCheckSet[i][0].attr({ cursor: 'pointer' }).show().animate({ opacity: 1 }, 300);
 
                 // if check state is true, show check mark, otherwise hide it
-                if ($(menu.optionsCheckSet[i][0].node).data('checked')) {
+                if ($(menu.optionsCheckSet[i][0].node).attr('data-checked') == 'true') {
                     menu.optionsCheckSet[i][1].show().animate({ opacity: 1 }, 300);
                 } else {
-                    menu.optionsCheckSet[i][1].animate({ opacity: 0 }, 300, function () { this.hide(); });
+                    menu.optionsCheckSet[i][1].hide();
                 }
             }
 
@@ -372,7 +406,8 @@ var menu = {
     * Generates the sudoku board, culls based on difficulty, populate board and the animate board in and home menu out
     * @method
     */
-    boardView: function (loadType) {
+    boardView: function (loadType)
+    {
         $('[data-menu=true][data-background=true]').hide(); // hide the background
 
         // load board depending on the load type
