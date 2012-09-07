@@ -25,8 +25,7 @@ var menu = {
     * @method
     * @param {Number} amount
     */
-    initialize: function (paper)
-    {
+    initialize: function (paper) {
         this.paper = paper;
 
         this.loadOptions(); // load options from local storage
@@ -43,8 +42,7 @@ var menu = {
     * Creates all text elements for the menu board
     * @method
     */
-    createBgNums: function ()
-    {
+    createBgNums: function () {
         for (var i = 0; i < sudoku.menuCellsToShow.length; i++) {
             var rect = this.paper.getById(sudoku.menuCellsToShow[i]);   // get the holder rectang
             var cellText = this.paper.text(rect.attr('x') + (board.sudukoRectWidth / 2), rect.attr('y') + (board.sudukoRectHeight / 1.45), sudoku.menuCellsValues[i]);  // create numeral
@@ -58,8 +56,7 @@ var menu = {
     * Creates all the text elements for the home menu and adds them to a set
     * @method
     */
-    createHomeMenu: function ()
-    {
+    createHomeMenu: function () {
         var bgRect = this.paper.rect(3, 50, 540, 450).attr({ fill: '#E0F8E0', 'stroke-width': 0 });    // create rectangle around menu to make everything opaque
         bgRect.node.id = 'boardBackground'; // set the id
         $(bgRect.node).attr({ 'data-background': true, 'data-menu': true });    // set the data
@@ -99,8 +96,7 @@ var menu = {
 
         // add all options to homeSet, mainy to make mousedown handlers and animations easier
 
-        $('[data-menu=true][data-main=true]').mousedown(function (event)
-        {
+        $('[data-menu=true][data-main=true]').mousedown(function (event) {
             var optionType = $(this).attr('data-type');
 
             switch (optionType) {
@@ -148,8 +144,7 @@ var menu = {
     * Creates all the text elements for the home menu and adds them to a set
     * @method
     */
-    createOptionsMenu: function ()
-    {
+    createOptionsMenu: function () {
         // create homeset
         this.optionsCheckSet = this.paper.set();
 
@@ -187,8 +182,7 @@ var menu = {
     * Switches options for board and then saves the options to local storage
     * @method
     */
-    saveOptions: function ()
-    {
+    saveOptions: function () {
         // loop through optionsCheckSet and set options based on the type of the check
         for (var i = 0; i < this.optionsCheckSet.length; i++) {
             var type = $(this.optionsCheckSet[i][0].node).data('type');
@@ -229,8 +223,7 @@ var menu = {
     * Loads options and sets them accordingly
     * @method
     */
-    loadOptions: function ()
-    {
+    loadOptions: function () {
         // get options array from storage and set board options
         var optionsData = $.totalStorage('sudokuJS.options');
 
@@ -248,8 +241,7 @@ var menu = {
     * Fills the options checkboxes with their associated board state values
     * @method
     */
-    fillOptionsCheckboxes: function ()
-    {
+    fillOptionsCheckboxes: function () {
         for (var i = 0; i < menu.optionsCheckSet.length; i++) {
             var box = $(menu.optionsCheckSet[i][0].node);
             var tick = $(menu.optionsCheckSet[i][1].node);
@@ -282,8 +274,7 @@ var menu = {
     * Addes all text items for menu
     * @method
     */
-    homeView: function (resume)
-    {
+    homeView: function (resume) {
         // check if we're coming from the options menu
         if (this.view == gameView.options) {
             // save the options and then do animation to bring options text down and home menu items to show
@@ -312,17 +303,19 @@ var menu = {
             // reset colors and hide board
             board.resetAllCellColors();
             board.hideBoard();
-            $('[data-menu=true][data-main=true], text[data-menu=true][data-background=true]').show().animate({ opacity: 1 }, 400);
+
+            if (board.touchEnabled) {
+                $('[data-menu=true][data-main=true], text[data-menu=true][data-background=true]').show().css({ opacity: 1 });
+            } else {
+                $('[data-menu=true][data-main=true], text[data-menu=true][data-background=true]').show().animate({ opacity: 1 }, 400);
+            }
         }
 
         $('[data-button=true][data-button-type="back"]').hide();    // hide back button
         $('rect[data-menu=true][data-background=true]').show(); // show background rect
 
-        // see if board is filled and complete
-        var completeBoard = sudoku.isPlayerBoardFilled() && sudoku.checkPlayerBoard();
-
         // if flag is set or the board is complete, don't show resume
-        if (!resume || completeBoard) {
+        if (!resume || board.completed) {
             $('[data-menu=true][data-type="' + menuOptionType.resume + '"]').css({ opacity: 0 }).hide();
         }
 
@@ -338,8 +331,7 @@ var menu = {
     * View for options menu
     * @method
     */
-    optionsView: function ()
-    {
+    optionsView: function () {
         this.loadOptions(); // load options from local storage
         this.fillOptionsCheckboxes();   // parse options from local storage to the related checkboxes
 
@@ -350,9 +342,9 @@ var menu = {
         if (board.touchEnabled) {
             optionsText.attr({ y: 125 });   // set the options header text to y coordiante
 
-            $('text[data-button=true][data-button-type="back"]').text('Save Options').attr({ x: 70, y: 31 });
-            $('[data-button=true][data-button-type="back"]').show();
-            $('[data-menu=true][data-options=true]').css({ opacity: 1 }).show();   // show all options items
+            $('text[data-button=true][data-button-type="back"]').text('Save Options').attr({ x: 70, y: 31 });   // change back button text
+            $('[data-button=true][data-button-type="back"]').show();    // show options menu items
+            $('[data-menu=true][data-option=true]').show().css({ opacity: 1 });    // show all options items
 
             // animate the checkboxes correctly
             for (var i = 0; i < menu.optionsCheckSet.length; i++) {
@@ -369,8 +361,7 @@ var menu = {
             }
         } else {
             // animate up options text
-            optionsText.animate({ y: 125 }, 300, function ()
-            {
+            optionsText.animate({ y: 125 }, 300, function () {
                 $('text[data-button=true][data-button-type="back"]').text('Save Options').attr({ x: 70, y: 31 });   // change back button text
                 $('[data-button=true][data-button-type="back"]').show();    // show options menu items
             });
@@ -406,8 +397,7 @@ var menu = {
     * Generates the sudoku board, culls based on difficulty, populate board and the animate board in and home menu out
     * @method
     */
-    boardView: function (loadType)
-    {
+    boardView: function (loadType) {
         $('[data-menu=true][data-background=true]').hide(); // hide the background
 
         // load board depending on the load type
@@ -439,6 +429,8 @@ var menu = {
                         break;
                 }
 
+                board.completed = false;
+
                 break;
 
             case boardLoadType.resume:
@@ -447,6 +439,7 @@ var menu = {
 
             case boardLoadType.load:
                 $('body').trigger('loadBoard', boardLoadType.load); // trigger event that a new board has been created
+                board.completed = false;
 
                 break;
         }

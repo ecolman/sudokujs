@@ -4,21 +4,12 @@
 
 var utilities = {
     /**
-    * Checks if the page is touch enabled or not, then resizes based on window size + modifier
+    * Takes all modal related elements and moves them to the bottom of the element children of the svg element
+    * This allows for the modal to be on top of everything else, similar to css z-index
     * @method
     */
-    resizePaper: function () {
-        var win = $(window);
-
-        var ox = board.paper.h;
-        var oy = board.paper.w;
-
-        //    var x = win.width() - (board.touchEnabled ? 5 : 20);
-        var x = (win.width() > 900) ? 900 : win.width();
-        var y = (win.height() > 800 && !board.touchEnabled) ? 800: win.height() - 50;
-
-        // if touch enabled, change the height slightly
-        board.paper.changeSize(x, y, false, false);
+    positionModal: function () {
+        $('#modal, #modalText, #modalClose').appendTo('svg').show();
     },
 
     /**
@@ -76,7 +67,3 @@ var utilities = {
         return 'r' + row + 'c' + col;
     }
 }
-
-//Raphael.el.is_visible = function () {
-//    return (this.node.style.display !== "none");
-//}

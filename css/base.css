@@ -186,3 +186,19 @@ a:hover {
  font-weight: bold !important;
  cursor: pointer !important;
 }
+
+/* MODAL CLASSES */
+#modal {
+
+}
+
+#modalText {
+
+}
+
+#modalClose {
+ fill: red !important;
+ font-size: 12px !important;
+ font-weight: bold !important;
+ cursor: pointer !important;
+}

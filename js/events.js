@@ -53,49 +53,51 @@ $('body').bind('loadBoard', function (event, loadType)
 * @event
 * @param {Event} event
 */
-$('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, function (event)
-{
+$('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, function (event) {
     // if this is 0 or 1 (a left click or touch), then highlight cells accordingly
     // if it's a right click, only fire event if it's the contextmenu type
 
     //console.log('got ' + event.type + ' @ ' + utilities.getTime());
 
-    switch (event.which) {
-        case 0:
-        case 1:
-            // check that the game board is showing
-            if (menu.view == gameView.board && board.visible && !board.paused) {
-                var jObj = $(this);
-                var nodeId = jObj.attr('id');
+    if (!board.completed) {
 
-                // parse Id depending it it was a text element clicked (t in id) or a notes text element (n in id)
-                if (nodeId.indexOf('t') > -1) {
-                    nodeId = nodeId.replace('t', '');
-                } else if (nodeId.indexOf('n') > -1) {
-                    nodeId = nodeId.substring(0, nodeId.indexOf('n'));
+        switch (event.which) {
+            case 0:
+            case 1:
+                // check that the game board is showing
+                if (menu.view == gameView.board && board.visible && !board.paused) {
+                    var jObj = $(this);
+                    var nodeId = jObj.attr('id');
+
+                    // parse Id depending it it was a text element clicked (t in id) or a notes text element (n in id)
+                    if (nodeId.indexOf('t') > -1) {
+                        nodeId = nodeId.replace('t', '');
+                    } else if (nodeId.indexOf('n') > -1) {
+                        nodeId = nodeId.substring(0, nodeId.indexOf('n'));
+                    }
+
+                    // grab number from data-num attribute of rect element
+                    var number = jObj.attr('data-num');
+
+                    // reset colors, highlight number cells and then selected cell
+                    board.resetAllCellColors();
+                    board.highlightNumberCells(number);
+                    board.highlightSelectedCell(nodeId);
+                    board.showDeleteButton(nodeId);
                 }
 
-                // grab number from data-num attribute of rect element
-                var number = jObj.attr('data-num');
+                break;
 
-                // reset colors, highlight number cells and then selected cell
-                board.resetAllCellColors();
-                board.highlightNumberCells(number);
-                board.highlightSelectedCell(nodeId);
-                board.showDeleteButton(nodeId);
-            }
-
-            break;
-
-        case 3:
-            // only want this function to call if it was a contextmenu (right) button click
-            // when the right mouse is clicked, it fires both mousedown and contextmenu, so throw out the mousedown event
-            // that way we can preventDefault on the context menu and replace with our function
-            if (event.type == "contextmenu") {
-                event.preventDefault();
-                console.log('right click');
-            }
-            break;
+            case 3:
+                // only want this function to call if it was a contextmenu (right) button click
+                // when the right mouse is clicked, it fires both mousedown and contextmenu, so throw out the mousedown event
+                // that way we can preventDefault on the context menu and replace with our function
+                if (event.type == "contextmenu") {
+                    event.preventDefault();
+                    console.log('right click');
+                }
+                break;
+        }
     }
 
     return false;
@@ -120,41 +122,62 @@ $('[data-board=true]').live('mouseup', function (event)
 * @param {Event} event
 */
 $(document).keydown(function (event) {
-    var key = event.charCode || event.keyCode || 0;
+    if (!board.completed) {
+        var key = event.charCode || event.keyCode || 0;
 
-    if (key >= 49 && key <= 57) {
-        // 1 - 9, add number to board
-        board.addNumberToSelectedCell(key - 48);
-    } else if (key >= 97 && key <= 105) {
-        // 1 - 9, add number to board
-        board.addNumberToSelectedCell(key - 96);
-    } else if (key >= 37 && key <= 40) {
-        // arrow keys
+        if (key >= 49 && key <= 57) {
+            // 1 - 9, add number to board
+            board.addNumberToSelectedCell(key - 48);
+        } else if (key >= 97 && key <= 105) {
+            // 1 - 9, add number to board
+            board.addNumberToSelectedCell(key - 96);
+        } else if (key >= 37 && key <= 40) {
+            // arrow keys
 
-        var direction = null;
+            var direction = null;
 
-        switch (key) {
-            case 37:
-                direction = 'left';
-                break;
+            switch (key) {
+                case 37:
+                    direction = 'left';
+                    break;
 
-            case 38:
-                direction = 'up';
-                break;
+                case 38:
+                    direction = 'up';
+                    break;
 
-            case 39:
-                direction = 'right';
-                break;
+                case 39:
+                    direction = 'right';
+                    break;
 
-            case 40:
-                direction = 'down';
-                break;
+                case 40:
+                    direction = 'down';
+                    break;
+            }
+
+            // move selected key based on direction
+            board.moveSelectedCell(direction);
+        } else if (key === 8 || key === 46) {
+            // delete or backspace, delete selected cell text
+            board.deleteSelectedCell();
         }
-
-        // move selected key based on direction
-        board.moveSelectedCell(direction);
-    } else if (key === 8 || key === 46) {
-        // delete or backspace, delete selected cell text
-        board.deleteSelectedCell();
     }
 });
+
+/**
+* Checks if the page is touch enabled or not, then resizes based on window size + modifier
+* @method
+*/
+function resizePaper() {
+    var win = $(window);
+
+    var ox = board.paper.h;
+    var oy = board.paper.w;
+
+    var x = (win.width() > 900) ? 900 : win.width();
+    //var y = (win.height() > 800 && !board.touchEnabled) ? 800 : win.height() - 50;  // if touch enabled, change the height slightly
+    var y = win.height() - 50;  // if touch enabled, change the height slightly
+
+    board.paper.changeSize(x, y, false, false); // set size of paper. method signature: (w, h, center, clipping)
+}
+
+$(window).resize(resizePaper);

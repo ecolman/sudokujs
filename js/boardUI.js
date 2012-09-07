@@ -34,19 +34,19 @@ var board = {
     highlight: false,
     feedback: false,
     penalize: false,
+    completed: false,
 
     /* Variable Holders */
     timerInterval: null,    // holder for timer interval delegate
     timeElapsedInSec: 0,    // board time holder
-    clickEventType: this.touchEnabled ? 'touchstart' : 'mousedown', // event to bind to depending on touch capabilities
+    clickEventType: $('html.touch').length > 0 ? 'touchstart' : 'mousedown', // event to bind to depending on touch capabilities
 
     /**
     * Initialize the raphael JS paper object and calls board creation methods
     * @method
     * @param {Raphael} raphael paper object
     */
-    initialize: function (paper)
-    {
+    initialize: function (paper) {
         this.paper = paper; // set paper
         this.createBoard(); // create sections of UI
         this.initialized = true;    // set initialized
@@ -56,8 +56,7 @@ var board = {
     * Creates the board with individual rect objects and bold lines to separate regions
     * @method
     */
-    createBoard: function ()
-    {
+    createBoard: function () {
         if (this.paper !== null) {
             // create suduko board rects then set id and class
             for (var r = 0; r < 9; r++) {
@@ -89,22 +88,21 @@ var board = {
     * Creates the outline lines and the internal grid lines
     * @method
     */
-    createGridLines: function ()
-    {
+    createGridLines: function () {
         var gridLines = this.paper.set();
         var gridStrokeWidth = 4;
 
         // outline line
-        gridLines.push(this.paper.path('M2,50L545,50').attr({ 'stroke-width': gridStrokeWidth }).toFront());    // top longitute
-        gridLines.push(this.paper.path('M2,500L545,500').attr({ 'stroke-width': gridStrokeWidth }).toFront());  // bottom longitute
-        gridLines.push(this.paper.path('M3,48L3,502').attr({ 'stroke-width': gridStrokeWidth }).toFront());     // left lattitude
-        gridLines.push(this.paper.path('M543,50L543,502').attr({ 'stroke-width': gridStrokeWidth }).toFront()); // right lattitude
+        gridLines.push(this.paper.path('M2,50L545,50').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }).toFront());    // top longitute
+        gridLines.push(this.paper.path('M2,500L545,500').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }).toFront());  // bottom longitute
+        gridLines.push(this.paper.path('M3,48L3,502').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }).toFront());     // left lattitude
+        gridLines.push(this.paper.path('M543,50L543,502').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }).toFront()); // right lattitude
 
         // interior lines
-        gridLines.push(this.paper.path('M2,150L545,150').attr({ 'stroke-width': gridStrokeWidth }));    // top longitute
-        gridLines.push(this.paper.path('M2,350L545,350').attr({ 'stroke-width': gridStrokeWidth }));    // bottom longitute
-        gridLines.push(this.paper.path('M183,50L183,502').attr({ 'stroke-width': gridStrokeWidth }));   // left lattitude
-        gridLines.push(this.paper.path('M363,50L363,502').attr({ 'stroke-width': gridStrokeWidth }));   // right lattitude
+        gridLines.push(this.paper.path('M2,200L545,200').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }));    // top longitute
+        gridLines.push(this.paper.path('M2,350L545,350').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }));    // bottom longitute
+        gridLines.push(this.paper.path('M183,50L183,502').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }));   // left lattitude
+        gridLines.push(this.paper.path('M363,50L363,502').attr({ fill: '#000', 'stroke-width': gridStrokeWidth }));   // right lattitude
 
         // loop over set and set attributes
         for (var i = 0; i < gridLines.length; i++) {
@@ -112,7 +110,7 @@ var board = {
             $(line.node).attr({ 'data-board': true, 'data-gridline': true });
         }
 
-        $('[data-gridline=true]').css({ opacity: .1 }); // set the gridlines to an opacity of .1
+        $('[data-gridline=true]').css({ opacity: .1 }).show(); // set the gridlines to an opacity of .1
     },
 
     /**
@@ -120,8 +118,7 @@ var board = {
     * @method
     * @param {Number} amount
     */
-    createSelectors: function ()
-    {
+    createSelectors: function () {
         var selectorWidth = 45;
         var selectorHeight = 45;
 
@@ -138,9 +135,11 @@ var board = {
             $(text.node).attr({ class: this.selectorClassText, 'data-num': i + 1, 'data-selector': true, 'data-board': true, 'data-auto-attach-events': false });    // set class of rect
 
             // attach touch / click event (depending on if it's enabled) to selector
-            $('[data-selector=true]').bind(this.clickEventType, function ()
-            {
-                board.addNumberToSelectedCell($(this).data('num'));
+            $('[data-selector=true]').bind(this.clickEventType, function () {
+                // check if board is complete, and if not, add number
+                if (!board.completed) {
+                    board.addNumberToSelectedCell($(this).attr('data-num'));
+                }
             });
         }
     },
@@ -149,8 +148,7 @@ var board = {
     * Creates the timer text reference and sets off interval to update timer
     * @method
     */
-    createTimer: function ()
-    {
+    createTimer: function () {
         var timer = this.paper.text(480, 38, '00:00');
         timer.node.id = 'timer';
         $(timer.node).attr({ 'data-time': 0, 'data-board': true });
@@ -160,8 +158,7 @@ var board = {
     * Creates the back button element and attaches mousedown event to transition from board to menu
     * @method
     */
-    createBackButton: function ()
-    {
+    createBackButton: function () {
         // back button clickable region
         var clickRegion = this.paper.rect(0, 10, 67, 30).attr({ fill: "#fff", stroke: '#fff' });
         clickRegion.node.id = 'backClickRegion';
@@ -178,14 +175,18 @@ var board = {
         $(text.node).attr({ 'data-board': true, 'data-button': true, 'data-button-type': 'back' }).hide();
 
         // attach handler
-        $('[data-button=true][data-button-type="back"]').bind(this.clickEventType, function ()
-        {
+        $('[data-button=true][data-button-type="back"]').bind(this.clickEventType, function () {
             // check if game was paused, and subtract one second if going to menu from pause
             menu.homeView(sudoku.isGameInProgress());
 
             if (board.paused) {
                 board.timeElapsedInSec -= 1;
-                $('[data-button-type="pauseSymbol"]').animate({ opacity: 0 }, 200, function () { $(this).hide(); });
+                console.log(board.touchEnabled);
+                if (board.touchEnabled) {
+                    $('[data-button-type="pauseSymbol"]').css({ opacity: 0 }).hide();
+                } else {
+                    $('[data-button-type="pauseSymbol"]').animate({ opacity: 0 }, 200, function () { $(this).hide(); });
+                }
             }
         });
     },
@@ -194,8 +195,7 @@ var board = {
     * Creates the pause button element and attaches mousedown event to transition from board to pause
     * @method
     */
-    createPauseButton: function ()
-    {
+    createPauseButton: function () {
         var clickRegion = this.paper.rect(65, 10, 80, 30).attr({ fill: "#fff", stroke: '#fff', opacity: 0 });
         clickRegion.node.id = 'pauseClickRegion';
         $(clickRegion.node).attr({ class: 'clickableRegion', 'data-board': true, 'data-button': true, 'data-button-type': 'pause' }).hide();
@@ -209,8 +209,7 @@ var board = {
         $(text.node).attr({ 'data-board': true, 'data-button': true, 'data-button-type': 'pause', 'data-paused': this.paused }).hide();
 
         // attach text click selector to the pause events
-        $('[data-button=true][data-button-type="pause"]').bind(this.clickEventType, function ()
-        {
+        $('[data-button=true][data-button-type="pause"]').bind(this.clickEventType, function () {
             // if paused, then unpause board, if not paused, pause board
             if (board.paused) { board.unPauseBoard(); }
             else { board.pauseBoard(); }
@@ -221,8 +220,7 @@ var board = {
     * Creates the pause symbol element and attaches mousedown event to transition from pause to board
     * @method
     */
-    createPauseSymbol: function ()
-    {
+    createPauseSymbol: function () {
         var clickRegion = this.paper.rect(230, 207, 80, 135, 0).attr({ fill: '#fff', stroke: '#fff', opacity: 0 });
         clickRegion.node.id = 'pauseSymbolClickRegion';
         $(clickRegion.node).attr({ class: 'clickableRegion', 'data-board': true, 'data-button': true, 'data-button-type': 'pauseSymbol' }).hide();
@@ -239,13 +237,11 @@ var board = {
     * Creates the enable notes mode checkbox
     * @method
     */
-    createNoteSelector: function ()
-    {
+    createNoteSelector: function () {
         if (this.paper !== null) {
             this.noteSelector = this.paper.set();
 
-            var check = createCheckSet(510, 585, optionType.notesMode, .85, function (event)
-            {
+            var check = createCheckSet(510, 585, optionType.notesMode, .85, function (event) {
                 var target = $(event.target);
 
                 board.notesMode = target.attr('data-checked') == 'true' ? true : false;
@@ -264,12 +260,8 @@ var board = {
 
             this.noteSelector.push(check, text);    // add elements to set
 
-            // attach text click selector to the noteSelectors events            
-            if (this.touchEnabled) {
-                $(text.node).touchstart(function (e) { board.noteSelector[0][0].events[0].f(e); });
-            } else {
-                $(text.node).mousedown(function (e) { board.noteSelector[0][0].events[0].f(e); });
-            }
+            // attach text click selector to the noteSelectors events
+            $(text.node).bind(this.clickEventType, function (e) { board.noteSelector[0][0].events[0].f(e); });
         }
     },
 
@@ -277,20 +269,20 @@ var board = {
     * Creates the delete button for a cell, which is moved around based on which is the highlighted cell and if it's prepopulated
     * @method
     */
-    createDeleteButton: function ()
-    {
+    createDeleteButton: function () {
         // the X in the top right corner or a user populated cell
         cellDeleteButton = this.paper.text(5, 5, 'X').attr({ stroke: 'red' });
         cellDeleteButton.node.id = 'deleteButton';
         $(cellDeleteButton.node).attr({ 'data-raphael-id': cellDeleteButton.id, 'data-auto-attach-events': false }).hide();
 
         // attach click event to delete button
-        $(cellDeleteButton.node).bind(this.clickEventType, function (event)
-        {
+        $(cellDeleteButton.node).bind(this.clickEventType, function (event) {
             var button = $(this);
             if (button.is(':visible')) {
                 board.removeCellText($('[data-selected=true]'), true);
                 button.css({ opacity: 0 }).hide();
+
+                board.checkSelectors(sudoku.playerBoard, true); // check selectors
             }
         });
 
@@ -302,9 +294,8 @@ var board = {
     * Creates the difficulty text element
     * @method
     */
-    createDifficultyText: function ()
-    {
-        var difficultyText = this.paper.text(38, 600, 'Easy');
+    createDifficultyText: function () {
+        var difficultyText = this.paper.text(38, 608, 'Easy');
         difficultyText.node.id = 'difficultyText';
         $(difficultyText.node).css({ opacity: 0 }).attr({ 'data-board': true });
     },
@@ -313,8 +304,7 @@ var board = {
     * Creates the instructions text element
     * @method
     */
-    createInstructionText: function ()
-    {
+    createInstructionText: function () {
         var instructionsText = this.paper.set();
         instructionsText.push(this.paper.text(250, 583, 'Instructions').attr({ 'font-size': '12px', 'font-weight': 'bold', 'cursor': 'default' }));
         instructionsText.push(this.paper.text(250, 610, 'Clicking the red X in a cell will delete the cell.').attr({ 'font-size': '12px', 'cursor': 'default' }));
@@ -334,8 +324,7 @@ var board = {
     * Checkes all selector numbers to see if they've been used 9 times (should disable)
     * @method
     */
-    showBoard: function ()
-    {
+    showBoard: function () {
         $('text[data-button=true][data-button-type="back"]').text('Menu').attr({ x: 40, y: 31 });   // set text and position for back button
         $('#difficultyText').text(sudoku.difficulty).attr({ fill: getDifficultyColor(sudoku.difficulty) }); // set color and text for difficulty indicator
 
@@ -343,11 +332,11 @@ var board = {
         if (board.touchEnabled) {
             $('[data-gridline=true]').css({ opacity: .9 }); // set gridlines to opacity of .9
             $('[data-button=true][data-button-type="back"], [data-button=true][data-button-type="pause"]').show().css({ opacity: .7 });    // show back button
-            $('[data-board=true][data-button-type!="pauseSymbol"]').show().css({ opacity: 1 });  // show all board elements
+            $('[data-board=true][data-button-type!="pauseSymbol"][data-gridline!=true][data-selector!=true]').show().css({ opacity: 1 });  // show all board elements
         } else {
-            $('[data-gridline=true]').animate({ opacity: .9 }, 500); // set gridlines to opacity of .9
+            $('[data-gridline=true]').animate({ opacity: .8 }, 500); // set gridlines to opacity of .9
             $('[data-button=true][data-button-type="back"], [data-button=true][data-button-type="pause"]').show().animate({ opacity: .7 }, 500);    // show back button
-            $('[data-board=true][data-button-type!="pauseSymbol"]').show().animate({ opacity: 1 }, 500);  // show all board elements
+            $('[data-board=true][data-button-type!="pauseSymbol"][data-gridline!=true][data-selector!=true]').show().animate({ opacity: 1 }, 500);  // show all board elements
         }
 
         // set the selector data element to board.notesMode flag
@@ -368,6 +357,7 @@ var board = {
 
         $('text[data-menu=true]').hide();   // hide all menu elements
         $('rect[data-prepopulated=false]').css({ 'cursor': 'pointer' });    // change cursor for non-pre-populated cells to pointer
+        this.showSelectors();
 
         board.visible = true;   // update board visibility holder
     },
@@ -376,19 +366,18 @@ var board = {
     * Hides all board elements
     * @method
     */
-    hideBoard: function ()
-    {
+    hideBoard: function () {
         clearInterval(this.timerInterval);  // stop the timer
         this.timerInterval = null; // stop the timer
         this.paused = false; // set paused state
 
         // if touch enabled, skip the animation
         if (board.touchEnabled) {
+            $('[data-board=true][data-sudoku-rect!=true][data-gridline!=true]').css({ opacity: 0 }).hide();  // hide all board elements
             $('[data-gridline=true]').css({ opacity: .1 }); // set gridlines to opacity of .1
-            $('[data-board=true][data-sudoku-rect!=true]').css({ opacity: 0 }).hide();  // hide all board elements
         } else {
-            $('[data-gridline=true]').animate({ opacity: .1 }, 250);    // set gridlines to opacity of .1
-            $('[data-board=true][data-sudoku-rect!=true]').animate({ opacity: 0 }, 250).hide(); // hide all board elements
+            $('[data-board=true][data-sudoku-rect!=true][data-gridline!=true]').animate({ opacity: 0 }, 250).hide(); // hide all board elements
+            $('[data-gridline=true]').animate({ opacity: .1 }, 250); // animate gridlines to opacity of .1
         }
 
         // hide check if not in notes mode
@@ -403,6 +392,7 @@ var board = {
         $('text[data-button=true][data-button-type="pause"]').text('| Pause').attr({ x: 93 });  // set pause button text to normal
 
         $('rect').css({ cursor: 'default' }); // change cursor for all rects to default
+        $('#modal, #modalText, #modalClose').hide();
         this.visible = false;   // update board visibility holder
     },
 
@@ -410,13 +400,12 @@ var board = {
     * Stops timer, hides board cells and changes cursor
     * @method
     */
-    pauseBoard: function ()
-    {
+    pauseBoard: function () {
         this.paused = true; // set board pause state
         this.stopTimer();   // stop timer
         this.resetAllCellColors();  // reset all board colors
 
-        var pauseButtonId = $('path[data-button=true][data-button-type="pause"]').data('raphael-id');   // grab raphael id from data
+        var pauseButtonId = $('path[data-button=true][data-button-type="pause"]').attr('data-raphael-id');   // grab raphael id from data
         var rPauseButton = this.paper.getById(pauseButtonId);   // get raphael element
 
         // change the path of pause button to 'play'.  if touch enabled, skip the animation
@@ -440,10 +429,9 @@ var board = {
     * Starts timer, shows board cells and changes cursor
     * @method
     */
-    unPauseBoard: function ()
-    {
+    unPauseBoard: function () {
         this.paused = false;
-        var pauseButtonId = $('path[data-button=true][data-button-type="pause"]').data('raphael-id');
+        var pauseButtonId = $('path[data-button=true][data-button-type="pause"]').attr('data-raphael-id');
         var rPauseButton = this.paper.getById(pauseButtonId);
 
         // if touch enabled, skip the animation
@@ -467,8 +455,7 @@ var board = {
     * Checkes selectors and then shows them based on their enabled state
     * @method
     */
-    showSelectors: function ()
-    {
+    showSelectors: function () {
         // check board
         this.checkSelectors(sudoku.playerBoard, false);
 
@@ -485,12 +472,11 @@ var board = {
     * Shows the delete button ('X') on a specific cell
     * @method
     */
-    showDeleteButton: function (rectNodeId)
-    {
+    showDeleteButton: function (rectNodeId) {
         var cell = $('#' + rectNodeId);
         $('#deleteButton').css({ opacity: 0 }).hide();
 
-        if ((cell.attr('data-num') != 0 || cell.attr('data-notes') != undefined) && cell.data('prepopulated') == false) {
+        if ((cell.attr('data-num') != 0 || cell.attr('data-notes') != undefined) && !this.isPrePopulated(cell)) {
             var deleteButton = board.paper.getById($('#deleteButton').attr('data-raphael-id'));
             var rectId = utilities.getRaphaelIdFromElementId(rectNodeId)
             var rect = board.paper.getById(rectId);
@@ -503,28 +489,32 @@ var board = {
     * Checks if the board is filled out and if the board is correct
     * @method
     */
-    checkBoard: function ()
-    {
+    checkBoard: function () {
         // check if the board is completed (no empty cells) and if it's valid
         if (sudoku.isPlayerBoardFilled()) {
+            $('[data-button=true][data-button-type="pause"], #deleteButton').hide();   // hide the pause button
+
             if (sudoku.checkPlayerBoard()) {
-                this.stopTimer();
-                if (this.pauseButton != null) { this.pauseButton.animate({ opacity: 0 }, 250, function () { this.hide(); alert('Board is correct!  Good Job!'); }); }
-                return true;
+                this.stopTimer();   // stop timer
+
+                this.completed = true; // set board complete flag
+                $('rect[data-sudoku-rect=true], .sudokuText').css({ cursor: 'default' }); // change cursor for all rects to default
+                showModal(115, 250, 'Board is correct!', 'Commodore 64 Pixelized', 25, 'green', 'blue');    //show modal
+
             } else {
-                alert('Board is incorrect. :-(');
+                this.stopTimer();   // stop timer
+
+                board.completed = false; // set board complete flag
+                showModal(107, 250, 'Board is incorrect!', 'Commodore 64 Pixelized', 23, 'green', 'blue');    //show modal
             }
         }
-
-        return false;
     },
 
     /**
     * Checkes all selector numbers to see if they've been used 9 times (should disable)
     * @method
     */
-    checkSelectors: function (animate)
-    {
+    checkSelectors: function (animate) {
         // run through selectors array to see if any number has been used 9 times or more
         // if so, disable, otherwise, enable
         for (var i = 1; i < 10; i++) {
@@ -549,8 +539,7 @@ var board = {
     * @method
     * @param {Number} position
     */
-    disableSelector: function (position)
-    {
+    disableSelector: function (position) {
         $('[data-selector=true][data-num=' + position + ']').attr({ cursor: 'default', 'data-enabled': false });    // set appropriate properties
     },
 
@@ -559,8 +548,7 @@ var board = {
     * @method
     * @param {Number} position
     */
-    enableSelector: function (position)
-    {
+    enableSelector: function (position) {
         $('[data-selector=true][data-num=' + position + ']').attr({ cursor: 'pointer', 'data-enabled': true });    // set appropriate properties
     },
 
@@ -568,8 +556,7 @@ var board = {
     * Creates the timer text reference and sets off interval to update timer
     * @method
     */
-    startTimer: function (loadType)
-    {
+    startTimer: function (loadType) {
         // if it's a fresh load, reset timer, otherwise just update the text to the time elapsed
         switch (loadType) {
             case boardLoadType.fresh:
@@ -598,8 +585,7 @@ var board = {
     * Removes the interval to update the timer
     * @method
     */
-    stopTimer: function ()
-    {
+    stopTimer: function () {
         if (this.timerInterval != undefined && this.timerInterval != null) {
             // kick off timer interval
             clearInterval(this.timerInterval);
@@ -611,8 +597,7 @@ var board = {
     * Updates timer data, calculates the appropriate timer text and updates
     * @method
     */
-    updateTimer: function ()
-    {
+    updateTimer: function () {
         // get seconds from data and update
         var secondsTimer = board.timeElapsedInSec + 1;
 
@@ -628,8 +613,7 @@ var board = {
     * @method
     * @param {Number} secondsTimer
     */
-    getTimerText: function (secondsTimer)
-    {
+    getTimerText: function (secondsTimer) {
         // calculate text to insert into timer
         var hours = '' + Math.floor((secondsTimer / 60) / 60);
         var minutes = '' + Math.floor((secondsTimer / 60) - (hours * 60));
@@ -655,8 +639,7 @@ var board = {
     * @param {Number} number
     * @param {Array} boardToSearch
     */
-    checkNumberUsage: function (number, boardToSearch)
-    {
+    checkNumberUsage: function (number, boardToSearch) {
         var count = 0;
 
         // count how many times each selector number has been used on board
@@ -675,8 +658,7 @@ var board = {
     * Resets all highlighted board cells to regular css cell color class via jQuery
     * @method
     */
-    resetAllCellColors: function ()
-    {
+    resetAllCellColors: function () {
         // reset all highlighted cells to standard cell class
         $('#deleteButton').css({ opacity: 0 }).hide();
         this.resetCellClass('.' + this.cellHighlightClass);
@@ -689,8 +671,7 @@ var board = {
     * @method
     * @param {Number} number
     */
-    highlightNumberCells: function (number)
-    {
+    highlightNumberCells: function (number) {
         if (this.highlight) {
             // parse number and check if it's valid
             number = parseInt(number);
@@ -709,9 +690,8 @@ var board = {
     * @param {Text} rectNodeId
     * @param {Text} number
     */
-    highlightSelectedCell: function (rectNodeId)
-    {
-        $('rect[id="' + rectNodeId + '"]').attr({ class: this.cellSelectedClass, 'data-selected': true });
+    highlightSelectedCell: function (rectNodeId) {
+        $('#' + rectNodeId).attr({ class: this.cellSelectedClass, 'data-selected': true });
     },
 
     /**
@@ -719,12 +699,11 @@ var board = {
     * @method
     * @param {Number} number
     */
-    highlightSelectedAndNumberCells: function ()
-    {
+    highlightSelectedAndNumberCells: function () {
         if (this.highlight) {
             var highlighted = $('rect[data-selected=true]');
             // parse number and check if it's valid
-            var number = parseInt(highlighted.data('num'));
+            var number = parseInt(highlighted.attr('data-num'));
 
             board.resetAllCellColors()
 
@@ -743,11 +722,9 @@ var board = {
     * @method
     * @param {Text} classToReset
     */
-    resetCellClass: function (selector)
-    {
-        $(selector).each(function ()
-        {
-            if ($(this).data('prepopulated') == true) {
+    resetCellClass: function (selector) {
+        $(selector).each(function () {
+            if (!board.isPrePopulated($(this))) {
                 $(this).attr({ class: board.cellPrePopulatedClass });
             } else {
                 $(this).attr({ class: board.cellClass });
@@ -760,8 +737,7 @@ var board = {
     * @method
     * @param {Text} classToReset
     */
-    removeSelectedHighlight: function ()
-    {
+    removeSelectedHighlight: function () {
         // remove selected attribute from all cells which have it
         $('rect[data-selected=true]').removeAttr('data-selected');
     },
@@ -773,8 +749,7 @@ var board = {
     * @param {Number} number
     * @param {Boolean} prePopulated
     */
-    addCellNumber: function (rect, number, prePopulated, dummy)
-    {
+    addCellNumber: function (rect, number, prePopulated, dummy) {
         var cellText, textClass, cellClass;
 
         // add text number to cell (different attributes if prepopulated)
@@ -800,8 +775,7 @@ var board = {
     * @param {Number} number
     * @param {Boolean} prePopulated
     */
-    addCellNote: function (rect, number)
-    {
+    addCellNote: function (rect, number) {
         var cellText = null;
         var jRect = $('#' + rect.node.id);
         var currentNotes = [];
@@ -843,13 +817,9 @@ var board = {
             if (number % 3 == 1) { xOffset = 0 }    // if it's a multiple of 3 + 1, reset the offset to account for newline
 
             // add text number to cell (different attributes if prepopulated)
-            cellText = this.paper.text(rect.attr('x') + xOffset + (this.sudukoRectWidth / 5), rect.attr('y') + yOffset + (this.sudukoRectHeight / 5), number);
-
-            // add cell Id, which is the rect node id + t
-            cellText.node.id = rect.node.id + 'n' + number;
-
-            // set position relationship for text to what rectangle it's in
-            $('#' + cellText.node.id).attr({ class: this.noteClass, 'data-board': true, 'data-note-num': number });
+            cellText = this.paper.text(rect.attr('x') + xOffset + (this.sudukoRectWidth / 5), rect.attr('y') + yOffset + 11, number);
+            cellText.node.id = rect.node.id + 'n' + number; // add cell Id, which is the rect node id + t
+            $('#' + cellText.node.id).attr({ class: this.noteClass, 'data-board': true, 'data-note-num': number }); // set position relationship for text to what rectangle it's in
         } else {
             this.removeCellNote(rect, number);
         }
@@ -860,8 +830,7 @@ var board = {
     * @method
     * @param {Raphael} rect
     */
-    showPenaltyText: function (rect)
-    {
+    showPenaltyText: function (rect) {
         var penaltyText = this.paper.text(rect.attr('x') + (this.sudukoRectWidth / 2), rect.attr('y') + (this.sudukoRectHeight / 2),
                         '+5 sec').attr({ fill: '#AE5050', 'font-size': '15px', 'font-weight': 'bold', 'font-family': 'Consolas', 'cursor': 'pointer' });
 
@@ -877,18 +846,17 @@ var board = {
     * @method
     * @param {Raphael} rect
     */
-    removeCellText: function (rect, clearPlayerBoardValue)
-    {
+    removeCellText: function (rect, clearPlayerBoardValue) {
         if (rect != null && rect != undefined) {
             if (rect.length > 0) {
                 var currentNotes = [];
 
                 // fill up array of current notes
-                if (rect.data('notes') != undefined) {
-                    currentNotes = rect.data('notes').split(',');
+                if (rect.attr('data-notes') != undefined) {
+                    currentNotes = rect.attr('data-notes').split(',');
 
                     // remove all notes
-                    for (var i = 1; i < 9; i++) {
+                    for (var i = 1; i < 10; i++) {
                         $('#' + rect.attr('id') + 'n' + i).remove();
                     }
                 }
@@ -910,8 +878,7 @@ var board = {
     * @method
     * @param {Raphael} rect
     */
-    removeCellNumber: function (rect)
-    {
+    removeCellNumber: function (rect) {
         if (rect != null && rect != undefined) {
             // purge rect data
             this.removeCellData(rect, false, true);
@@ -934,8 +901,7 @@ var board = {
     * @method
     * @param {Raphael} rect
     */
-    removeCellNote: function (rect, noteNum)
-    {
+    removeCellNote: function (rect, noteNum) {
         if (rect != null && rect != undefined) {
             // purge rect data
             var textEl = $('text[id=' + rect.node.id + 'n' + noteNum + ']');
@@ -975,8 +941,7 @@ var board = {
     * Removes data attached to a rect and removes the number from the player board
     * @method
     */
-    removeCellData: function (rect, removeNotes, removePlayerBoardValue)
-    {
+    removeCellData: function (rect, removeNotes, removePlayerBoardValue) {
         if (rect != null) {
             // remove data from raphael object, html element and sudoku player board
             //console.log('before: ' + rect.attr('data-num'));
@@ -1002,8 +967,7 @@ var board = {
     * @method
     * @param {String} direction
     */
-    moveSelectedCell: function (direction)
-    {
+    moveSelectedCell: function (direction) {
         var selectedCell = $('.' + this.cellSelectedClass);
         var positionChange = 0;
 
@@ -1037,7 +1001,7 @@ var board = {
 
                 // reset colors, highlight cell based on data from rect object and highlight selected cell
                 this.resetAllCellColors();
-                this.highlightNumberCells(jRect.data('num'));
+                this.highlightNumberCells(jRect.attr('data-num'));
                 this.highlightSelectedCell(rect.node.id);
                 this.showDeleteButton(rect.node.id);
             }
@@ -1048,8 +1012,7 @@ var board = {
     * Finds selected cell and then removes text inside cell
     * @method
     */
-    deleteSelectedCell: function (number)
-    {
+    deleteSelectedCell: function (number) {
         var selectedCell = $('.' + this.cellSelectedClass); // find selected cell
 
         if (selectedCell.length > 0) {
@@ -1070,15 +1033,8 @@ var board = {
     * Checks is a rect was pre populated or not
     * @method
     */
-    isPrePopulated: function (rect)
-    {
-        var prePopulated = rect.data('prepopulated');
-
-        if (prePopulated != undefined) {
-            return prePopulated;
-        }
-
-        return false;
+    isPrePopulated: function (rect) {
+        return rect.attr('data-prepopulated') == 'true' ? true : false;
     },
 
     /**
@@ -1086,13 +1042,12 @@ var board = {
     * @method
     * @param {Number} number
     */
-    addNumberToSelectedCell: function (number)
-    {
+    addNumberToSelectedCell: function (number) {
         var selectedCell = $('.' + this.cellSelectedClass);
         var rect = this.paper.getById(utilities.getRaphaelIdFromElementId(selectedCell.attr('id')));
 
         // if we have a jquery object representing the cell, then grab info from it and add number
-        if (selectedCell.length > 0 && selectedCell.data('prepopulated') == false && rect != null && rect != undefined) {
+        if (selectedCell.length > 0 && !this.isPrePopulated(selectedCell) && rect != null && rect != undefined) {
             // if notes are enabled, just add the note text
             if (board.notesMode == true) {
                 this.removeCellNumber(rect);
@@ -1103,7 +1058,7 @@ var board = {
                 var numberUsage = this.checkNumberUsage(number, sudoku.playerBoard);
 
                 if (numberUsage < 9) {
-                    if (!this.isPrePopulated(selectedCell) && selectedCell.data('num') != number) {
+                    if (selectedCell.attr('data-num') != number) {
                         var isCorrect = true;
 
                         // instant feeback feature alerts user to incorrect number entry to a cell
@@ -1170,8 +1125,7 @@ var board = {
     * @method
     * @param {Array} numberArray
     */
-    populate: function (numberArray)
-    {
+    populate: function (numberArray) {
         // loop through array
         for (var r = 0; r < 9; r++) {
             for (var c = 0; c < 9; c++) {
@@ -1196,8 +1150,7 @@ var board = {
     * @method
     * @param {Array} numberArray
     */
-    populateWithPlayerBoard: function (numberArray)
-    {
+    populateWithPlayerBoard: function (numberArray) {
         // loop through array
         for (var r = 0; r < 9; r++) {
             for (var c = 0; c < 9; c++) {
@@ -1228,8 +1181,7 @@ var board = {
     * Loops through rect objects, resetting data and clearing text from cells
     * @method
     */
-    clearBoard: function ()
-    {
+    clearBoard: function () {
         // loop through array
         for (var r = 0; r < 9; r++) {
             for (var c = 0; c < 9; c++) {

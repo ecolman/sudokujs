@@ -12,22 +12,27 @@
         <script src="js/frameworks/scale.raphael.js" type="text/javascript" charset="utf-8"></script>
 
         <script type="text/javascript">
-//            // google analytics
-//            var _gaq = _gaq || [];
-//            _gaq.push(['_setAccount', 'UA-1522193-2']);
-//            _gaq.push(['_trackPageview']);
-//            _gaq.push(['_trackPageLoadTime']);
+            // google analytics
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-1522193-2']);
+            _gaq.push(['_trackPageview']);
+            _gaq.push(['_trackPageLoadTime']);
 
-//            (function () {
-//                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-//                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-//                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-//            })();
+            (function () {
+                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+            })();
         </script>
     </head>
     <body>
         <div id="grid"></div>
+        <!-- Fonts -->
+        <!--<script src="fonts/fipps.cufonfonts.js" type="text/javascript" charset="utf-8"></script>-->
+        <script src="fonts/commodore-64-pixelized.cufonfonts.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="fonts/perfect-dos-vga-437.cufonfonts.js" type="text/javascript" charset="utf-8"></script>-->
 
+        <!-- Game -->
         <script src="js/enums.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/utilities.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/sudoku.js" type="text/javascript" charset="utf-8"></script>
@@ -44,12 +49,12 @@
                 board.initialize(paper);   // init board UI
                 menu.initialize(paper);    // init menu UI
 
-                utilities.resizePaper();  // resize paper based on size of window
+                resizePaper();  // resize paper based on size of window
             });
 
             $(document).ready(function ()
             {
-                $(window).resize(utilities.resizePaper);  // set resize event to a utility function
+                  // set resize event to a utility function
             });
 
             // on unload, save game

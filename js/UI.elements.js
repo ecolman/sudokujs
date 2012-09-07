@@ -1,4 +1,42 @@
-﻿/**
+﻿function showModal(textX, textY, text, font, fontSize, fillColor, strokeColor) {
+    if ($('#modal, #modalText').length == 0) {
+
+        var rect = board.paper.rect(100, 200, 350, 100, 4).attr({ fill: '#fff', stroke: '#000' });
+        rect.node.id = 'modal';
+
+        //var text = board.paper.print(150, 250, 'You Win!', board.paper.getFont('Fipps', 400), 30).attr({ fill: 'green', stroke: 'blue' });
+        //var text = board.paper.print(150, 250, 'You Win!', board.paper.getFont('Perfect DOS VGA 437', 400), 30).attr({ fill: 'green', stroke: 'blue' });
+        //var text = board.paper.print(textX, textY, 'text', board.paper.getFont('Commodore 64 Pixelized', 400), 40).attr({ fill: 'green', stroke: 'blue' });
+        var text = board.paper.print(textX, textY, text, board.paper.getFont(font, 400), fontSize).attr({ fill: fillColor, stroke: strokeColor });
+        text.node.id = 'modalText';
+    } else {
+        $('#modalText').remove();
+
+        var text = board.paper.print(textX, textY, text, board.paper.getFont(font, 400), fontSize).attr({ fill: fillColor, stroke: strokeColor });
+        text.node.id = 'modalText';
+    }
+
+    if ($('#modalClose').length == 0) {
+        var closeBtn = board.paper.text(442, 210, 'X').attr({ stroke: 'red'});
+        closeBtn.node.id = 'modalClose';
+
+        $(closeBtn.node).click(function (){
+            $('#modal, #modalText, #modalClose').hide();    // hide modals
+
+            if (!board.completed) {
+                $('[data-button=true][data-button-type="pause"], #deleteButton').show();   // hide the pause button
+                board.startTimer(boardLoadType.resume); // start timer again
+            }
+        });
+    } else {
+        $('#modalClose').show();
+    }
+
+    utilities.positionModal();
+}
+
+
+/**
 * Creates a box and checkmark for the options on/off.  Creates it where provided (x/y position), sets the checked state and the type
 * @method
 * @param {Number} xPos
@@ -11,7 +49,7 @@ function createCheckSet(xPos, yPos, type, sizeModifier, clickEvent) {
     var sizeModifier;
 
     // create box and tick based on x/y position
-    var box = board.paper.rect(xPos, yPos, 28, 28, 5).attr({ 'fill': '#fff', 'stroke': '#000', 'stroke-width': '2' });
+    var box = board.paper.rect(xPos, yPos, 28, 28, 5).attr({ fill: '#fff', stroke: '#000', 'stroke-width': '2' });
     var tick = board.paper.path('M 197.67968,534.31563 C 197.40468,534.31208 196.21788,532.53719 195.04234,530.37143 L 192.905,526.43368 L 193.45901,525.87968 C 193.76371,525.57497 ' +
                                 '194.58269,525.32567 195.27896,525.32567 L 196.5449,525.32567 L 197.18129,527.33076 L 197.81768,529.33584 L 202.88215,523.79451 C 205.66761,520.74678 ' +
                                 '208.88522,517.75085 210.03239,517.13691 L 212.11815,516.02064 L 207.90871,520.80282 C 205.59351,523.43302 202.45735,527.55085 200.93947,529.95355 C ' +
