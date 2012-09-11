@@ -8,21 +8,22 @@
         <script src="js/frameworks/modernizr.custom.88290.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/frameworks/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/frameworks/jquery.total-storage.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="js/frameworks/raphael-min.js" type="text/javascript" charset="utf-8"></script>
+        <!--<script src="js/frameworks/raphael-min.js" type="text/javascript" charset="utf-8"></script>-->
+		<script src="js/frameworks/raphael.js" type="text/javascript" charset="utf-8"></script>
         <script src="js/frameworks/scale.raphael.js" type="text/javascript" charset="utf-8"></script>
 
         <script type="text/javascript">
-            // google analytics
-            var _gaq = _gaq || [];
-            _gaq.push(['_setAccount', 'UA-1522193-2']);
-            _gaq.push(['_trackPageview']);
-            _gaq.push(['_trackPageLoadTime']);
+//            // google analytics
+//            var _gaq = _gaq || [];
+//            _gaq.push(['_setAccount', 'UA-1522193-2']);
+//            _gaq.push(['_trackPageview']);
+//            _gaq.push(['_trackPageLoadTime']);
 
-            (function () {
-                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-            })();
+//            (function () {
+//                var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+//                ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+//                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+//            })();
         </script>
     </head>
     <body>
@@ -43,7 +44,7 @@
 
         <script type="text/javascript">
             Raphael(function () {
-                var paper = new ScaleRaphael('grid', 545, 620); // create paper
+                var paper = new ScaleRaphael('grid', 545, 623); // create paper
 
                 sudoku.initialize();    // init sudoku engine
                 board.initialize(paper);   // init board UI
@@ -54,7 +55,7 @@
 
             $(document).ready(function ()
             {
-                  // set resize event to a utility function
+                  
             });
 
             // on unload, save game

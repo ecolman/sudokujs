@@ -33,6 +33,8 @@ var menu = {
         this.createHomeMenu();  // creates the home menu text elements
         this.createOptionsMenu();   // create the options menu text elements
 
+        this.loadOptions(); // load options from local storage
+
         menu.homeView(false);
 
         this.initialized = true;
@@ -96,7 +98,7 @@ var menu = {
 
         // add all options to homeSet, mainy to make mousedown handlers and animations easier
 
-        $('[data-menu=true][data-main=true]').mousedown(function (event) {
+        $('[data-menu=true][data-main=true]').bind(board.clickEventType, function (event) {
             var optionType = $(this).attr('data-type');
 
             switch (optionType) {
@@ -332,11 +334,10 @@ var menu = {
     * @method
     */
     optionsView: function () {
-        this.loadOptions(); // load options from local storage
         this.fillOptionsCheckboxes();   // parse options from local storage to the related checkboxes
 
         var rId = $('[data-menu=true][data-type="' + menuOptionType.options + '"]').attr('data-raphael-id');   // get raphaelId from jquery element
-        var optionsText = this.paper.getById(rId);  // grab raphael object through id
+        var optionsText = this.paper.getById(rId);  // grab raphael object through id       
 
         // if touch enabled, skip the animation
         if (board.touchEnabled) {

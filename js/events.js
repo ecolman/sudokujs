@@ -30,7 +30,6 @@ $('body').bind('loadBoard', function (event, loadType)
             break;
 
         case boardLoadType.resume:
-            //board.highlightSelectedAndNumberCells();
             break;
     }
 
@@ -174,10 +173,10 @@ function resizePaper() {
     var oy = board.paper.w;
 
     var x = (win.width() > 900) ? 900 : win.width();
-    //var y = (win.height() > 800 && !board.touchEnabled) ? 800 : win.height() - 50;  // if touch enabled, change the height slightly
-    var y = win.height() - 50;  // if touch enabled, change the height slightly
+    var y = (win.height() > 800 && !board.touchEnabled) ? 800 : win.height() - 50;  // if touch enabled, change the height slightly
+    //var y = win.height() - 50;  // if touch enabled, change the height slightly
 
     board.paper.changeSize(x, y, false, false); // set size of paper. method signature: (w, h, center, clipping)
 }
 
-$(window).resize(resizePaper);
+$(window).resize(resizePaper);  // set resize event to a utility function

@@ -1,12 +1,20 @@
-﻿function showModal(textX, textY, text, font, fontSize, fillColor, strokeColor) {
+﻿/**
+* Shows the modal popup
+* @method
+* @param {Number} textX
+* @param {Number} textY
+* @param {String} text
+* @param {String} font
+* @param {Number} fontSize
+* @param {String} fillColor
+* @param {String} strokeColor
+*/
+function showModal(textX, textY, text, font, fontSize, fillColor, strokeColor) {
     if ($('#modal, #modalText').length == 0) {
 
         var rect = board.paper.rect(100, 200, 350, 100, 4).attr({ fill: '#fff', stroke: '#000' });
         rect.node.id = 'modal';
 
-        //var text = board.paper.print(150, 250, 'You Win!', board.paper.getFont('Fipps', 400), 30).attr({ fill: 'green', stroke: 'blue' });
-        //var text = board.paper.print(150, 250, 'You Win!', board.paper.getFont('Perfect DOS VGA 437', 400), 30).attr({ fill: 'green', stroke: 'blue' });
-        //var text = board.paper.print(textX, textY, 'text', board.paper.getFont('Commodore 64 Pixelized', 400), 40).attr({ fill: 'green', stroke: 'blue' });
         var text = board.paper.print(textX, textY, text, board.paper.getFont(font, 400), fontSize).attr({ fill: fillColor, stroke: strokeColor });
         text.node.id = 'modalText';
     } else {
@@ -69,8 +77,8 @@ function createCheckSet(xPos, yPos, type, sizeModifier, clickEvent) {
     $(box.node).css({ opacity: 0, cursor: 'pointer' }).attr({ 'data-checked': false, 'data-type': type }).hide();
     $(tick.node).css({ opacity: 0, cursor: 'pointer' }).attr({ 'data-checked': false, 'data-type': type }).hide();
 
-    // push it to the set
-    checkSet.push(box, tick);
+
+    checkSet.push(box, tick);   // push it to the set
 
     // check type of obj passed in, then add either touch or click event to checkSet
     if (typeof (clickEvent) == 'function' || typeof (clickEvent) == 'undefined') {
@@ -131,6 +139,11 @@ function checkboxHit(event) {
     }
 }
 
+/**
+* Returns the color associated to the difficulty
+* @method
+* @param {boardDifficulty} difficulty
+*/
 function getDifficultyColor(difficulty) {
     switch (difficulty) {
         case boardDifficulty.easy:
