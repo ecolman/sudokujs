@@ -52,7 +52,7 @@ $('body').bind('loadBoard', function (event, loadType)
 * @event
 * @param {Event} event
 */
-$('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, function (event) {
+$('rect[data-board=true][data-auto-attach-events!=false]:not([data-button-type])').live(eventsToBindTo, function (event) {
     // if this is 0 or 1 (a left click or touch), then highlight cells accordingly
     // if it's a right click, only fire event if it's the contextmenu type
 
@@ -83,6 +83,13 @@ $('[data-board=true][data-auto-attach-events!=false]').live(eventsToBindTo, func
                     board.highlightNumberCells(number);
                     board.highlightSelectedCell(nodeId);
                     board.showDeleteButton(nodeId);
+
+                    // check if selector highlight mode
+                    if (board.highlightSelector) {
+                        var num = parseInt($('rect[data-selector][data-enabled][data-selected]').attr('data-num'));   // get num from element
+                        if (!isNaN(num)) { board.addNumberToSelectedCell($('rect[data-selector][data-enabled][data-selected]').attr('data-num')); } // add number to cell
+                        board.removeSelectedHighlight();    // remove highlighting
+                    }
                 }
 
                 break;

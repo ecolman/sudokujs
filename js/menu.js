@@ -157,27 +157,34 @@ var menu = {
         var highlightOptionText = this.paper.text(223, 235, 'Number highlighting');
         $(highlightOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var feedbackOptionText = this.paper.text(242, 285, 'Instant Feedback');
+        var autoRemoveNotesOptionText = this.paper.text(235, 285, 'Auto Remove Notes');
+        $(autoRemoveNotesOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
+
+        var reverseSelectorOptionText = this.paper.text(235, 335, 'Reverse Selectors');
+        $(reverseSelectorOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
+
+        var feedbackOptionText = this.paper.text(242, 385, 'Instant Feedback');
         $(feedbackOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var penalizeOptionText = this.paper.text(200, 335, 'Penalty for wrong number');
+        var penalizeOptionText = this.paper.text(200, 425, 'Penalty for wrong number');
         $(penalizeOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var penalizeOptionSubText = this.paper.text(200, 360, '(when instant feedback enabled)').attr({ 'font-size': '15px' });
+        var penalizeOptionSubText = this.paper.text(200, 445, '(when instant feedback enabled)').attr({ 'font-size': '15px' });
         $(penalizeOptionSubText.node).attr({ class: this.subOptionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
         // create options checkboxes and also attach mousedown handlers
         var timerOptionCheck = createCheckSet(350, 170, optionType.timer);
         var highlightOptionCheck = createCheckSet(350, 220, optionType.highlight);
-        var feedbackOptionCheck = createCheckSet(350, 270, optionType.feedback);
-        var penalizeOptionCheck = createCheckSet(350, 320, optionType.penalize);
+        var autoRemoveNotesOptionCheck = createCheckSet(350, 270, optionType.autoRemoveNotes);
+        var reverseSelectorOptionCheck = createCheckSet(350, 320, optionType.reverseSelector);
+        var feedbackOptionCheck = createCheckSet(350, 370, optionType.feedback);
+        var penalizeOptionCheck = createCheckSet(350, 420, optionType.penalize);
 
         // add all options to optionsSet and add all checkboxes to optionsCheckSet
-        this.optionsCheckSet.push(timerOptionCheck, highlightOptionCheck, feedbackOptionCheck, penalizeOptionCheck);
+        this.optionsCheckSet.push(timerOptionCheck, highlightOptionCheck, autoRemoveNotesOptionCheck, reverseSelectorOptionCheck, feedbackOptionCheck, penalizeOptionCheck);
 
         // hide both of the sets
-        $('[data-menu=true][data-option=true][data-main!=true]').css({ opacity: 0 });
-        this.optionsCheckSet.hide().attr({ opacity: 0 })
+        $('[data-menu=true][data-option=true][data-main!=true]').css({ opacity: 0 }).hide();
     },
 
     /**
@@ -208,6 +215,16 @@ var menu = {
                     board.penalize = checked;
 
                     break;
+
+                case optionType.autoRemoveNotes:
+                    board.autoRemoveNotes = checked;
+
+                    break;
+
+                case optionType.reverseSelector:
+                    board.highlightSelector = checked;
+
+                    break;
             }
         }
 
@@ -215,6 +232,8 @@ var menu = {
         var optionsArray = new Array();
         optionsArray.push(board.timerEnabled);
         optionsArray.push(board.highlight);
+        optionsArray.push(board.autoRemoveNotes);
+        optionsArray.push(board.highlightSelector);
         optionsArray.push(board.feedback);
         optionsArray.push(board.penalize);
 
@@ -226,15 +245,16 @@ var menu = {
     * @method
     */
     loadOptions: function () {
-        // get options array from storage and set board options
-        var optionsData = $.totalStorage('sudokuJS.options');
+        var optionsData = $.totalStorage('sudokuJS.options');   // get options array from storage and set board options
 
         if (optionsData != null) {
-            if (optionsData.length == 4) {
+            if (optionsData.length == 6) {
                 board.timerEnabled = Boolean(optionsData[0]);
                 board.highlight = Boolean(optionsData[1]);
-                board.feedback = Boolean(optionsData[2]);
-                board.penalize = Boolean(optionsData[3]);
+                board.autoRemoveNotes = Boolean(optionsData[2]);
+                board.highlightSelector = Boolean(optionsData[3]);
+                board.feedback = Boolean(optionsData[4]);
+                board.penalize = Boolean(optionsData[5]);
             }
         }
     },
@@ -267,6 +287,16 @@ var menu = {
                 case optionType.penalize:
                     box.attr({ 'data-checked': board.penalize });
                     tick.attr({ 'data-checked': board.penalize });
+                    break;
+
+                case optionType.autoRemoveNotes:
+                    box.attr({ 'data-checked': board.autoRemoveNotes });
+                    tick.attr({ 'data-checked': board.autoRemoveNotes });
+                    break;
+
+                case optionType.reverseSelector:
+                    box.attr({ 'data-checked': board.highlightSelector });
+                    tick.attr({ 'data-checked': board.highlightSelector });
                     break;
             }
         }

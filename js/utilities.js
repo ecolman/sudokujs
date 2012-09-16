@@ -65,5 +65,18 @@ var utilities = {
         var col = raphaelId % 9;
 
         return 'r' + row + 'c' + col;
+    },
+
+    /**
+    * Parse a Raphael object Id to an element Id
+    * @method
+    * @param {Number} raphaelId
+    */
+    getRowColFromElementId: function (elementId) {
+        // element Id follows rXcX, parse out row and column via substring
+        var row = parseInt(elementId.substring(1, 2));
+        var col = parseInt(elementId.substring(3, 4));
+
+        return { 'row': row, 'column': col };
     }
 }

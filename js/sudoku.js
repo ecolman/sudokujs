@@ -30,8 +30,7 @@ var sudoku = {
     * Initialized the arrays with all 0's
     * @method
     */
-    initialize: function ()
-    {
+    initialize: function () {
         // create all boards and fill with 0's
         this.clearBoards();
 
@@ -46,8 +45,7 @@ var sudoku = {
             this.menuCellsValues.push(num);
         }
 
-        $.getJSON('puzzles/puzzles.json', function (data)
-        {
+        $.getJSON('puzzles/puzzles.json', function (data) {
             sudoku.loadedPuzzles = data;
         })
 
@@ -58,8 +56,7 @@ var sudoku = {
     * Clears all the boards
     * @method
     */
-    clearBoards: function ()
-    {
+    clearBoards: function () {
         // create all boards and fill with 0's
         for (var i = 0; i < 9; i++) {
             this.completeBoard[i] = [];
@@ -74,8 +71,7 @@ var sudoku = {
         }
     },
 
-    loadBoard: function (low, high)
-    {
+    loadBoard: function (low, high) {
         for (i = 0; i < this.loadedPuzzles.length; i++) {
             // grab random puzzle and check
             var puzzle = this.loadedPuzzles[Math.floor(Math.random() * (this.loadedPuzzles.length))];
@@ -97,12 +93,10 @@ var sudoku = {
     * Creates the worker thread and the delegates
     * @method
     */
-    createWorker: function (threadNum)
-    {
+    createWorker: function (threadNum) {
         this.solver[threadNum] = new Worker('js/sudokuSolverWorker.js');
 
-        this.solver[threadNum].addEventListener('message', function (e)
-        {
+        this.solver[threadNum].addEventListener('message', function (e) {
             if (sudoku.foundUnique) {
                 this.terminate();
             }
@@ -137,8 +131,7 @@ var sudoku = {
                                 sudoku.workerResults[e.data.threadNum] = { 'board': sudoku.workerResults[e.data.threadNum].board, 'successCount': successCount, 'finished': false };
                                 //console.log('got a solution to board: ' + sudoku.toString(sudoku.workerResults[e.data.threadNum].board) + ' | (' + utilities.getTime() + ') thread: ' + e.data.threadNum);
 
-                                this.boardsReadyTimeout = setTimeout(function (i)
-                                {
+                                this.boardsReadyTimeout = setTimeout(function (i) {
                                     sudoku.workerResults[i] = { 'board': sudoku.workerResults[i].board, 'successCount': sudoku.workerResults[i].successCount, 'finished': true };
 
                                     if (sudoku.workerResults[i].successCount == 1) {
@@ -196,8 +189,7 @@ var sudoku = {
     * Generates a complete sudoku board using the backtrack algorithm
     * @method
     */
-    generate: function ()
-    {
+    generate: function () {
         //We need to keep track of all numbers tried in every cell
         var cellNumbers = [];
 
@@ -244,8 +236,7 @@ var sudoku = {
     * @method
     * @param {Number} numCellsToRemove
     */
-    cull: function (numCellsToRemove)
-    {
+    cull: function (numCellsToRemove) {
         // reset culled and player boards to complete board to make sure all boards are the same
         for (var r = 0; r < 9; r++) {
             for (var c = 0; c < 9; c++) {
@@ -279,8 +270,7 @@ var sudoku = {
     * @method
     * @param {Number} numCellsToRemove
     */
-    sendNewBoardsToSolver: function (numCellsToRemove)
-    {
+    sendNewBoardsToSolver: function (numCellsToRemove) {
         this.foundUnique = false;
 
         this.clearBoards();
@@ -308,8 +298,7 @@ var sudoku = {
     * @method
     * @param {Number} numCellsToRemove
     */
-    guaranteeUniqueness: function (numCellsToRemove)
-    {
+    guaranteeUniqueness: function (numCellsToRemove) {
         // grab time started, count and kick off first test
         this.startTime = utilities.getTime();
         var tryCount = 1;
@@ -360,8 +349,7 @@ var sudoku = {
     * @param {Number} row
     * @return {Boolean}
     */
-    checkCell: function (numberToCheck, row, col)
-    {
+    checkCell: function (numberToCheck, row, col) {
         // check if cells don't match
         if (this.completeBoard[row][col] != numberToCheck) {
             return false;
@@ -378,8 +366,7 @@ var sudoku = {
     * @param {Number} row
     * @return {Boolean}
     */
-    checkPlayerCell: function (row, col)
-    {
+    checkPlayerCell: function (row, col) {
         // check if cells don't match
         if (this.completeBoard[row][col] != this.playerBoard[row][col]) {
             return false;
@@ -393,8 +380,7 @@ var sudoku = {
     * @method
     * @return {Boolean}
     */
-    checkPlayerBoard: function ()
-    {
+    checkPlayerBoard: function () {
         for (var r = 0; r < 9; r++) {
             for (var c = 0; c < 9; c++) {
                 // check if cell is empty (0) or if they don't match
@@ -412,8 +398,7 @@ var sudoku = {
     * @method
     * @return {Boolean}
     */
-    isPlayerBoardFilled: function ()
-    {
+    isPlayerBoardFilled: function () {
         for (var r = 0; r < 9; r++) {
             if ($.inArray(0, sudoku.playerBoard[r]) > -1) {
                 return false;
@@ -428,8 +413,7 @@ var sudoku = {
     * @method
     * @return {Boolean}
     */
-    isGameInProgress: function ()
-    {
+    isGameInProgress: function () {
         for (var r = 0; r < 9; r++) {
             for (var c = 1; c < this.playerBoard[r].length + 1; c++) {
                 if ($.inArray(c, this.playerBoard[r]) > -1) {
@@ -448,8 +432,7 @@ var sudoku = {
     * @param {Number} row
     * @return {Number} 0 to 9, 0 meaning empty
     */
-    getValue: function (row, col)
-    {
+    getValue: function (row, col) {
         return this.completeBoard[row][col];
     },
 
@@ -460,8 +443,7 @@ var sudoku = {
     * @param {Number} row
     * @param {Number} value 0 to 9, 0 meaning empty
     */
-    setValue: function (row, column, value)
-    {
+    setValue: function (row, column, value) {
         this.completeBoard[row][column] = value;
         this.culledBoard[row][column] = value;
         this.playerBoard[row][column] = value;
@@ -474,8 +456,7 @@ var sudoku = {
     * @param {Number} row
     * @param {Number} value 0 to 9, 0 meaning empty
     */
-    setPlayerBoardValue: function (row, column, value)
-    {
+    setPlayerBoardValue: function (row, column, value) {
         if (this.playerBoard[row] != undefined) {
             this.playerBoard[row][column] = value;
         }
@@ -488,8 +469,7 @@ var sudoku = {
     * @param {Number} row
     * @return {Boolean}
     */
-    cellConflicts: function (row, column)
-    {
+    cellConflicts: function (row, column) {
         var value = this.completeBoard[row][column];
 
         if (value == 0)
@@ -513,6 +493,57 @@ var sudoku = {
     },
 
     /**
+    * Returns the 
+    * @method
+    * @param {Number} row
+    * @param {Number} column
+    */
+    getCellRelations: function (row, column) {
+        var relations = [];
+        var regionLimits = this.getRegionLocation(row, column); // get region cells
+
+        // add region cell
+        for (var r = regionLimits.start.r; r < regionLimits.end.r; r++) {
+            for (var c = regionLimits.start.c; c < regionLimits.end.c; c++) {
+                relations.push({ 'row': r, 'column': c });
+            }
+        }
+
+        // get row cells
+        for (var tempCol = 0; tempCol < 9; tempCol++) {
+            relations.push({ 'row': row, 'column': tempCol });
+        }
+
+        // get column cells
+        for (var tempRow = 0; tempRow < 9; tempRow++) {
+            relations.push({ 'row': tempRow, 'column': column });
+        }
+
+        return relations;
+    },
+
+    /**
+    * Counts the number of times a single number has been used on a sudoku board
+    * @method
+    * @param {Number} number
+    * @param {Array} boardToSearch
+    */
+    checkNumberUsage: function (number) {
+        var count = 0;
+
+        // count how many times each selector number has been used on board
+        for (var r = 0; r < this.playerBoard.length; r++) {
+            for (var c = 0; c < this.playerBoard[r].length; c++) {
+                if (this.playerBoard[r][c] == number) {
+                    count += 1;
+                }
+            }
+        }
+
+        return count;
+    },
+
+    /**
     * Checks if inner 3x3 region a cell resides in is valid
     * @method
     * @private
@@ -520,8 +551,7 @@ var sudoku = {
     * @param {Number} row
     * @return {Boolean}
     */
-    _regionValid: function (row, column)
-    {
+    _regionValid: function (row, column) {
         // get region location start / end
         var regionLimits = this.getRegionLocation(row, column)
 
@@ -551,8 +581,7 @@ var sudoku = {
     * @param {Number} row
     * @return {JSON} regionLimits - contains start row/col and end row/col for region
     */
-    getRegionLocation: function (row, column)
-    {
+    getRegionLocation: function (row, column) {
         // very snazzy way to determine which 3x3 region cell belongs to
         // too bad I didn't come up with it =( (nice one Jani)
         var mgX = Math.floor(column / 3);
@@ -574,8 +603,7 @@ var sudoku = {
     * @method
     * @private
     */
-    _testUniqueness: function (tryCount)
-    {
+    _testUniqueness: function (tryCount) {
         // Find untouched location with most information
         var rp = 0, cp = 0;
         var Mp = null;
@@ -692,8 +720,7 @@ var sudoku = {
     * @method
     * @return {String}
     */
-    toString: function (board)
-    {
+    toString: function (board) {
         var str = '';
         for (var i = 0; i < 9; i++) {
             //str += this.completeBoard[i].join(' ') + "\r\n";
@@ -710,8 +737,7 @@ var sudoku = {
     * @method
     * @return {Array}
     */
-    toArray: function (board)
-    {
+    toArray: function (board) {
         var cells = [];
         for (var row = 0; row < board.length; row++) {
             for (var col = 0; col < board.length; col++)
@@ -726,8 +752,7 @@ var sudoku = {
     * @method
     * @param {Array} cells
     */
-    fromArray: function (cells, boardToFill)
-    {
+    fromArray: function (cells, boardToFill) {
         if (cells.length != 81)
             throw new Error('Array length is not 81');
 
@@ -747,8 +772,7 @@ var sudoku = {
     * Checks if a save game exists
     * @method
     */
-    isSaveAvailable: function ()
-    {
+    isSaveAvailable: function () {
         sudoku.savesAvailable = !($.totalStorage('sudokuJS.save') == null);
 
         return sudoku.savesAvailable;
@@ -758,8 +782,7 @@ var sudoku = {
     * Saves the boards, difficulty, elapsed time and current date/time to local storage
     * @method
     */
-    saveState: function ()
-    {
+    saveState: function () {
         // check if board is complete
         var completeBoard = sudoku.isPlayerBoardFilled() && sudoku.checkPlayerBoard();
 
@@ -799,8 +822,7 @@ var sudoku = {
     * Reads the boards, difficulty, elapsed time and current date/time from local storage.  Afterwards, it calls the board view
     * @method
     */
-    loadState: function ()
-    {
+    loadState: function () {
         var saveData = $.totalStorage('sudokuJS.save');
 
         if (saveData != null && saveData.length == 7) {
