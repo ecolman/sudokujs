@@ -150,35 +150,41 @@ var menu = {
         // create homeset
         this.optionsCheckSet = this.paper.set();
 
+//        var line = this.paper.path('M335,1L335,545').attr({ fill: '#000', 'stroke-width': 2 });
+//        $(line.node).attr({ 'data-menu': true, 'data-option': true });   // set class and data attrs
+
         // create options, set their id's and their data
-        var timerOptionText = this.paper.text(263, 185, 'Enable Timer');
+        var timerOptionText = this.paper.text(270, 175, 'Enable Timer');
         $(timerOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var highlightOptionText = this.paper.text(223, 235, 'Number highlighting');
+        var highlightOptionText = this.paper.text(232, 225, 'Number highlighting');
         $(highlightOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var autoRemoveNotesOptionText = this.paper.text(235, 285, 'Auto Remove Notes');
+        var autoRemoveNotesOptionText = this.paper.text(244, 275, 'Auto Remove Notes');
         $(autoRemoveNotesOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var reverseSelectorOptionText = this.paper.text(235, 335, 'Reverse Selectors');
+        var reverseSelectorOptionText = this.paper.text(233, 325, 'Select Number First');
         $(reverseSelectorOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var feedbackOptionText = this.paper.text(242, 385, 'Instant Feedback');
+        var reverseSelectorOptionSubText = this.paper.text(180, 343, '(instead of selecting cell and then number)');
+        $(reverseSelectorOptionSubText.node).attr({ class: this.subOptionClass, 'data-menu': true, 'data-option': true, 'font-size': '10px' });   // set class and data attrs
+
+        var feedbackOptionText = this.paper.text(248, 378, 'Instant Feedback');
         $(feedbackOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var penalizeOptionText = this.paper.text(200, 425, 'Penalty for wrong number');
+        var penalizeOptionText = this.paper.text(206, 425, 'Penalty for wrong number');
         $(penalizeOptionText.node).attr({ class: this.optionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
-        var penalizeOptionSubText = this.paper.text(200, 445, '(when instant feedback enabled)').attr({ 'font-size': '15px' });
+        var penalizeOptionSubText = this.paper.text(222, 440, '(when instant feedback enabled)').attr({ 'font-size': '15px' });
         $(penalizeOptionSubText.node).attr({ class: this.subOptionClass, 'data-menu': true, 'data-option': true });   // set class and data attrs
 
         // create options checkboxes and also attach mousedown handlers
-        var timerOptionCheck = createCheckSet(350, 170, optionType.timer);
-        var highlightOptionCheck = createCheckSet(350, 220, optionType.highlight);
-        var autoRemoveNotesOptionCheck = createCheckSet(350, 270, optionType.autoRemoveNotes);
-        var reverseSelectorOptionCheck = createCheckSet(350, 320, optionType.reverseSelector);
-        var feedbackOptionCheck = createCheckSet(350, 370, optionType.feedback);
-        var penalizeOptionCheck = createCheckSet(350, 420, optionType.penalize);
+        var timerOptionCheck = createCheckSet(350, 160, optionType.timer);
+        var highlightOptionCheck = createCheckSet(350, 210, optionType.highlight);
+        var autoRemoveNotesOptionCheck = createCheckSet(350, 260, optionType.autoRemoveNotes);
+        var reverseSelectorOptionCheck = createCheckSet(350, 310, optionType.reverseSelector);
+        var feedbackOptionCheck = createCheckSet(350, 360, optionType.feedback);
+        var penalizeOptionCheck = createCheckSet(350, 410, optionType.penalize);
 
         // add all options to optionsSet and add all checkboxes to optionsCheckSet
         this.optionsCheckSet.push(timerOptionCheck, highlightOptionCheck, autoRemoveNotesOptionCheck, reverseSelectorOptionCheck, feedbackOptionCheck, penalizeOptionCheck);

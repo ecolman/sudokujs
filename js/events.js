@@ -52,7 +52,7 @@ $('body').bind('loadBoard', function (event, loadType)
 * @event
 * @param {Event} event
 */
-$('rect[data-board=true][data-auto-attach-events!=false]:not([data-button-type])').live(eventsToBindTo, function (event) {
+$('[data-board=true][data-auto-attach-events!=false]:not([data-button-type])').live(eventsToBindTo, function (event) {
     // if this is 0 or 1 (a left click or touch), then highlight cells accordingly
     // if it's a right click, only fire event if it's the contextmenu type
 
@@ -68,27 +68,29 @@ $('rect[data-board=true][data-auto-attach-events!=false]:not([data-button-type])
                     var jObj = $(this);
                     var nodeId = jObj.attr('id');
 
-                    // parse Id depending it it was a text element clicked (t in id) or a notes text element (n in id)
-                    if (nodeId.indexOf('t') > -1) {
-                        nodeId = nodeId.replace('t', '');
-                    } else if (nodeId.indexOf('n') > -1) {
-                        nodeId = nodeId.substring(0, nodeId.indexOf('n'));
-                    }
+                    if (nodeId != undefined && nodeId != null) {
+                        // parse Id depending it it was a text element clicked (t in id) or a notes text element (n in id)
+                        if (nodeId.indexOf('t') > -1) {
+                            nodeId = nodeId.replace('t', '');
+                        } else if (nodeId.indexOf('n') > -1) {
+                            nodeId = nodeId.substring(0, nodeId.indexOf('n'));
+                        }
 
-                    // grab number from data-num attribute of rect element
-                    var number = jObj.attr('data-num');
+                        // grab number from data-num attribute of rect element
+                        var number = jObj.attr('data-num');
 
-                    // reset colors, highlight number cells and then selected cell
-                    board.resetAllCellColors();
-                    board.highlightNumberCells(number);
-                    board.highlightSelectedCell(nodeId);
-                    board.showDeleteButton(nodeId);
+                        // reset colors, highlight number cells and then selected cell
+                        board.resetAllCellColors();
+                        board.highlightNumberCells(number);
+                        board.highlightSelectedCell(nodeId);
+                        board.showDeleteButton(nodeId);
 
-                    // check if selector highlight mode
-                    if (board.highlightSelector) {
-                        var num = parseInt($('rect[data-selector][data-enabled][data-selected]').attr('data-num'));   // get num from element
-                        if (!isNaN(num)) { board.addNumberToSelectedCell($('rect[data-selector][data-enabled][data-selected]').attr('data-num')); } // add number to cell
-                        board.removeSelectedHighlight();    // remove highlighting
+                        // check if selector highlight mode
+                        if (board.highlightSelector) {
+                            var num = parseInt($('rect[data-selector][data-enabled][data-selected]').attr('data-num'));   // get num from element
+                            if (!isNaN(num)) { board.addNumberToSelectedCell($('rect[data-selector][data-enabled][data-selected]').attr('data-num')); } // add number to cell
+                            board.removeSelectedHighlight();    // remove highlighting
+                        }
                     }
                 }
 

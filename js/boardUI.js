@@ -148,7 +148,7 @@ var board = {
                 var selector = null;
 
                 if ($(this).attr('data-enabled') == 'true') {
-                    var previousNum = $('rect[data-selector][data-selected]').attr('data-num'); // get previous num
+                    var previousNum = $('rect[data-selector][data-selected=true]').attr('data-num'); // get previous num
 
                     // get all rect selectors and remove the glow if it has one
                     $('rect[data-selector]').each(function () {
@@ -567,7 +567,7 @@ var board = {
 
             // if there is a count of 9 or greater, disable selector, otherwise enable it
             if (count >= 9) {
-                elements.css({ opacity: .4 }).attr({ cursor: 'default', 'data-enabled': false });    // set appropriate properties
+                elements.css({ opacity: .4 }).attr({ cursor: 'default', 'data-enabled': false, 'data-selected': false });    // set appropriate properties
 
                 // check the the selectors should be highlighted
                 if (board.highlightSelector) {
@@ -576,16 +576,6 @@ var board = {
                 }
             } else {
                 elements.css({ opacity: 1 }).attr({ cursor: 'pointer', 'data-enabled': true });    // set appropriate properties
-
-                // check the the selectors should be highlighted
-                if (board.highlightSelector) {
-                    // if the element was selected, then add glow
-                    if ($(elements[0]).attr('data-selected') == 'true') {
-                        selector = board.paper.getById($(elements[0]).attr('data-raphael-id'));    // put glow on the clicked selector
-                        selector.g.remove();
-                        selector.g = selector.glow().attr({ 'data-board': true });  // add glow to data-board group
-                    }
-                }
             }
         }
     },
