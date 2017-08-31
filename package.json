@@ -1,0 +1,31 @@
+{
+  "name": "sudokujs",
+  "version": "1.0.0",
+  "description": "Javascrpt based sudoku game and solver",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://ecolman@bitbucket.org/ecolman/sudokujs.git"
+  },
+  "keywords": [
+    "javascript",
+    "sudoku"
+  ],
+  "author": "Eric Colman",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/ecolman/sudokujs#readme",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "raphael": "^2.2.7"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-loader": "^6.2.4",
+    "css-loader": "^0.28.5",
+    "style-loader": "^0.18.2"
+  }
+}

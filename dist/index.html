@@ -25,25 +25,25 @@
 
         <!-- Game -->
         <script type="text/javascript">
-            Raphael(function () {
-                var paper = new ScaleRaphael('grid', 545, 623); // create paper
+          console.log('hi', Raphael);
+          Raphael(function () {
+              var paper = new ScaleRaphael('grid', 545, 623); // create paper
 
-                sudoku.initialize();    // init sudoku engine
-                board.initialize(paper);   // init board UI
-                menu.initialize(paper);    // init menu UI
+              sudoku.initialize();    // init sudoku engine
+              board.initialize(paper);   // init board UI
+              menu.initialize(paper);    // init menu UI
 
-                resizePaper();  // resize paper based on size of window
-            });
+              resizePaper();  // resize paper based on size of window
+          });
 
-            $(document).ready(function ()
-            {
+          $(document).ready(function ()
+          {
 
-            });
+          });
 
-            // on unload, save game
-            $(window).unload(function () {
-                sudoku.saveState();
-            });
-        </script>
+          // on unload, save game
+          $(window).unload(function () {
+              sudoku.saveState();
+          });
     </body>
 </html>
