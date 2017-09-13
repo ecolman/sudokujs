@@ -4,7 +4,8 @@
   "description": "Javascrpt based sudoku game and solver",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node_modules/.bin/webpack-dev-server"
   },
   "repository": {
     "type": "git",
@@ -18,14 +19,22 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/ecolman/sudokujs#readme",
   "dependencies": {
+    "jquery": "^3.2.1",
     "lodash": "^4.17.4",
-    "raphael": "^2.2.7"
+    "raphael": "^2.2.7",
+    "store": "^2.0.12"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
     "babel-loader": "^6.2.4",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
     "css-loader": "^0.28.5",
-    "style-loader": "^0.18.2"
+    "html-webpack-plugin": "^2.30.1",
+    "modernizr-webpack-plugin": "^1.0.6",
+    "style-loader": "^0.18.2",
+    "uglifyjs-webpack-plugin": "^0.4.6",
+    "webpack": "^3.5.6",
+    "webpack-dev-server": "^2.7.1"
   }
 }

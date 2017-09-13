@@ -1,6 +1,6 @@
 /* PAGE STYLES */
 body {
-    
+
 }
 
 a:link, a:visited {
@@ -17,7 +17,7 @@ a:hover {
 }
 
 #boardBackground {
-    opacity: .5 !important;   
+    opacity: .5 !important;
 }
 
 .menuItem {
@@ -51,8 +51,8 @@ a:hover {
 }
 
 /* CANVAS GRID CLASSES */
-#grid {
-    /*width: 545px; 
+#board {
+    /*width: 545px;
     height: 600px;*/
     margin: 15px auto;
     /* DISABLE TEXT SELECTION INSIDE CANVAS ELEMENT*/
@@ -176,7 +176,7 @@ a:hover {
 
 #pauseSymbol {
     /*opacity: .4 !important;*/
-    cursor: pointer !important;   
+    cursor: pointer !important;
 }
 
 /* DELETE BUTTON CLASES */
