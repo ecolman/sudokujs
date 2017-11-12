@@ -1,7 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ModernizrWebpackPlugin = require('modernizr-webpack-plugin');
 
 module.exports = {
   entry: ['babel-polyfill', './src/index.js'],
@@ -15,15 +14,6 @@ module.exports = {
     compress: true
   },
   plugins: [
-    new ModernizrWebpackPlugin({
-      'class-prefix': 'thc',
-      'options': [
-        'setClasses'
-      ],
-      'feature-detects': [
-        'touchevents',
-      ]
-    }),
     new UglifyJSPlugin({
       sourceMap: true
     }),
