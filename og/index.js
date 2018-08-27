@@ -1,12 +1,12 @@
 'use strict';
 
 import Board from './board';
-import Game from './game';
-import Solver from './solver';
-import Generator from './generator';
-import Ui from './svg';
+// import Game from './game';
+// import Solver from './solver';
+// import Generator from './generator';
+// import Ui from './svg';
 
-import { boardTypes } from './constants';
+// import { boardTypes } from './constants';
 
 let cells = [0,0,0,1,2,3,0,0,0,0,8,2,0,0,9,0,0,0,0,0,0,4,0,0,2,5,9,0,2,0,0,0,8,0,6,4,3,0,0,0,6,4,0,0,1,0,0,6,0,7,0,0,0,0,2,9,0,0,1,0,0,8,0,7,6,0,0,0,0,0,0,0,8,0,5,3,0,0,0,0,2];
 
@@ -18,19 +18,19 @@ let cells = [0,0,0,1,2,3,0,0,0,0,8,2,0,0,9,0,0,0,0,0,0,4,0,0,2,5,9,0,2,0,0,0,8,0
 
 // let boards = Generator.generate(50);
 
-let board = new Board(cells);
+// let board = new Board(cells);
 
-console.log(board.toString());
+// console.log(board.toString());
 
-_.times(10, i => {
-  let solved = Solver.solve(board);
+// _.times(10, i => {
+//   let solved = Solver.solve(board);
 
-  if (solved) {
-    console.log(i, solved.toString());
-  } else {
-    console.log(i, 'no solution found');
-  }
-})
+//   if (solved) {
+//     console.log(i, solved.toString());
+//   } else {
+//     console.log(i, 'no solution found');
+//   }
+// })
 
 
 // if (boards && boards.base && boards.solved) {

@@ -1,15 +1,38 @@
+@font-face {
+  font-family: 'Perfect DOS VGA 437';
+  src: url('./fonts/Perfect DOS VGA 437.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Commodore 64 Pixelized';
+  src: url('./fonts/Commodore Pixelized v1.2.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fipps';
+  src: url('./fonts/FIPPS___.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* PAGE STYLES */
 body {
 
 }
 
-a:link, a:visited {
-    color:#562E60;
+a {
+  &:link, &:visited {
+    color: #562E60;
     text-decoration: none;
-}
+  }
 
-a:hover {
+  &:hover {
     text-decoration: underline;
+  }
 }
 
 #title {
@@ -62,6 +85,12 @@ a:hover {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.gridline {
+  opacity: .1;
+  stroke: #000;
+  stroke-width: 4;
 }
 
 #footer {
@@ -147,8 +176,7 @@ a:hover {
 }
 
 /* TIMER CLASSES */
-#timer {
-    opacity: 0;
+.timer {
     font-size: 30px !important;
     cursor: default !important;
 }

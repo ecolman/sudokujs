@@ -1,26 +1,48 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 module.exports = {
-  entry: ['babel-polyfill', './src/index.js'],
+  mode: 'production',
+  entry: {
+    app: './src/app.js',
+    vendor: ['babel-polyfill', 'lodash', 'react', 'react-dom', 'redux', 'raphael']
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].[chunkhash:8].bundle.js',
+    chunkFilename: '[name].[chunkhash:8].bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
+
   devtool: 'source-map',
   devServer: {
     port: 3000,
     compress: true
   },
+
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin()
+    ],
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /node_modules/,
+          chunks: 'initial',
+          name: 'vendor',
+          enforce: true
+        }
+      }
+    }
+  },
   plugins: [
-    new UglifyJSPlugin({
-      sourceMap: true
-    }),
+    new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
-      title: 'Sudoku JS'
+      template: `${path.resolve(__dirname, 'src', 'ui')}/index.html`
     })
   ],
+
   module: {
     rules: [
       {
@@ -31,19 +53,23 @@ module.exports = {
         ]
       },
       {
-        test: /\.css$/,
+        test: /\.less$/,
         use: [
           'style-loader',
-          'css-loader'
+          'css-loader',
+          'less-loader'
         ]
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: [
-          'file-loader'
-        ]
-      },
-
-    ],
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            outputPath: 'assets/'
+          }
+        }]
+      }
+    ]
   }
 };
