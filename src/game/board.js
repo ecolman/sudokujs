@@ -1,6 +1,6 @@
-import _ from 'lodash';
+import { forEach, isArray, isNumber, isString, map, reduce } from 'lodash';
 
-import { BoardTypes, clearBoard, setBoard, setCell, clearCell } from '../redux/actions';
+import { clearBoard, setBoard, setCell, clearCell } from '../redux/actions';
 import Utils from './utilities';
 import * as Constants from './constants';
 
@@ -12,7 +12,6 @@ export default class {
 
     this.notes = [];
     this.cells = [];
-    this.type = type;
 
     if (type && store) {
       this.Store = store;
@@ -28,7 +27,7 @@ export default class {
         let board = this.Store.getState().boards[this.type];
 
         // update board
-        _.forEach(board, (row, index) => {
+        forEach(board, (row, index) => {
           this[index] = row;
         });
       });
@@ -42,11 +41,11 @@ export default class {
     } else {
       let cellsToSet = [];
 
-      if (_.isString(cells)) {
+      if (isString(cells)) {
         cellsToSet = cells.split(',');
       }
 
-      if (_.isArray(cells)) {
+      if (isArray(cells)) {
         cellsToSet = cells;
       }
 
@@ -75,7 +74,7 @@ export default class {
 
   // COLUMNS
   getColumn(index) {
-    return _.map(Constants.rows, r => this[r][index]);
+    return map(Constants.rows, r => this[r][index]);
   }
 
   // CELLS
@@ -88,7 +87,7 @@ export default class {
   }
 
   setCell(row = 0, col = 0, value = 0) {
-    if (_.isNumber(value)) {
+    if (isNumber(value)) {
       if (this.Store) {
         this.Store.dispatch(setCell(this.type, row, col, value));
       } else {
@@ -97,6 +96,16 @@ export default class {
 
       return this[row][col];
     }
+  }
+
+  clearCell(row = 0, col = 0) {
+    if (this.Store) {
+      this.Store.dispatch(clearCell(this.type, row, col));
+    } else {
+      this[row][col] = 0;
+    }
+
+    return this[row][col];
   }
 
   // REGIONS
@@ -129,6 +138,6 @@ export default class {
   }
 
   toArray() {
-    return _.reduce(Constants.rows, (board, row) => board.concat(this[row]), []);
+    return reduce(Constants.rows, (board, row) => board.concat(this[row]), []);
   }
 }

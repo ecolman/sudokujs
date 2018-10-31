@@ -101,6 +101,4 @@ class Generator {
   }
 }
 
-let generator = new Generator();
-
-export default generator;
+export default new Generator();

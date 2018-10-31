@@ -31,6 +31,4 @@ class Utilities {
   }
 }
 
-var utilities = new Utilities();
-
-export default utilities;
+export default new Utilities();

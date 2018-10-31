@@ -227,6 +227,4 @@ class Solver {
   }
 }
 
-let solver = new Solver();
-
-export default solver;
+export default new Solver();

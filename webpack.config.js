@@ -7,7 +7,7 @@ module.exports = {
   mode: 'production',
   entry: {
     app: './src/app.js',
-    vendor: ['babel-polyfill', 'lodash', 'react', 'react-dom', 'redux', 'raphael']
+    vendor: ['@babel/polyfill', 'lodash', 'react', 'react-dom', 'redux', 'raphael']
   },
   output: {
     filename: '[name].[chunkhash:8].bundle.js',

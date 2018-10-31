@@ -1,1 +1,0 @@
-import Raphael from 'raphael';

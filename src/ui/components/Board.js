@@ -65,28 +65,28 @@ import { Raphael, Paper, Set, Circle, Ellipse, Image, Rect, Text, Path, Line } f
 
 const Board = ({ board }) => {
   var gridLines = [
-    { path:'M2,50L545,50', attr: { class: 'gridline' }},
-    { path:'M2,500L545,500', attr: { class: 'gridline' }},
-    { path:'M3,48L3,502', attr: { class: 'gridline' }},
-    { path:'M543,50L543,502', attr: { class: 'gridline' }},
-    { path:'M2,200L545,200', attr: { class: 'gridline' }},
-    { path:'M2,350L545,350', attr: { class: 'gridline' }},
-    { path:'M183,50L183,502', attr: { class: 'gridline' }},
-    { path:'M363,50L363,502', attr: { class: 'gridline' }}
+    { path:'M2,50L545,50', attr: { class: 'gridline' }, toFront: true },
+    { path:'M2,500L545,500', attr: { class: 'gridline' }, toFront: true },
+    { path:'M3,48L3,502', attr: { class: 'gridline' }, toFront: true },
+    { path:'M543,50L543,502', attr: { class: 'gridline' }, toFront: true },
+    { path:'M2,200L545,200', attr: { class: 'gridline' }, toFront: false },
+    { path:'M2,350L545,350', attr: { class: 'gridline' }, toFront: false },
+    { path:'M183,50L183,502', attr: { class: 'gridline' }, toFront: false },
+    { path:'M363,50L363,502', attr: { class: 'gridline' }, toFront: false }
   ];
 
   var hideTimer = false;
 
-  return (<Paper width={545} height={623}>
+  return (<Paper width={545} height={623} container={{className: 'board'}}>
     {/* Gridlines */}
     <Set>
       {gridLines.map((line, index) => (
-        <Path d={line.path} attr={line.attr} key={`gridline${index}`}></Path>
+        <Path d={line.path} attr={line.attr} key={`gridline${index}`} toFront={line.toFront}></Path>
       ))}
     </Set>
 
     {/* Timer */}
-    <Text x={480} y={38} text="00:00" hide={hideTimer} attr={{ class: 'timer' }}></Text>
+    <Text x={480} y={38} text="00:00" hide={hideTimer} attr={{class: 'timer'}}></Text>
 
     <Controls></Controls>
 
@@ -95,6 +95,7 @@ const Board = ({ board }) => {
       {rows.map((row, rowIndex) =>
         times(9, cellIndex =>
           <Cell
+            className={'test'}
             key={rowIndex * 9 + cellIndex}
             index={rowIndex * 9 + cellIndex}
             row={rowIndex}

@@ -1,5 +1,5 @@
 import { BoardTypes, rows } from '../actions';
-import _ from 'lodash';
+import { isArray, isString, map } from 'lodash';
 
 const boards = (state = {
   [BoardTypes.COMPLETE]: [],
@@ -10,25 +10,25 @@ const boards = (state = {
     case 'CLEAR_BOARD':
       return {
         ...state,
-        [action.boardType]: _.map(rows, () => new Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
+        [action.boardType]: map(rows, () => new Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
       };
 
     case 'SET_BOARD':
       let cellsToSet = [];
 
-      if (_.isString(action.values)) {
-        cellsToSet = _.map(action.values.split(''), Number);
+      if (isString(action.values)) {
+        cellsToSet = map(action.values.split(''), Number);
       }
 
-      if (_.isArray(action.values)) {
+      if (isArray(action.values)) {
         cellsToSet = action.values;
       }
 
       return {
         ...state,
         [action.boardType]: cellsToSet.length === 81
-          ? _.map(rows, (row, index) => cellsToSet.slice(index * 9, index * 9 + 9))
-          : _.map(rows, () => new Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
+          ? map(rows, (row, index) => cellsToSet.slice(index * 9, index * 9 + 9))
+          : map(rows, () => new Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
       };
 
     case 'CLEAR_CELL':
