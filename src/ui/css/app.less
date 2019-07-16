@@ -1,0 +1,387 @@
+/* PAGE STYLES */
+a {
+  &:link, &:visited {
+    color: @link-color;
+    text-decoration: none;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.board {
+  text-align: center;
+  /* DISABLE TEXT SELECTION INSIDE CANVAS ELEMENT*/
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.header__title {
+  font: bold 40px 'Consolas' !important;
+}
+
+.controls__btnBack__container, .controls__btnPause__container {
+  fill: #fff;
+  // opacity: 0;
+  stroke: #fff;
+}
+
+.controls__btnBack, .controls__btnPause {
+  cursor: pointer;
+  fill: #000;
+  opacity: .7;
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.controls__btnBack__text, .controls__btnPause__text {
+  cursor: pointer;
+  font-size: 17px !important;
+  opacity: .7;
+}
+
+.timer {
+  font-size: 30px !important;
+  cursor: default;
+}
+
+.gridline {
+  fill: @grid-color;
+  opacity: .1;
+  stroke: @grid-color;
+  stroke-width: 4;
+
+  &.active {
+    opacity: .8;
+  }
+}
+
+.pause-symbol__container {
+  cursor: pointer;
+  fill: #fff;
+  stroke: #fff;
+  opacity: 0;
+}
+
+.pause-symbol__path {
+  fill: #000;
+  stroke: #000;
+  opacity: .4;
+}
+
+.cell__bg {
+  background-color: @cell-bg;
+  fill: @cell-bg;
+  opacity: 1;
+  stroke-width: .3;
+
+  &.highlight {
+    fill: @cell-highlight-bg;
+    background-color: @cell-highlight-bg;
+  }
+
+  &.selector {
+    fill: @cell-selector-bg;
+    background-color: @cell-selector-bg;
+  }
+}
+
+.cell__text {
+  font-size: 40px !important;
+  font-weight: bolder;
+
+  &.selector {
+    font-weight: normal;
+  }
+
+  &.prepopulated {
+    font-family: 'Consolas' !important;
+    font-weight: lighter;
+  }
+}
+
+.cell__overlay {
+  background-color: transparent;
+  cursor: pointer;
+  fill: transparent;
+  opacity: 0;
+  stroke: none;
+
+  &.inactive {
+    cursor: default;
+  }
+}
+
+.menu.difficulty {
+  cursor: pointer;
+  font: bold 35px 'Consolas' !important;
+  text-anchor: middle;
+
+  &.rect {
+    fill: transparent !important;
+    stroke: none;
+    height: 34px;
+  }
+
+  &.easy {
+    fill: @easy-color;
+    letter-spacing: 15px;
+
+    &.rect {
+      width: 125px;
+      transform: translate(-62px, -13px);
+    }
+  }
+
+  &.medium {
+    fill: @medium-color;
+    letter-spacing: 13px;
+    transform: translate(0, 50px);
+
+    &.rect {
+      width: 187px;
+      transform: translate(-94px, 34px);
+    }
+  }
+
+  &.hard {
+    fill: @hard-color;
+    letter-spacing: 15px;
+    transform: translate(0, 100px);
+
+    &.rect {
+      width: 125px;
+      transform: translate(-62px, 85px);
+    }
+  }
+
+  &.expert {
+    fill: @expert-color;
+    letter-spacing: 12px;
+    transform: translate(0, 150px);
+
+    &.rect {
+      width: 175px;
+      transform: translate(-88px, 137px);
+    }
+  }
+}
+
+.menu.action {
+  cursor: pointer;
+  fill: @link-color;
+  font: bold 30px 'Consolas' !important;
+  text-anchor: middle;
+  stroke: none;
+
+  &.load {
+    letter-spacing: 2px;
+  }
+
+  &.options {
+    letter-spacing: 7px;
+  }
+
+  &.resume {
+    letter-spacing: 5px;
+  }
+}
+
+.menu.option {
+  cursor: pointer;
+  fill: @link-color;
+  font: bolder 20px 'Consolas' !important;
+
+  &.description {
+    font-size: 13px !important;
+  }
+}
+
+.menu.save {
+  cursor: pointer;
+  opacity: 0;
+
+  &.text {
+    font-size: 17px !important;
+  }
+
+  &.btn {
+    fill: #000;
+    stroke: #000;
+    stroke-width: 2;
+  }
+}
+
+.checkbox {
+  cursor: pointer;
+  stroke: #000;
+
+  &.box {
+    fill: #fff;
+    stroke-width: 2;
+  }
+
+  &.check {
+    fill: #000;
+  }
+}
+
+// #boardBackground {
+//     opacity: .5 !important;
+// }
+
+// .menuItem {
+//     font: bold 35px consolas !important;
+//     cursor: pointer;
+// 	/*text-shadow: #562E60 1px 1px 5px;
+//     -webkit-text-shadow: #562E60 1px 1px 5px;
+//     -khtml-text-shadow: #562E60 1px 1px 5px;
+//     -moz-text-shadow: #562E60 1px 1px 5px;*/
+// }
+
+// .smallMenuItem {
+//     font: bold 30px consolas !important;
+//     cursor: pointer;
+// 	/*text-shadow: #562E60 1px 1px 5px;
+//     -webkit-text-shadow: #562E60 1px 1px 5px;
+//     -khtml-text-shadow: #562E60 1px 1px 5px;
+//     -moz-text-shadow: #562E60 1px 1px 5px;*/
+// }
+
+// .optionItem {
+//     fill: @link-color;
+//     color: @link-color;
+//     font: bolder 20px consolas !important;
+// }
+
+// .subOptionItem {
+//     fill: @link-color;
+//     color: @link-color;
+//     font: bolder 13px consolas !important;
+// }
+
+// /* CANVAS GRID CLASSES */
+// .board {
+//     /*width: 545px;
+//     height: 600px;*/
+//     text-align: center;
+//     /* DISABLE TEXT SELECTION INSIDE CANVAS ELEMENT*/
+//     -webkit-user-select: none;
+//     -khtml-user-select: none;
+//     -moz-user-select: none;
+//     -ms-user-select: none;
+//     user-select: none;
+// }
+
+// #footer {
+//     text-align: center;
+//     font-size: .8em;
+// }
+
+// /* NUMBER SELECTOR CLASSES */
+// .numSelector {
+//     fill: @cell-selector-bg;
+//     background-color: @cell-selector-bg;
+//     cursor: pointer !important;
+// }
+
+// .numSelectorText {
+//     font-size: 40px !important;
+//     cursor: pointer !important;
+// }
+
+// #difficultyText {
+//     font-size: 20px !important;
+//     font-weight: bold !important;
+//     cursor: default !important;
+//     display: block !important;
+// }
+
+
+
+
+// /* BOARD BUTTONS */
+// .clickableRegion {
+//     cursor: pointer !important;
+// }
+
+// /* CELL CLASSES */
+// .menuCellText {
+//     font-size: 40px !important;
+//     font-weight: bold !important;
+//     cursor: default !important;
+// }
+
+// .sudokuCell {
+//     fill: @cell-bg !important;
+//     background-color: @cell-bg !important;
+// }
+
+// .sudokuText {
+//     font-size: 40px !important;
+//     font-weight: bolder !important;
+//     cursor: pointer !important;
+// }
+
+// .highlightCell {
+//     fill: #DFEA49;
+//     background-color: #DFEA49;
+// }
+
+// .selectedCell {
+//     fill: #58D3F7;
+//     background-color: #58D3F7;
+// }
+
+// .incorrectCell {
+//     fill: red;
+//     background-color: red;
+// }
+
+// .prePopulatedCell {
+//     fill: #E0F8E0;
+//     background-color: #E0F8E0;
+//     cursor: default;
+// }
+
+// .prePopulatedText {
+//     font-family: 'Consolas' !important;
+//     font-weight: lighter !important;
+//     font-size: 40px !important;
+//     cursor: default !important;
+// }
+
+// /* NOTES CLASSES */
+// .note {
+//     font-size: 15px !important;
+//     font-weight: bold !important;
+//     cursor: pointer !important;
+// }
+
+// /* DELETE BUTTON CLASES */
+// #deleteButton {
+//  fill: red !important;
+//  font-size: 12px !important;
+//  font-weight: bold !important;
+//  cursor: pointer !important;
+// }
+
+// /* MODAL CLASSES */
+// #modal {
+
+// }
+
+// #modalText {
+
+// }
+
+// #modalClose {
+//  fill: red !important;
+//  font-size: 12px !important;
+//  font-weight: bold !important;
+//  cursor: pointer !important;
+// }

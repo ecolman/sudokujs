@@ -1,10 +1,10 @@
 import { connect } from 'react-redux'
 
-import Selector from '../components/Selector'
-import { BoardTypes, setCell } from '../../redux/actions';
+import Selectors from '../components/Selectors'
+//import { BoardTypes, setCell } from '../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({
-  board: state.boards[BoardTypes.PLAYER]
+  active: state.game.active
 });
 
 // const mapDispatchToProps = (dispatch, ownProps) => ({
@@ -14,4 +14,4 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(
   mapStateToProps,
 //  mapDispatchToProps
-)(Selector);
+)(Selectors);

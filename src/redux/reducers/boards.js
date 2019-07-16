@@ -1,74 +1,51 @@
-import { BoardTypes, rows } from '../actions';
-import { isArray, isString, map } from 'lodash';
+import { BoardTypes } from '../actions';
 
 const boards = (state = {
-  [BoardTypes.COMPLETE]: [],
-  [BoardTypes.CULLED]: [],
-  [BoardTypes.PLAYER]: []
+  [BoardTypes.BASE]: undefined,
+  [BoardTypes.COMPLETE]: undefined,
+  [BoardTypes.DISPLAY]: undefined,
+  [BoardTypes.PLAYER]: undefined
 }, action) => {
   switch (action.type) {
-    case 'CLEAR_BOARD':
-      return {
-        ...state,
-        [action.boardType]: map(rows, () => new Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
-      };
-
     case 'SET_BOARD':
-      let cellsToSet = [];
-
-      if (isString(action.values)) {
-        cellsToSet = map(action.values.split(''), Number);
-      }
-
-      if (isArray(action.values)) {
-        cellsToSet = action.values;
-      }
-
       return {
         ...state,
-        [action.boardType]: cellsToSet.length === 81
-          ? map(rows, (row, index) => cellsToSet.slice(index * 9, index * 9 + 9))
-          : map(rows, () => new Array(0, 0, 0, 0, 0, 0, 0, 0, 0))
+        [action.boardType]: action.board
       };
 
-    case 'CLEAR_CELL':
-      let clearIndex = action.row * 9 + action.col;
+    case 'CLEAR_BOARD':
+      if (action.boardType && state[action.boardType]) {
+        state[action.boardType].clear();
+      }
 
       return {
-        ...state,
-        [action.boardType]: _.map(state[action.boardType], (row, index) => {
-          let rowIndex = index * 9;
-
-          if (clearIndex > rowIndex && clearIndex < rowIndex + 9) {
-            return [
-              ...row.slice(0, clearIndex - rowIndex),
-              0,
-              ...row.slice(clearIndex - rowIndex + 1)
-            ];
-          } else {
-            return row;
-          }
-        })
+        ...state
       };
 
     case 'SET_CELL':
-      let setIndex = action.row * 9 + action.col;
+      if (state[BoardTypes.PLAYER]) {
+        state[BoardTypes.PLAYER].setCell(action.row, action.col, action.value);
+      }
+
+      if (state[BoardTypes.DISPLAY] && state[BoardTypes.PLAYER]) {
+        state[BoardTypes.DISPLAY] = state[BoardTypes.PLAYER].toDimensionalArray();
+      }
 
       return {
-        ...state,
-        [action.boardType]: _.map(state[action.boardType], (row, index) =>{
-          let rowIndex = index * 9;
+        ...state
+      };
 
-          if (setIndex >= rowIndex && setIndex < rowIndex + 9) {
-            return [
-              ...row.slice(0, setIndex - rowIndex),
-              action.value,
-              ...row.slice(setIndex - rowIndex + 1)
-            ];
-          } else {
-            return row;
-          }
-        })
+    case 'CLEAR_CELL':
+        if (state[BoardTypes.PLAYER]) {
+          state[action.boardType].clearCell(action.row, action.col);
+        }
+
+        if (state[BoardTypes.DISPLAY] && state[BoardTypes.PLAYER]) {
+          state[BoardTypes.DISPLAY] = state[BoardTypes.PLAYER].toDimensionalArray();
+        }
+
+      return {
+        ...state
       };
 
     default:

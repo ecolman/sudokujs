@@ -1,33 +1,49 @@
 import React from 'react'
-import PropTypes from 'prop-types';
+import { Set, Rect, Text } from 'react-raphael';
 
-import * as constants from '../constants';
+class Cell extends React.Component {
+  constructor(props) {
+    super(props);
 
-import { Raphael, Paper, Set, Circle, Ellipse, Image, Rect, Text, Path, Line } from 'react-raphael';
+    this.state = {
+      highlighted: false
+    };
+  }
 
+  toggleHighlight() {
+    if (this.props.isActive === undefined || this.props.isActive && this.props.isActive) {
+      this.setState(prevState => ({ highlighted: !prevState.highlighted }));
+    }
+  }
 
-const Cell = ({ index, row, col, value, onClick }) => (
-  <Set key={index} container={{className:'test'}}>
-    <Rect
-      x={constants.sizes.cell.width * col + 3}
-      y={constants.sizes.cell.height * row + constants.sizes.cell.height}
-      width={constants.sizes.cell.width}
-      height={constants.sizes.cell.height}
-      attr={{ class:'cell', 'stroke-width': .3, opacity: 1 }} />
-    <Text
-      x={constants.sizes.cell.width * col + 3 + (constants.sizes.cell.width / 2)}
-      y={constants.sizes.cell.height * row + constants.sizes.cell.height + (constants.sizes.cell.height / 2)}
-      text={value.toString()}
-      attr={{ class:'cell-text' }} />
-  </Set>
-)
+  render() {
+    return (
+      <Set>
+        <Rect ref={`cell-bg-${this.props.index}`}
+          x={this.props.width * this.props.col + 3 + this.props.offsetX}
+          y={this.props.height * this.props.row + this.props.height + this.props.offsetY}
+          width={this.props.width}
+          height={this.props.height}
+          attr={{ class: `cell__bg${this.props.class ? ` ${this.props.class}` : ''}${this.state.highlighted ? ' highlight' : ''}` }} />
+        <Text ref={`cell-text-${this.props.index}`}
+          x={this.props.width * this.props.col + 3 + (this.props.width / 2) + this.props.offsetX}
+          y={this.props.height * this.props.row + this.props.height + (this.props.height / 2) + this.props.offsetY}
+          text={this.props.value && this.props.value > 0 ? this.props.value.toString() : ''}
+          attr={{ class: `cell__text${this.props.class ? ` ${this.props.class}` : ''}${this.props.prepopulated ? ' prepopulated' : ''}` }} />
 
-Cell.propTypes = {
-  index: PropTypes.number.isRequired,
-  row: PropTypes.number.isRequired,
-  col: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-  onClick: PropTypes.func.isRequired
-};
+        {/* Rect to capture events and highlight for entire cell */}
+        <Rect ref={`cell-overlay-${this.props.index}`}
+          x={this.props.width * this.props.col + 3 + this.props.offsetX}
+          y={this.props.height * this.props.row + this.props.height + this.props.offsetY}
+          width={this.props.width}
+          height={this.props.height}
+          attr={{ class: `cell__overlay${!this.props.isActive ? ' inactive' : ''}` }}
+          click={() => this.props.isActive && !this.props.prepopulated ? this.props.onClick() : null}
+          mouseover={this.toggleHighlight.bind(this)}
+          mouseout={this.toggleHighlight.bind(this)} />
+      </Set>
+    );
+  }
+}
 
 export default Cell;

@@ -1,11 +1,9 @@
 import React from 'react';
-import Footer from './Footer';
-import AddTodo from '../containers/AddTodo';
-import Board from '../containers/Board';
-import VisibleTodoList from '../containers/VisibleTodoList';
+
+import Sudoku from './Sudoku';
 
 const App = () => (
-  <Board />
+  <Sudoku />
 );
 
 export default App;

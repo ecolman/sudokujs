@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux';
+
 import boards from './boards';
-import todos from './todos';
-import visibilityFilter from './visibilityFilter';
+import game from './game';
+import options from './options';
 
 export default combineReducers({
   boards,
-  todos,
-  visibilityFilter
+  game,
+  options
 });

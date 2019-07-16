@@ -1,69 +1,48 @@
-import { forEach, isArray, isNumber, isString, map, reduce } from 'lodash';
+import { isArray, isNumber, isString, map, reduce } from 'lodash';
 
-import { clearBoard, setBoard, setCell, clearCell } from '../redux/actions';
-import Utils from './utilities';
-import * as Constants from './constants';
+import * as Utils from './utilities';
+
+const rows = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8);
 
 export default class {
-  constructor(cells, type, store) {
+  constructor(cells, type = null) {
     this.difficulty = 0;
     this.startTime = new Date().getTime();
     this.timePlayed = 0;
 
     this.notes = [];
-    this.cells = [];
 
-    if (type && store) {
-      this.Store = store;
-      this.type = type
+    this.type = type;
 
-      if (cells) {
-        this.Store.dispatch(setBoard(this.type, cells));
-      } else {
-        this.Store.dispatch(clearBoard(this.type));
-      }
-
-      this.Store.subscribe(() => {
-        let board = this.Store.getState().boards[this.type];
-
-        // update board
-        forEach(board, (row, index) => {
-          this[index] = row;
-        });
-      });
+    if (cells) {
+      this.set(cells);
+    } else {
+      this.clear();
     }
   }
 
   // BOARD
   set(cells) {
-    if (this.Store) {
-      Store.dispatch(setBoard(this.type, cells));
-    } else {
-      let cellsToSet = [];
+    let cellsToSet = [];
 
-      if (isString(cells)) {
-        cellsToSet = cells.split(',');
-      }
+    if (isString(cells)) {
+      cellsToSet = cells.split('');
+    }
 
-      if (isArray(cells)) {
-        cellsToSet = cells;
-      }
+    if (isArray(cells)) {
+      cellsToSet = cells;
+    }
 
-      if (cellsToSet.length === 81) {
-        for (let row = 0; row < 9; row++) {
-          this[row] = cellsToSet.slice(row * 9, row * 9 + 9);
-        }
+    if (cellsToSet.length === 81) {
+      for (let row = 0; row < 9; row++) {
+        this[row] = map(cellsToSet.slice(row * 9, row * 9 + 9), Number);
       }
     }
   }
 
   clear() {
-    if (this.Store) {
-      Store.dispatch(clearBoard(this.type));
-    } else {
-      for (let row = 0; row < 9; row++) {
-        this[row] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
-      }
+    for (let row = 0; row < 9; row++) {
+      this[row] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
   }
 
@@ -74,7 +53,7 @@ export default class {
 
   // COLUMNS
   getColumn(index) {
-    return map(Constants.rows, r => this[r][index]);
+    return map(rows, r => this[r][index]);
   }
 
   // CELLS
@@ -83,27 +62,20 @@ export default class {
   }
 
   getCell(row = 0, col = 0) {
-    return this[row][col] || -1;
+    return this[row][col];
   }
 
   setCell(row = 0, col = 0, value = 0) {
     if (isNumber(value)) {
-      if (this.Store) {
-        this.Store.dispatch(setCell(this.type, row, col, value));
-      } else {
-        this[row][col] = value;
-      }
+      this[row][col] = value;
+      this[row] = this[row];
 
       return this[row][col];
     }
   }
 
   clearCell(row = 0, col = 0) {
-    if (this.Store) {
-      this.Store.dispatch(clearCell(this.type, row, col));
-    } else {
-      this[row][col] = 0;
-    }
+    this[row][col] = 0;
 
     return this[row][col];
   }
@@ -138,6 +110,10 @@ export default class {
   }
 
   toArray() {
-    return reduce(Constants.rows, (board, row) => board.concat(this[row]), []);
+    return reduce(rows, (board, row) => board.concat(this[row]), []);
+  }
+
+  toDimensionalArray() {
+    return map(rows, r => this[r]);
   }
 }

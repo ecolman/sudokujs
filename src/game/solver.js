@@ -1,6 +1,5 @@
-import * as Constants from './constants';
 import Board from './board';
-import Utils from './utilities';
+import * as Utils from './utilities';
 
 class Solver {
   constructor() {

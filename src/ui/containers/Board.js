@@ -1,12 +1,21 @@
 import { connect } from 'react-redux'
 
 import Board from '../components/Board'
-import { BoardTypes } from '../../redux/actions';
+import { BoardTypes, menuBoard, resumeGame } from '../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({
-  board: state.boards[BoardTypes.PLAYER]
+  active: state.game.active,
+  baseBoard: state.boards[BoardTypes.BASE],
+  displayBoard: state.boards[BoardTypes.DISPLAY],
+  menuBoard,
+  paused: state.game.paused
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  resumeGame: () =>  dispatch(resumeGame())
 });
 
 export default connect(
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(Board);
