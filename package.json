@@ -24,7 +24,7 @@
   "license": "ISC",
   "homepage": "https://github.com/ecolman/sudokujs#readme",
   "dependencies": {
-    "lodash": ">=4.17.11",
+    "lodash": ">=4.17.13",
     "raphael": "^2.2.7",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
