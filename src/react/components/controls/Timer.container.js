@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 
-import Timer from '../components/Timer'
+import Timer from './Timer'
 
 const mapStateToProps = (state, ownProps) => ({
   active: state.game.active,

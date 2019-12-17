@@ -4,8 +4,8 @@
   "description": "Javascrpt based sudoku game and solver",
   "main": "index.js",
   "scripts": {
-    "build": "npx webpack",
-    "start": "npx webpack-dev-server --mode development --progress",
+    "build": "webpack",
+    "start": "webpack-dev-server --mode development --progress",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,7 +24,7 @@
   "license": "ISC",
   "homepage": "https://github.com/ecolman/sudokujs#readme",
   "dependencies": {
-    "lodash": ">=4.17.11",
+    "lodash": ">=4.17.13",
     "raphael": "^2.2.7",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",

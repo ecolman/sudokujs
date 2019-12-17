@@ -2,8 +2,8 @@ import React from 'react'
 import { Raphael, Rect, Set, Text } from 'react-raphael';
 import { map } from 'lodash';
 
-import Options from '../containers/options';
-import { difficulties } from '../../redux/actions';
+import Options from './Options.container';
+import { difficulties } from '../../../redux/actions';
 
 const Menu = props => {
   const hide = props.active || props.options;
@@ -20,13 +20,13 @@ const Menu = props => {
       {map(difficulties, d => (
         <Set key={`menu-difficulty-${d}-container`}>
           <Text text={d}
-            x={278} y={125}
+            x={278} y={117}
             key={`menu-difficulty-${d}`}
             attr={{ class: `menu difficulty ${d.toLowerCase()}` }}
             click={() => props.startGame(d)}
             hide={hide}
             load={toFront} update={toFront}></Text>
-          <Rect x={278} y={125}
+          <Rect x={278} y={117}
             key={`menu-difficulty-${d}-btn`}
             attr={{ class: `menu difficulty ${d.toLowerCase()} rect` }}
             hide={hide}
@@ -38,18 +38,18 @@ const Menu = props => {
       {/* Actions */}
       <Set>
         <Text text={'Resume Game'}
-          x={275} y={340}
+          x={275} y={335}
           attr={{ class: `menu action resume` }}
           click={props.resumeGame}
-          hide={hide}
+          hide={hide || props.stoppedAt === undefined}
           load={toFront} update={toFront}></Text>
         <Text text={'Load Last Game'}
-          x={275} y={385}
+          x={275} y={380}
           attr={{ class: `menu action load` }}
           hide={hide}
           load={toFront} update={toFront}></Text>
         <Text text={'Options'}
-          x={275} y={425}
+          x={275} y={420}
           attr={{ class: `menu action options` }}
           animate={animation}
           click={props.showOptions}

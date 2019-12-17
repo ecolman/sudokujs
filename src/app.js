@@ -1,2 +1,1 @@
-import Sudoku from './game';
-import Ui from './ui';
+import reactApp from './react';

@@ -42,7 +42,7 @@ module.exports = (env, argv) => {
     plugins: [
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
-        template: `${path.resolve(__dirname, 'src', 'ui')}/index.html`
+        template: `${path.resolve(__dirname, 'src')}/index.html`
       })
     ],
 

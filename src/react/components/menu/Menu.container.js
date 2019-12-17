@@ -1,12 +1,13 @@
 import { connect } from 'react-redux'
 
-import Menu from '../components/Menu'
-import { options, setOption, startGame, resumeGame } from '../../redux/actions';
+import Menu from './Menu'
+import { options, setOption, startGame, resumeGame } from '../../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({
   active: state.game.active,
   options: state.options.visible,
-  paused: state.game.paused
+  paused: state.game.paused,
+  stoppedAt: state.game.stoppedAt
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({

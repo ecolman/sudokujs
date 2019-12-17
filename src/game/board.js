@@ -5,13 +5,12 @@ import * as Utils from './utilities';
 const rows = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8);
 
 export default class {
-  constructor(cells, type = null) {
-    this.difficulty = 0;
+  constructor(cells, type = null, difficulty = null) {
     this.startTime = new Date().getTime();
     this.timePlayed = 0;
-
     this.notes = [];
 
+    this.difficulty = difficulty;
     this.type = type;
 
     if (cells) {

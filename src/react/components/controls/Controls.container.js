@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 
-import Controls from '../components/Controls'
-import { activateGame, deactivateGame, pauseGame, resumeGame } from '../../redux/actions';
+import Controls from './Controls'
+import { activateGame, deactivateGame, pauseGame, resumeGame } from '../../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({
   active: state.game.active,

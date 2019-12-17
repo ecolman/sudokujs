@@ -7,6 +7,10 @@ export const getRowColumn = (index = 0) => {
   };
 }
 
+export const getCellIndex = (row = 0, col = 0) => {
+  return row * 9 + col;
+}
+
 export const getRegionBounds = (row = 0, col = 0) => {
   // very snazzy way to determine which 3x3 region cell belongs to
   // too bad I didn't come up with it =( (nice one Jani)

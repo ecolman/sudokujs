@@ -2,6 +2,7 @@ import { getElapsedTime } from '../../game/utilities';
 
 const game = (state = {
   active: false,
+  notesMode: false,
   paused: false,
   time: 0,
   startedAt: undefined,
@@ -21,8 +22,15 @@ const game = (state = {
         return {
           ...state,
           active: false,
+          paused: false,
           stoppedAt: action.now
         };
+
+    case "SET_NOTES_MODE":
+      return {
+        ...state,
+        notesMode: action.notesMode || false
+      };
 
     case "PAUSE_GAME":
       return {

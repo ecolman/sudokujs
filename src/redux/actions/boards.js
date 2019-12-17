@@ -2,7 +2,8 @@ export const BoardTypes = {
   BASE: 'base',
   COMPLETE: 'complete',
   DISPLAY: 'display',
-  PLAYER: 'player'
+  PLAYER: 'player',
+  NOTES: 'notes'
 };
 
 export const rows = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -31,6 +32,19 @@ export const clearBoard = boardType => ({
   boardType
 });
 
+export const clearCell = (row, col) => ({
+  type: 'CLEAR_CELL',
+  row,
+  col
+});
+
+export const selectCell = cellIndex => {
+  return {
+    type: 'SELECT_CELL',
+    cellIndex
+  }
+};
+
 export const setBoard = (boardType, board) => {
   return {
     type: 'SET_BOARD',
@@ -39,14 +53,22 @@ export const setBoard = (boardType, board) => {
   }
 };
 
-export const clearCell = (row, col) => ({
-  type: 'CLEAR_CELL',
-  row,
-  col
-});
-
 export const setCell = (row, col, value) => ({
   type: 'SET_CELL',
+  row,
+  col,
+  value
+});
+
+export const addNote = (row, col, value) => ({
+  type: 'ADD_NOTE',
+  row,
+  col,
+  value
+});
+
+export const deleteNote = (row, col, value) => ({
+  type: 'DELETE_NOTE',
   row,
   col,
   value

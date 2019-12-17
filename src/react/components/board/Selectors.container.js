@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 
-import Selectors from '../components/Selectors'
+import Selectors from './Selectors'
 //import { BoardTypes, setCell } from '../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({

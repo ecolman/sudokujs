@@ -1,3 +1,5 @@
+import { map, times } from 'lodash';
+
 import Board from '../../game/board';
 import Generator from '../../game/generator';
 import Store from '../../redux';
@@ -13,10 +15,11 @@ export const difficulties = {
 export const startGame = (difficulty = difficulties.EASY, time = 0) => {
   let board = Generator.generate(20);
 
-  Store.dispatch(setBoard(BoardTypes.COMPLETE, new Board(board.solved.toString(), BoardTypes.COMPLETE)));
-  Store.dispatch(setBoard(BoardTypes.BASE, new Board(board.base.toString(), BoardTypes.COMPLETE)));
-  Store.dispatch(setBoard(BoardTypes.PLAYER, new Board(board.base.toString(), BoardTypes.COMPLETE)));
+  Store.dispatch(setBoard(BoardTypes.COMPLETE, new Board(board.solved.toString(), BoardTypes.COMPLETE, difficulty)));
+  Store.dispatch(setBoard(BoardTypes.BASE, new Board(board.base.toString(), BoardTypes.COMPLETE, difficulty)));
+  Store.dispatch(setBoard(BoardTypes.PLAYER, new Board(board.base.toString(), BoardTypes.COMPLETE, difficulty)));
   Store.dispatch(setBoard(BoardTypes.DISPLAY, board.base.toDimensionalArray(), BoardTypes.DISPLAY));
+  Store.dispatch(setBoard(BoardTypes.NOTES, map(times(81, n => []))));
 
   return ({
     difficulty,
@@ -29,6 +32,11 @@ export const startGame = (difficulty = difficulties.EASY, time = 0) => {
 export const deactivateGame = () => ({
   type: 'DEACTIVATE_GAME',
   now: new Date().getTime()
+});
+
+export const setNotesMode = isNotesMode => ({
+  type: 'SET_NOTES_MODE',
+  notesMode: isNotesMode
 });
 
 export const pauseGame = () => ({

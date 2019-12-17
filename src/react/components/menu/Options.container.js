@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 
-import Options from '../components/Options'
-import { options, setOption } from '../../redux/actions';
+import Options from './Options'
+import { options, setOption } from '../../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({
   active: state.game.active,

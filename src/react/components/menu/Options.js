@@ -1,24 +1,24 @@
 import React from 'react'
 import { Path, Raphael, Set, Text } from 'react-raphael';
 
-import Checkbox from './Checkbox';
+import Checkbox from '../Checkbox';
 
 const Options = props => {
   const hide = !props.optionsVisible;
   let animation = Raphael.animation({ opacity: hide ? 0 : .7 }, 300);
 
   return (
-    <Set  attr={{  }}>
+    <Set>
       {/* Back Button */}
       <Set>
         <Text text={'Save Options'}
-          x={70} y={31}
+          x={70} y={25}
           animate={animation}
           attr={{ class: 'menu save text' }}
           click={() => props.setOption(props.options.VISIBLE, false)}
           hide={hide}></Text>
         <Path d={'M 15 15 l 0 20 l -10 -10 z'}
-          attr={{ class: 'menu save btn' }}
+          attr={{ class: 'menu save path' }}
           animate={animation}
           click={() => props.setOption(props.options.VISIBLE, false)}
           hide={hide}></Path>

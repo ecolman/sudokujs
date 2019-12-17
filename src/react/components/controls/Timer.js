@@ -1,7 +1,7 @@
 import React from 'react'
 import { Text } from 'react-raphael';
 
-import { getElapsedTime } from '../../game/utilities';
+import { getElapsedTime } from '../../../game/utilities';
 
 const getTimerText = lengthMs => {
   const lengthSecs = Math.floor(lengthMs / 1000);

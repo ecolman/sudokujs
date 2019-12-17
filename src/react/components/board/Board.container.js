@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 
-import Board from '../components/Board'
-import { BoardTypes, menuBoard, resumeGame } from '../../redux/actions';
+import Board from './Board'
+import { BoardTypes, menuBoard, resumeGame } from '../../../redux/actions';
 
 const mapStateToProps = (state, ownProps) => ({
   active: state.game.active,
