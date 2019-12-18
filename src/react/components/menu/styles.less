@@ -1,0 +1,83 @@
+@import '../../../css/variables.less';
+
+.container {
+  fill: @cell-bg;
+  // opacity: .5 !important;
+  opacity: 1 !important;
+  stroke-width: 0;
+}
+
+.difficulty {
+  cursor: pointer;
+  font: bold 35px 'Consolas' !important;
+  text-anchor: middle;
+
+  &.rect {
+    fill: transparent !important;
+    stroke: none;
+    height: 34px;
+  }
+
+  &.easy {
+    fill: @easy-color;
+    letter-spacing: 15px;
+
+    &.rect {
+      width: 125px;
+      transform: translate(-62px, -13px);
+    }
+  }
+
+  &.medium {
+    fill: @medium-color;
+    letter-spacing: 13px;
+    transform: translate(0, 50px);
+
+    &.rect {
+      width: 187px;
+      transform: translate(-94px, 34px);
+    }
+  }
+
+  &.hard {
+    fill: @hard-color;
+    letter-spacing: 15px;
+    transform: translate(0, 100px);
+
+    &.rect {
+      width: 125px;
+      transform: translate(-62px, 85px);
+    }
+  }
+
+  &.expert {
+    fill: @expert-color;
+    letter-spacing: 12px;
+    transform: translate(0, 150px);
+
+    &.rect {
+      width: 175px;
+      transform: translate(-88px, 137px);
+    }
+  }
+}
+
+.action {
+  cursor: pointer;
+  fill: @link-color;
+  font: bold 30px 'Consolas' !important;
+  text-anchor: middle;
+  stroke: none;
+
+  &.load {
+    letter-spacing: 2px;
+  }
+
+  &.options {
+    letter-spacing: 7px;
+  }
+
+  &.resume {
+    letter-spacing: 5px;
+  }
+}

@@ -1,4 +1,4 @@
-import Board from './board';
+import * as BoardUtils from './board';
 import * as Utils from './utilities';
 
 class Solver {
@@ -26,7 +26,7 @@ class Solver {
 
   isRowValid(board, row = 0, zeroValid = false) {
     if (board) {
-      let r = board.getRow(row);
+      let r = BoardUtils.getRow(board, row);
       let numbers = [];
 
       for (let count = 0; count < r.length; count++) {
@@ -53,7 +53,7 @@ class Solver {
 
   isColumnValid(board, col = 0, zeroValid = false) {
     if (board) {
-      let c = board.getColumn(col);
+      let c = BoardUtils.getColumn(board, col);
       let numbers = [];
 
       for (let count = 0; count < c.length; count++) {
@@ -80,7 +80,7 @@ class Solver {
 
   isRegionValid(board, row = 0, col = 0, zeroValid = false) {
     if (board) {
-      let region = board.getRegion(row, col);
+      let region = BoardUtils.getRegion(board, row, col);
       let numbers = [];
 
       for (let count = 0; count < region.length; count++) {
@@ -128,7 +128,7 @@ class Solver {
   solve(board) {
     const startTime = Date.now();
     const possibleNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const originalBoard = new Board(board.toArray());
+    const originalBoard = BoardUtils.createBoard(BoardUtils.toString(board));
 
     let invalidNumbers = [];
     let lastCellIndex = 0;
@@ -152,9 +152,9 @@ class Solver {
         let found = false;
 
         // get all numbers used on row, column, and region
-        let usedNumbers = board.getRow(pos.row)
-          .concat(board.getColumn(pos.col))
-          .concat(board.getRegion(pos.row, pos.col));
+        let usedNumbers = BoardUtils.getRow(board, pos.row)
+          .concat(BoardUtils.getColumn(board, pos.col))
+          .concat(BoardUtils.getRegion(board, pos.row, pos.col));
 
         usedNumbers = _.sortBy(_.filter(_.uniq(usedNumbers), i => i != 0)); // unique values, remove 0's
         let validNumbers = _.difference(possibleNumbers, usedNumbers.concat(invalidNumbers[i]));  // find unused and valid numbers
@@ -169,7 +169,7 @@ class Solver {
           // pick a random number to try
           let rnd = Math.floor(Math.random() * validNumbers.length);
           let value = validNumbers.splice(rnd, 1)[0];
-          board.setCell(pos.row, pos.col, value);
+          BoardUtils.setCell(board, pos.row, pos.col, value);
 
           // check that we haven't seen this solution before, then check if it's valid
           if (this.isCellValid(board, pos.row, pos.col, true)) {
@@ -183,17 +183,17 @@ class Solver {
 
         // no valid value found, backtrack
         if (validNumbersEmpty || !found) {
-          board.setCell(pos.row, pos.col, 0);
+          BoardUtils.setCell(board, pos.row, pos.col, 0);
           //console.log(`no values worked for cell ${pos.row}, ${pos.col}, backtracking`);
 
           if (i >= 1) {
             // get previously set cell and set that to 0
             let prevPos = Utils.getRowColumn(lastCellIndex);
-            let prevValue = board.getCell(prevPos.row, prevPos.col);
+            let prevValue = BoardUtils.getCell(board, prevPos.row, prevPos.col);
 
             // since no solution was found, add that number to invalid numbers
             invalidNumbers[lastCellIndex] = [prevValue].concat(invalidNumbers[lastCellIndex] || []);
-            board.setCell(prevPos.row, prevPos.col, 0);
+            BoardUtils.setCell(board, prevPos.row, prevPos.col, 0);
 
             i = lastCellIndex - 1;
           } else {
@@ -204,7 +204,8 @@ class Solver {
             }
 
             // reset everything
-            board = new Board(originalBoard.toArray());
+            board = BoardUtils.createBoard(BoardUtils.toString(originalBoard));
+
             invalidNumbers = [];
             i = -1;
             lastCellIndex = 0;
@@ -220,9 +221,9 @@ class Solver {
     this.lastSolution.time = Date.now() - startTime;
     this.lastSolution.steps = steps;
 
-    console.log(`${steps} steps solved ${_.filter(board.toArray(), s => s !== 0).length} cells, ${board.toString()}`);
+    console.log(`${steps} steps solved ${_.filter(BoardUtils.toArray(board), s => s !== 0).length} cells, ${BoardUtils.toString(board)}`);
 
-    return _.filter(board.toArray(), s => s !== 0).length === 81 && !board.equals(originalBoard) ? board : null;
+    return _.filter(BoardUtils.toArray(board), s => s !== 0).length === 81 && !BoardUtils.equals(board, originalBoard) ? board : null;
   }
 }
 

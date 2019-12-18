@@ -129,7 +129,7 @@ class Solver {
   solve(board) {
     const startTime = Date.now();
     const possibleNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const originalBoard = new Board(board.toArray());
+    const originalBoard = BoardUtils.createBoard(BoardUtils.toString(board));
 
     let invalidNumbers = [];
     let lastCellIndex = 0;

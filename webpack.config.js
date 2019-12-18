@@ -59,7 +59,16 @@ module.exports = (env, argv) => {
           test: /\.less$/,
           use: [
             'style-loader',
-            'css-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                importLoaders: 1,
+                modules: {
+                  localIdentName: '[path]___[name]__[local]___[hash:base64:5]',
+                },
+                sourceMap: isDev
+              }
+            },
             'less-loader'
           ]
         },

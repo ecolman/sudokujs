@@ -1,0 +1,43 @@
+diff --git a/node_modules/react-raphael/LICENSE b/node_modules/react-raphael/LICENSE
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-raphael/README.md b/node_modules/react-raphael/README.md
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-raphael/lib/elements.js b/node_modules/react-raphael/lib/elements.js
+old mode 100644
+new mode 100755
+index 2b4f81c..342b09c
+--- a/node_modules/react-raphael/lib/elements.js
++++ b/node_modules/react-raphael/lib/elements.js
+@@ -238,7 +238,8 @@ Element.propTypes = {
+         percents: PropTypes.array,
+         times: PropTypes.number
+     }), PropTypes.string]),
+-    stop: PropTypes.bool
++    stop: PropTypes.bool,
++    className: PropTypes.string
+ };
+ 
+ var Circle = function (_React$Component4) {
+diff --git a/node_modules/react-raphael/lib/index.js b/node_modules/react-raphael/lib/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-raphael/lib/utils.js b/node_modules/react-raphael/lib/utils.js
+old mode 100644
+new mode 100755
+index e9e0c8e..ec4064a
+--- a/node_modules/react-raphael/lib/utils.js
++++ b/node_modules/react-raphael/lib/utils.js
+@@ -190,6 +190,11 @@ var Utils = {
+                             if (_typeof(props[key]) === "object") element.animateWith(props.animateWith);
+                             break;
+                         }
++                    case "className":
++                        {
++                            if (_typeof(props[key]) === "string") element.attr({ 'class': props.className });
++                            break;
++                        }
+                     case "click":
+                         {
+                             if (typeof props[key] === "function") {

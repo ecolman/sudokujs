@@ -1,4 +1,4 @@
-import Board from './board';
+import * as BoardUtils from './board';
 import Solver from './solver';
 import * as Utils from './utilities';
 
@@ -41,7 +41,7 @@ class Generator {
 
   // clears N cells from supplied sudoku board randomly
   cull(board, cullCount) {
-    let culledBoard = new Board(board.toArray());
+    let culledBoard = BoardUtils.createBoard(BoardUtils.toString(board));
     let cells = _.times(81, i => i);  // fill array with seed values
 
     // pick a random number, splice off rnd number from array, set calculated row and column to 0
@@ -52,7 +52,7 @@ class Generator {
       let col = value - (row * 9);
 
       // set board cells to empty (0)
-      culledBoard.setCell(row, col, 0);
+      BoardUtils.setCell(culledBoard, row, col, 0);
     })
 
     return culledBoard;
@@ -70,15 +70,16 @@ class Generator {
     } else {
       // while the sudoku puzzle is not unique or unsolvable, keep retrying with different culls
       while (attemptCount < attempts) {
-        let solved = Solver.solve(new Board(culledBoard.toArray()));
+        let copiedBoard = BoardUtils.createBoard(BoardUtils.toString(culledBoard));
+        let solved = Solver.solve(copiedBoard);
 
         this.lastGeneration.time += Solver.lastSolution.time;
         this.lastGeneration.steps += Solver.lastSolution.steps;
 
-        if (Solver.isBoardValid(solved) && board.equals(solved)) {
-          console.log('sweet, found a solution', solved.toString());
+        if (Solver.isBoardValid(solved) && BoardUtils.equals(board, solved)) {
+          console.log('sweet, found a solution', BoardUtils.toString(solved));
           // we already found a solution and current solution is not the same, board isn't unique
-          if (solution !== null && !solution.equals(solved)) {
+          if (solution !== null && !BoardUtils.equals(solution, solved)) {
             solution = false;
             break;
           }
@@ -96,7 +97,7 @@ class Generator {
 
   // generate solved sudoku board using the backtrack algorithm
   generateSolved() {
-    const newBoard = new Board();
+    const newBoard = BoardUtils.createBoard();
     let cellNumbers = []; // multi-dimensional array to keep track of which numbers have been tried in each cell
 
     for (let x = 0; x < 81; x++) {
@@ -112,13 +113,13 @@ class Generator {
         const rnd = Math.floor(Math.random() * cellNumbers[i].length);
         const value = cellNumbers[i].splice(rnd, 1)[0];
 
-        newBoard.setCell(pos.row, pos.col, value);
+        BoardUtils.setCell(newBoard, pos.row, pos.col, value);
 
         if (Solver.isCellValid(newBoard, pos.row, pos.col, true)) {
           found = true;
           break;
         } else {
-          newBoard.setCell(pos.row, pos.col, 0);
+          BoardUtils.setCell(newBoard, pos.row, pos.col, 0);
           found = false;
           continue;
         }
@@ -133,7 +134,7 @@ class Generator {
       }
     }
 
-    console.log(newBoard.toString());
+    console.log(BoardUtils.toString(newBoard));
     return newBoard;
   }
 }

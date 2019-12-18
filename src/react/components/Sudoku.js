@@ -1,38 +1,37 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { Paper } from 'react-raphael';
 
-import Header from './Header';
-import Board from './board/Board.container';
-import Menu from './menu/Menu.container';
-import Footer from './Footer.container';
+import Header from './layout/header';
+import Board from './board';
+import Menu from './menu';
+import Events from './common/events';
+import Footer from './layout/footer';
 
-class Sudoku extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+import classes from './sudoku.less';
 
-  componentDidMount() {
-    // sets paper to a viewbox and paper size for scaling
-    const paper = this.refs.sudokuContainer.paper;
+function Sudoku() {
+  const paperContainer = useRef(null);
 
-    paper.setViewBox(0, 0, 545, 650, true);
-    paper.setSize('100%', '100%');
-  }
+  useEffect(() => {
+    if (paperContainer.current.paper) {
+      paperContainer.current.paper.setViewBox(0, 0, 545, 650, true);
+      paperContainer.current.paper.setSize('100%', '100%');
+    }
+  })
 
-  render() {
-    return (
-      <Paper ref={'sudokuContainer'}
-        width={0} height={0}
-        container={{className: 'sudoku'}}>
-        <Header />
+  return (
+    <Paper ref={paperContainer}
+      width={0} height={0}
+      container={{className: classes.paper}}>
+      <Header />
 
-        <Board />
-        <Menu />
+      <Board />
+      <Menu />
+      <Events />
 
-        <Footer />
-      </Paper>
-    );
-  }
+      <Footer />
+    </Paper>
+  );
 }
 
 export default Sudoku;

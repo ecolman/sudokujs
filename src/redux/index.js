@@ -1,10 +1,15 @@
-import { createStore } from 'redux';
-import rootReducer from './reducers'
+import { configureStore } from '@reduxjs/toolkit'
 
-const Store = createStore(
-  rootReducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-);
+import { reducer as boardsReducer } from './boards';
+import { reducer as gameReducer } from './game';
+import { reducer as optionssReducer } from './options';
 
-Object.freeze(Store);
-export default Store;
+const store = configureStore({
+  reducer: {
+    boards: boardsReducer,
+    game: gameReducer,
+    options: optionssReducer
+  }
+});
+
+export default store;

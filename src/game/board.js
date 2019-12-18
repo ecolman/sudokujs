@@ -1,118 +1,116 @@
 import { isArray, isNumber, isString, map, reduce } from 'lodash';
 
-import * as Utils from './utilities';
+import { rows } from './constants';
+import { getRegionBounds } from './utilities';
 
-const rows = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8);
+const blankRow = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-export default class {
-  constructor(cells, type = null, difficulty = null) {
-    this.startTime = new Date().getTime();
-    this.timePlayed = 0;
-    this.notes = [];
+export const Board = {
+  difficulty: null,
+  startTime: new Date().getTime(),
+  timePlayed: 0,
+  type: null,
+  0: [...blankRow],
+  1: [...blankRow],
+  2: [...blankRow],
+  3: [...blankRow],
+  4: [...blankRow],
+  5: [...blankRow],
+  6: [...blankRow],
+  7: [...blankRow],
+  8: [...blankRow],
+  9: [...blankRow]
+};
 
-    this.difficulty = difficulty;
-    this.type = type;
+export const createBoard = (cells, props) => {
+  let newBoard = Object.assign({}, Board, { ...props });
+  setBoard(newBoard, cells);
+  return newBoard;
+}
 
-    if (cells) {
-      this.set(cells);
-    } else {
-      this.clear();
-    }
+export const setBoard = (board, cells) => {
+  let cellsToSet = [];
+
+  if (isString(cells)) {
+    cellsToSet = cells.split('');
   }
 
-  // BOARD
-  set(cells) {
-    let cellsToSet = [];
-
-    if (isString(cells)) {
-      cellsToSet = cells.split('');
-    }
-
-    if (isArray(cells)) {
-      cellsToSet = cells;
-    }
-
-    if (cellsToSet.length === 81) {
-      for (let row = 0; row < 9; row++) {
-        this[row] = map(cellsToSet.slice(row * 9, row * 9 + 9), Number);
-      }
-    }
+  if (isArray(cells)) {
+    cellsToSet = cells;
   }
 
-  clear() {
+  if (cellsToSet.length === 81) {
     for (let row = 0; row < 9; row++) {
-      this[row] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
+      board[row] = map(cellsToSet.slice(row * 9, row * 9 + 9), Number);
     }
   }
+}
 
-  // ROWS
-  getRow(index) {
-    return this[index];
+export const clear = board => {
+  for (let row = 0; row < 9; row++) {
+    board[row] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
+  }
+}
+
+export const getRow = (board, index) => {
+  return board[index];
+}
+
+export const getColumn = (board, index) => {
+  return map(rows, r => board[r][index]);
+}
+
+export const checkCell = (board, row = 0, col = 0, value = 0) => {
+  return getCell(board, row, col) === value;
+}
+
+export const getCell = (board, row = 0, col = 0) => {
+  return board[row][col];
+}
+
+export const setCell = (board, row = 0, col = 0, value = 0) => {
+  if (isNumber(value)) {
+    board[row][col] = value;
+
+    return board[row][col];
+  }
+}
+
+export const clearCell = (board, row = 0, col = 0) => {
+  return setCell(board, row, col);
+}
+
+export const getRegion = (row = 0, col = 0) => {
+  let region = [];
+  let regionBounds = getRegionBounds(row, col);
+
+  for (let r = regionBounds.start.row; r < regionBounds.end.row; r++) {
+    let c = regionBounds.start.col;
+
+    region.push(this[r][c]);
+    region.push(this[r][c + 1]);
+    region.push(this[r][c + 2]);
   }
 
-  // COLUMNS
-  getColumn(index) {
-    return map(rows, r => this[r][index]);
-  }
+  return region;
+}
 
-  // CELLS
-  checkCell(row = 0, col = 0, value = 0) {
-    return this.getCell(row, col) === value;
-  }
+export const equals = (boardA, boardB) => {
+  return toString(boardA) === toString(boardB);
+}
 
-  getCell(row = 0, col = 0) {
-    return this[row][col];
-  }
+export const hasEmpty = board => {
+  return toString(board).indexOf(0) > -1;
+}
 
-  setCell(row = 0, col = 0, value = 0) {
-    if (isNumber(value)) {
-      this[row][col] = value;
-      this[row] = this[row];
+export const toString = board => {
+  return toArray(board).join('');
+}
 
-      return this[row][col];
-    }
-  }
+export const toArray = board => {
+  return reduce(rows, (arr, row) => arr.concat(board[row]), []);
+}
 
-  clearCell(row = 0, col = 0) {
-    this[row][col] = 0;
-
-    return this[row][col];
-  }
-
-  // REGIONS
-  getRegion(row = 0, col = 0) {
-    let region = [];
-    let regionBounds = Utils.getRegionBounds(row, col);
-
-    for (let r = regionBounds.start.row; r < regionBounds.end.row; r++) {
-      let c = regionBounds.start.col;
-
-      region.push(this[r][c]);
-      region.push(this[r][c + 1]);
-      region.push(this[r][c + 2]);
-    }
-
-    return region;
-  }
-
-  // UTILS
-  equals(board) {
-    return board ? this.toString() === board.toString() : false;
-  }
-
-  hasEmpty() {
-    return this.toString().indexOf(0) > -1;
-  }
-
-  toString() {
-    return this.toArray().join('');
-  }
-
-  toArray() {
-    return reduce(rows, (board, row) => board.concat(this[row]), []);
-  }
-
-  toDimensionalArray() {
-    return map(rows, r => this[r]);
-  }
+export const toDimensionalArray = board => {
+  return map(rows, r => board[r]);
 }
