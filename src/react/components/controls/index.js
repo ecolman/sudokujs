@@ -1,11 +1,11 @@
 import { connect } from 'react-redux'
 
 import Controls from './component'
-import { actions as gameActions } from '../../../redux/game';
+import { actions as gameActions, selectors as gameSelectors } from '../../../redux/game';
 
 const mapStateToProps = (state, props) => ({
-  active: state.game.active,
-  paused: state.game.paused
+  active: gameSelectors.isActive(state),
+  paused: gameSelectors.isPaused(state)
 });
 
 const mapDispatchToProps = (dispatch, props) => ({

@@ -5,10 +5,11 @@ import { getElapsedTime } from '../game/utilities';
 export const actions = {
   START_GAME: createAction('START_GAME'),
   DEACTIVATE_GAME: createAction('DEACTIVATE_GAME'),
-  SET_NOTES_MODE: createAction('SET_NOTES_MODE'),
   PAUSE_GAME: createAction('PAUSE_GAME'),
   RESUME_GAME: createAction('RESUME_GAME'),
-  RESET_GAME: createAction('RESET_GAME')
+  RESET_GAME: createAction('RESET_GAME'),
+  SET_NOTES_MODE: createAction('SET_NOTES_MODE'),
+  SET_TIME: createAction('SET_TIME')
 };
 
 export const reducer = createReducer(
@@ -32,30 +33,40 @@ export const reducer = createReducer(
     [actions.DEACTIVATE_GAME]: (state, action) => {
       state.active = false;
       state.paused = false;
-      state.stoppedAt = action.payload;
-    },
-    [actions.SET_NOTES_MODE]: (state, action) => {
-      state.notesMode = action.payload || false;
+      state.stoppedAt = new Date().getTime();
     },
     [actions.PAUSE_GAME]: (state, action) => {
       state.paused = true;
-      state.stoppedAt = action.payload;
+      state.stoppedAt = new Date().getTime();
+      state.time = getElapsedTime(state.time, state.startedAt, state.stoppedAt);
     },
     [actions.RESUME_GAME]: (state, action) => {
       state.active = true;
       state.paused = false;
       state.startedAt = new Date().getTime();
-      state.time = getElapsedTime(state.time, state.startedAt, state.stoppedAt);
       state.stoppedAt = undefined;
     },
     [actions.RESET_GAME]: (state, action) => {
-      const now = new Date().getTime();
-
       state.active = false;
       state.paused = false;
       state.time = 0;
-      state.startedAt = state.startedAt ? now : undefined;
-      state.stoppedAt = state.stoppedAt ? now : undefined;
+      state.startedAt = undefined;
+      state.stoppedAt = undefined;
+    },
+    [actions.SET_NOTES_MODE]: (state, action) => {
+      state.notesMode = action.payload || false;
+    },
+    [actions.SET_TIME]: (state, action) => {
+      state.time = action.payload;
     }
   }
 );
+
+export const selectors = {
+  isActive: state => state.game.active,
+  isNotesMode: state => state.game.notesMode,
+  isPaused: state => state.game.paused,
+  getTime: state => state.game.time,
+  getStartedAt: state => state.game.startedAt,
+  getStoppedAt: state => state.game.stoppedAt
+}

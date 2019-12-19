@@ -14,12 +14,13 @@ function Cell(props) {
   }
 
   function toggleHighlight() {
-    if (props.isActive === undefined || props.isActive) {
+    if (props.isActive === undefined || props.isActive && !props.isPaused) {
       setHighlight(!highlighted);
     }
   }
 
-  const rectCssClasses =  `${props.class ? ` ${props.class}` : ''}${highlighted ? ' highlight' : ''}${props.selected && props.isActive ? ' selected' : ''}${!props.isActive ? ' inactive' : ''}`;
+  const isInactive = !props.isActive || props.isPaused;
+  const rectCssClasses =  `${props.class ? ` ${props.class}` : ''}${highlighted ? ' highlight' : ''}${props.selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}`;
   const textCssClasses = `${props.class ? ` ${props.class}` : ''}${props.prepopulated && props.isActive ? ' prepopulated' : ''}`;
 
   return (
@@ -44,7 +45,7 @@ function Cell(props) {
       <Rect width={props.width} height={props.height}
         x={props.width * props.col + 3 + props.offsetX}
         y={props.height * props.row + props.height + props.offsetY}
-        styleName={`overlay${!props.isActive ? ' inactive' : ''}`}
+        styleName={`overlay${isInactive ? ' inactive' : ''}`}
         click={handleClick}
         mouseover={toggleHighlight}
         mouseout={toggleHighlight} />

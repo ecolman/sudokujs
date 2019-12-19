@@ -1,19 +1,20 @@
 import { connect } from 'react-redux'
 
 import Options from './component'
-import { actions as optionsActions } from '../../../../redux/options';
+import { actions as optionsActions, selectors as optionsSelectors } from '../../../../redux/options';
+import { selectors as gameSelectors } from '../../../../redux/game'
 import { options } from '../../../../game/constants';
 
 const mapStateToProps = (state, props) => ({
-  active: state.game.active,
+  active: gameSelectors.isActive(state),
   options,
-  feedback: state.options.feedback,
-  highlighting: state.options.highlighting,
-  numberFirst: state.options.numberFirst,
-  penalty: state.options.penalty,
-  removeNotes: state.options.removeNotes,
-  timer: state.options.timer,
-  optionsVisible: state.options.visible
+  feedback: optionsSelectors.isFeedback(state),
+  highlighting: optionsSelectors.isHighlighting(state),
+  numberFirst: optionsSelectors.isNumberFirst(state),
+  penalty: optionsSelectors.isPenalty(state),
+  removeNotes: optionsSelectors.isRemoveNotes(state),
+  timer: optionsSelectors.isTimer(state),
+  optionsVisible: optionsSelectors.isVisible(state)
 });
 
 const mapDispatchToProps = (dispatch, props) => ({

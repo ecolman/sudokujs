@@ -17,7 +17,7 @@ export const sizes = {
     width: 60,
     height: 50
   }
-}
+};
 
 export const BoardTypes = {
   BASE: 'base',
@@ -35,11 +35,11 @@ export const options = {
   REMOVE_NOTES: 'removeNotes',
   TIMER: 'timer',
   VISIBLE: 'visible'
-}
+};
 
 export const difficulties = {
   EASY: 'Easy',
   MEDIUM: 'Medium',
   HARD: 'Hard',
   EXPERT: 'Expert'
-}
+};

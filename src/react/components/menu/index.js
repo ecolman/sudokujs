@@ -3,17 +3,17 @@ import { map, times } from 'lodash';
 
 import Menu from './component'
 import { actions as boardsActions } from '../../../redux/boards';
-import { actions as gameActions } from '../../../redux/game'
-import { actions as optionsActions } from '../../../redux/options';
+import { actions as gameActions, selectors as gameSelectors } from '../../../redux/game'
+import { actions as optionsActions, selectors as optionsSelectors } from '../../../redux/options';
 import { BoardTypes, options } from '../../../game/constants';
 import * as BoardUtils from '../../../game/board';
 import Generator from '../../../game/generator';
 
 const mapStateToProps = (state, props) => ({
-  active: state.game.active,
-  options: state.options.visible,
-  paused: state.game.paused,
-  stoppedAt: state.game.stoppedAt
+  active: gameSelectors.isActive(state),
+  options: optionsSelectors.isVisible(state),
+  paused: gameSelectors.isPaused(state),
+  stoppedAt: gameSelectors.getStoppedAt(state)
 });
 
 const mapDispatchToProps = (dispatch, props) => ({

@@ -2,14 +2,15 @@ import { connect } from 'react-redux'
 
 import Board from './component'
 import { BoardTypes, menuBoard } from '../../../game/constants';
-import { actions as gameActions } from '../../../redux/game';
+import { actions as gameActions, selectors as gameSelectors } from '../../../redux/game';
+import { selectors as boardsSelectors } from '../../../redux/boards';
 
 const mapStateToProps = (state, props) => ({
-  active: state.game.active,
-  baseBoard: state.boards[BoardTypes.BASE],
-  displayBoard: state.boards[BoardTypes.DISPLAY],
+  active: gameSelectors.isActive(state),
+  baseBoard: boardsSelectors.getBoard(state, BoardTypes.BASE),
+  displayBoard: boardsSelectors.getBoard(state, BoardTypes.DISPLAY),
   menuBoard,
-  paused: state.game.paused
+  paused: gameSelectors.isPaused(state)
 });
 
 const mapDispatchToProps = (dispatch, props) => ({

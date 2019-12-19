@@ -24,3 +24,13 @@ export const reducer = createReducer(
     }
   }
 );
+
+export const selectors = {
+  isFeedback: state => state.options.feedback,
+  isHighlighting: state => state.options.highlighting,
+  isRemoveNotes: state => state.options.removeNotes,
+  isNumberFirst: state => state.options.numberFirst,
+  isPenalty: state => state.options.penalty,
+  isTimer: state => state.options.timer,
+  isVisible: state => state.options.visible
+}

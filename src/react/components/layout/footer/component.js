@@ -9,7 +9,7 @@ function Footer({ active, difficulty, notesMode, setNotesMode }) {
     <Set>
       <Text text={difficulty}
         x={38} y={600}
-        attr={{ class: `difficulty ${difficulty.toLowerCase()}` }}
+        styleName={`difficulty ${difficulty.toLowerCase()}`}
         hide={!active}></Text>
 
       <Set>

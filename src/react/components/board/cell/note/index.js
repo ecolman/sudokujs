@@ -2,12 +2,15 @@ import { connect } from 'react-redux'
 
 import Notes from './component'
 import { BoardTypes } from '../../../../../game/constants';
-import { actions as boardsActions } from '../../../../../redux/boards';
+import { actions as boardsActions, selectors as boardsSelectors } from '../../../../../redux/boards';
+import { selectors as gameSelectors } from '../../../../../redux/game';
 
 const mapStateToProps = (state, props) => {
+  let notesBoard = boardsSelectors.getBoard(state, BoardTypes.NOTES);
+
   return ({
-    notes: state.boards[BoardTypes.NOTES] !== undefined ? state.boards[BoardTypes.NOTES][props.index] : null,
-    notesMode: state.game.notesMode,
+    notes: notesBoard !== undefined ? notesBoard[props.index] : null,
+    notesMode: gameSelectors.isNotesMode(state),
   });
 }
 

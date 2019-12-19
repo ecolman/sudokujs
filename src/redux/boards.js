@@ -6,11 +6,13 @@ import { BoardTypes } from '../game/constants';
 import { getCellIndex } from '../game/utilities';
 
 export const actions = {
-  CLEAR_BOARD: createAction('CLEAR_BOARD'),
-  CLEAR_CELL: createAction('CLEAR_CELL'),
-  SELECT_CELL: createAction('SELECT_CELL'),
   SET_BOARD: createAction('SET_BOARD'),
+  CLEAR_BOARD: createAction('CLEAR_BOARD'),
+
+  SELECT_CELL: createAction('SELECT_CELL'),
   SET_CELL: createAction('SET_CELL'),
+  CLEAR_CELL: createAction('CLEAR_CELL'),
+
   ADD_NOTE: createAction('ADD_NOTE'),
   DELETE_NOTE: createAction('DELETE_NOTE')
 };
@@ -80,3 +82,8 @@ export const reducer = createReducer(
     }
   }
 );
+
+export const selectors = {
+  getBoard: (state, type) => state.boards[type],
+  getSelectedCell: state => state.boards.selectedCell
+}
