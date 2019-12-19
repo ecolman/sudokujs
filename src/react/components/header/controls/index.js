@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 
 import Controls from './component'
-import { actions as gameActions, selectors as gameSelectors } from '../../../redux/game';
+import { actions as gameActions, selectors as gameSelectors } from '../../../../redux/game';
 
 const mapStateToProps = (state, props) => ({
   active: gameSelectors.isActive(state),

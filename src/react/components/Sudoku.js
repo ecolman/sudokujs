@@ -1,11 +1,10 @@
 import React, { useRef, useEffect } from 'react'
 import { Paper } from 'react-raphael';
 
-import Header from './layout/header';
 import Board from './board';
-import Menu from './menu';
+import Footer from './footer';
+import Header from './header';
 import Events from './common/events';
-import Footer from './layout/footer';
 
 import classes from './sudoku.less';
 
@@ -26,7 +25,6 @@ function Sudoku() {
       <Header />
 
       <Board />
-      <Menu />
       <Events />
 
       <Footer />

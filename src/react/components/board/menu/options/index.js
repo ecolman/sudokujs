@@ -1,9 +1,9 @@
 import { connect } from 'react-redux'
 
 import Options from './component'
-import { actions as optionsActions, selectors as optionsSelectors } from '../../../../redux/options';
-import { selectors as gameSelectors } from '../../../../redux/game'
-import { options } from '../../../../game/constants';
+import { actions as optionsActions, selectors as optionsSelectors } from '../../../../../redux/options';
+import { selectors as gameSelectors } from '../../../../../redux/game'
+import { options } from '../../../../../game/constants';
 
 const mapStateToProps = (state, props) => ({
   active: gameSelectors.isActive(state),

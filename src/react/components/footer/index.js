@@ -1,9 +1,9 @@
 import { connect } from 'react-redux'
 
 import Footer from './component'
-import { BoardTypes } from '../../../../game/constants';
-import { selectors as boardsSelectors } from '../../../../redux/boards';
-import { actions as gameActions, selectors as gameSelectors } from '../../../../redux/game';
+import { BoardTypes } from '../../../game/constants';
+import { selectors as boardsSelectors } from '../../../redux/boards';
+import { actions as gameActions, selectors as gameSelectors } from '../../../redux/game';
 
 const mapStateToProps = (state, props) => {
   const baseBoard = boardsSelectors.getBoard(state, BoardTypes.BASE);

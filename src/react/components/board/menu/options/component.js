@@ -1,7 +1,7 @@
 import React from 'react'
 import { Path, Raphael, Set, Text } from 'react-raphael';
 
-import Checkbox from '../../common/checkbox';
+import Checkbox from '../../../common/checkbox';
 import './styles.less';
 
 function Options(props) {

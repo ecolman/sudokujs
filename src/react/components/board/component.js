@@ -3,6 +3,7 @@ import { Set, Path, Rect } from 'react-raphael';
 import { times } from 'lodash';
 
 import Cell from './cell';
+import Menu from './menu';
 import Selectors from './selectors';
 import { checkCell } from '../../../game/board';
 
@@ -62,6 +63,8 @@ function Board(props) {
             update={el => el.toFront() }></Path>
         ))}
       </Set>
+
+      <Menu />
 
       <Selectors />
     </Set>

@@ -1,8 +1,8 @@
 import React from 'react'
 import { Set, Text } from 'react-raphael';
 
-import Controls from '../../controls';
-import Timer from '../../controls/timer';
+import Controls from './controls';
+import Timer from './timer';
 import './styles.less';
 
 function Header() {

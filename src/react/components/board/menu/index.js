@@ -2,12 +2,12 @@ import { connect } from 'react-redux'
 import { map, times } from 'lodash';
 
 import Menu from './component'
-import { actions as boardsActions } from '../../../redux/boards';
-import { actions as gameActions, selectors as gameSelectors } from '../../../redux/game'
-import { actions as optionsActions, selectors as optionsSelectors } from '../../../redux/options';
-import { BoardTypes, options } from '../../../game/constants';
-import * as BoardUtils from '../../../game/board';
-import Generator from '../../../game/generator';
+import { actions as boardsActions } from '../../../../redux/boards';
+import { actions as gameActions, selectors as gameSelectors } from '../../../../redux/game'
+import { actions as optionsActions, selectors as optionsSelectors } from '../../../../redux/options';
+import { BoardTypes, options } from '../../../../game/constants';
+import * as BoardUtils from '../../../../game/board';
+import Generator from '../../../../game/generator';
 
 const mapStateToProps = (state, props) => ({
   active: gameSelectors.isActive(state),

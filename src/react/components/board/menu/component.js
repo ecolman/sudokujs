@@ -3,7 +3,7 @@ import { Raphael, Rect, Set, Text } from 'react-raphael';
 import { map } from 'lodash';
 
 import Options from './options';
-import { difficulties } from '../../../game/constants';
+import { difficulties } from '../../../../game/constants';
 import './styles.less';
 
 function Menu(props) {
