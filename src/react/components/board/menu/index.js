@@ -10,8 +10,8 @@ import * as BoardUtils from '../../../../game/board';
 import Generator from '../../../../game/generator';
 
 const mapStateToProps = (state, props) => ({
-  active: gameSelectors.isActive(state),
-  options: optionsSelectors.isVisible(state),
+  isActive: gameSelectors.isActive(state),
+  optionsVisible: optionsSelectors.isVisible(state),
   paused: gameSelectors.isPaused(state),
   stoppedAt: gameSelectors.getStoppedAt(state)
 });

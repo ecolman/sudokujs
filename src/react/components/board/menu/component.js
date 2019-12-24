@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Raphael, Rect, Set, Text } from 'react-raphael';
 import { map } from 'lodash';
 
@@ -7,12 +7,34 @@ import { difficulties } from '../../../../game/constants';
 import './styles.less';
 
 function Menu(props) {
-  const hide = props.active || props.options;
+  const hide = props.isActive || props.optionsVisible;
   const toFront = el => { el.toFront(); }
-  let animation = null;
 
-  if (props.options) {
-    animation = Raphael.animation({ y: 125 }, 300, '<>');
+  const optionsTextTopY = 420;
+  const optionsTextBottomY = 120;
+
+  let optionsTextY = optionsTextTopY;
+  let animation = null;
+  let prevOptionsVisible = useRef(null);
+
+  // capture previous props values to determine how to animate
+  useEffect(() => {
+    prevOptionsVisible.current = {
+      isActive: props.isActive,
+      optionsVisible: props.optionsVisible
+    };
+  }, [props.isActive, props.optionsVisible]);
+
+  // if ref is null, means new component, don't animate
+  if (prevOptionsVisible.current !== null) {
+    // if options visible, animate to 125
+    // if options not visible and not coming from an active board, animate
+    if (props.optionsVisible) {
+      animation = Raphael.animation({ y: optionsTextBottomY }, 300, '<>');
+    } else if (prevOptionsVisible.current.isActive === false) {
+      optionsTextY = 125;
+      animation = Raphael.animation({ y: optionsTextTopY }, 300, '<>');
+    }
   }
 
   return (
@@ -21,13 +43,13 @@ function Menu(props) {
       {map(difficulties, d => (
         <Set key={`menu-difficulty-${d}-container`}>
           <Text text={d}
-            x={278} y={117}
+            x={275} y={117}
             key={`menu-difficulty-${d}`}
             styleName={`difficulty ${d.toLowerCase()}`}
             click={() => props.startGame(d)}
             hide={hide}
             load={toFront} update={toFront}></Text>
-          <Rect x={278} y={117}
+          <Rect x={275} y={117}
             key={`menu-difficulty-${d}-btn`}
             styleName={`difficulty ${d.toLowerCase()} rect`}
             hide={hide}
@@ -50,11 +72,11 @@ function Menu(props) {
           hide={hide}
           load={toFront} update={toFront}></Text>
         <Text text={'Options'}
-          x={275} y={420}
+          x={275} y={optionsTextY}
           styleName={`action options`}
           animate={animation}
           click={props.showOptions}
-          hide={props.active}
+          hide={props.isActive}
           load={toFront} update={toFront}></Text>
       </Set>
 

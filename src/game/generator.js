@@ -31,7 +31,7 @@ class Generator {
 
     // console.log(solved);
     // console.log(culled);
-    console.log(`culled ${cullCount} cells from ${boards} boards with ${this.lastGeneration.steps} steps, taking ${this.lastGeneration.time / 1000} seconds to complete`);
+    //console.log(`culled ${cullCount} cells from ${boards} boards with ${this.lastGeneration.steps} steps, taking ${this.lastGeneration.time / 1000} seconds to complete`);
 
     return {
       base: culled,
@@ -51,7 +51,7 @@ class Generator {
       let row = Math.floor(value / 9);
       let col = value - (row * 9);
 
-      // set board cells to empty (0)
+      // set board cell to empty (0)
       BoardUtils.setCell(culledBoard, row, col, 0);
     })
 
@@ -77,7 +77,7 @@ class Generator {
         this.lastGeneration.steps += Solver.lastSolution.steps;
 
         if (Solver.isBoardValid(solved) && BoardUtils.equals(board, solved)) {
-          console.log('sweet, found a solution', BoardUtils.toString(solved));
+          //console.log('sweet, found a solution', BoardUtils.toString(solved));
           // we already found a solution and current solution is not the same, board isn't unique
           if (solution !== null && !BoardUtils.equals(solution, solved)) {
             solution = false;
@@ -134,7 +134,7 @@ class Generator {
       }
     }
 
-    console.log(BoardUtils.toString(newBoard));
+    //console.log(BoardUtils.toString(newBoard));
     return newBoard;
   }
 }

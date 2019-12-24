@@ -1,4 +1,5 @@
-export const rows = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8);
+export const rows = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+export const noteNums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const menuBoard = [
   [6, 0, 4, 0, 0, 0, 0, 0, 0],
@@ -16,6 +17,10 @@ export const sizes = {
   cell: {
     width: 60,
     height: 50
+  },
+  selector: {
+    width: 45,
+    height: 45
   }
 };
 

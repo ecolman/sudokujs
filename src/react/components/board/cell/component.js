@@ -5,58 +5,85 @@ import Notes from './note';
 import './styles.less';
 
 function Cell(props) {
-  const [highlighted, setHighlight] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const {
+    canDelete,
+    cssClass,
+    col,
+    hasNotes,
+    height,
+    isActive,
+    isHighlighted,
+    isPaused,
+    isNumberFirst,
+    prepopulated,
+    offsetX,
+    offsetY,
+    row,
+    selected,
+    selectorIndex,
+    width,
+    value
+  } = props;
+
+  const rectX = width * col + 3 + offsetX;
+  const rectY = height * (row + 1) + offsetY;
+
+  const isInactive = !isActive || isPaused;
+  const rectCssClasses =  `bg${cssClass ? ` ${cssClass}` : ''}${isHighlighted && !isInactive ? ' highlight' : ''}${hovered && !isInactive ? ' hover ' : ''}${selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}`;
+  const textCssClasses = `text${cssClass ? ` ${cssClass}` : ''}${prepopulated && isActive ? ' prepopulated' : ''}`;
+  const showDelete = (canDelete === undefined || canDelete === true) && selected && isActive && !prepopulated && (value > 0 || hasNotes);
 
   function handleClick() {
-    if (props.isActive) {
+    if (!isInactive) {
       props.selectCell();
+
+      if (!prepopulated && isNumberFirst) {
+        props.setCell(selectorIndex + 1)
+      }
     }
   }
 
-  function toggleHighlight() {
-    if (props.isActive === undefined || props.isActive && !props.isPaused) {
-      setHighlight(!highlighted);
+  function toggleHovered() {
+    if (!isInactive) {
+      setHovered(!hovered);
     }
   }
-
-  const isInactive = !props.isActive || props.isPaused;
-  const rectCssClasses =  `${props.class ? ` ${props.class}` : ''}${highlighted ? ' highlight' : ''}${props.selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}`;
-  const textCssClasses = `${props.class ? ` ${props.class}` : ''}${props.prepopulated && props.isActive ? ' prepopulated' : ''}`;
 
   return (
     <Set>
-      <Rect width={props.width} height={props.height}
-        x={props.width * props.col + 3 + props.offsetX}
-        y={props.height * props.row + props.height + props.offsetY}
-        styleName={`bg${rectCssClasses}`}/>
-      <Text text={props.value && props.value > 0 ? props.value.toString() : ''}
-        x={props.width * props.col + 3 + (props.width / 2) + (props.offsetX || 0)}
-        y={props.height * props.row + props.height + (props.height / 2) + (props.offsetY || 0)}
-        styleName={`text${textCssClasses}`} />
+      <Rect width={width} height={height}
+        x={rectX}
+        y={rectY}
+        styleName={rectCssClasses} />
+      <Text text={value && value > 0 ? value.toString() : ''}
+        x={rectX + width / 2}
+        y={rectY + height / 2}
+        styleName={textCssClasses} />
 
       <Notes index={props.index}
-        width={props.width}
-        row={props.row} col={props.col}
-        x={props.width * props.col + (props.offsetx || 0)}
-        y={props.height * props.row + (props.offsetY || 0) + props.height}
-        hide={props.prepopulated || !props.isActive} />
+        width={width}
+        row={row} col={col}
+        x={width * col + (offsetX || 0)}
+        y={height * row + (offsetY || 0) + height}
+        hide={prepopulated || !isActive} />
 
       {/* Rect to capture events and highlight for entire cell */}
-      <Rect width={props.width} height={props.height}
-        x={props.width * props.col + 3 + props.offsetX}
-        y={props.height * props.row + props.height + props.offsetY}
+      <Rect width={width} height={height}
+        x={rectX}
+        y={rectY}
         styleName={`overlay${isInactive ? ' inactive' : ''}`}
         click={handleClick}
-        mouseover={toggleHighlight}
-        mouseout={toggleHighlight} />
+        mouseover={toggleHovered}
+        mouseout={toggleHovered} />
 
       {/* Delete Button */}
       <Text text={'X'}
-        x={props.width * props.col + props.width + props.offsetX - 5}
-        y={props.height * props.row + props.height + props.offsetY + 10}
+        x={rectX + width - 10}
+        y={rectY + 10}
         styleName={`text delete`}
-        click={() => props.setCell(0)}
-        hide={!props.selected || props.prepopulated || !props.isActive || (props.value === 0 || !props.hasNotes)} />
+        click={() => hasNotes ? props.deleteNotes() : props.setCell(0)}
+        hide={!showDelete} />
     </Set>
   );
 }

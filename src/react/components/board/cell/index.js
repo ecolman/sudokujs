@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import Cell from './component'
 import { BoardTypes, sizes } from '../../../../game/constants';
 import { actions as boardsActions, selectors as boardsSelectors } from '../../../../redux/boards';
-import { selectors as gameSelectors } from '../../../../redux/game';
+import { actions as gameActions, selectors as gameSelectors } from '../../../../redux/game';
+import { selectors as optionsSelectors } from '../../../../redux/options';
 
 const mapStateToProps = (state, props) => {
   let notesBoard = boardsSelectors.getBoard(state, BoardTypes.NOTES);
@@ -14,22 +15,29 @@ const mapStateToProps = (state, props) => {
       : false,
     height: props.height || sizes.cell.height,
     isActive: gameSelectors.isActive(state),
+    isHighlighted: optionsSelectors.isHighlighting(state) && props.value > 0 && boardsSelectors.getSelectedCellValue(state) === props.value,
+    isNumberFirst: optionsSelectors.isNumberFirst(state),
     isPaused: gameSelectors.isPaused(state),
     notesMode: gameSelectors.isNotesMode(state),
     offsetX: props.offsetX || 0,
     offsetY: props.offsetY || 0,
-    selected: boardsSelectors.getSelectedCell(state) === props.index,
+    selected: gameSelectors.getSelectedCell(state) === props.index,
+    selectorIndex: gameSelectors.getSelectorCell(state),
     width: props.width || sizes.cell.width
   });
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-  setCell: value => dispatch(boardsActions.SET_CELL({
-    row: props.row,
+  deleteNotes: () => dispatch(boardsActions.DELETE_NOTES({
     col: props.col,
+    row: props.row
+  })),
+  setCell: value => dispatch(boardsActions.SET_CELL({
+    col: props.col,
+    row: props.row,
     value
   })),
-  selectCell: () => dispatch(boardsActions.SELECT_CELL(props.index))
+  selectCell: () => dispatch(gameActions.SELECT_CELL(props.index))
 });
 
 export default connect(

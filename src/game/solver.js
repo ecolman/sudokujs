@@ -221,7 +221,7 @@ class Solver {
     this.lastSolution.time = Date.now() - startTime;
     this.lastSolution.steps = steps;
 
-    console.log(`${steps} steps solved ${_.filter(BoardUtils.toArray(board), s => s !== 0).length} cells, ${BoardUtils.toString(board)}`);
+    //console.log(`${steps} steps solved ${_.filter(BoardUtils.toArray(board), s => s !== 0).length} cells, ${BoardUtils.toString(board)}`);
 
     return _.filter(BoardUtils.toArray(board), s => s !== 0).length === 81 && !BoardUtils.equals(board, originalBoard) ? board : null;
   }

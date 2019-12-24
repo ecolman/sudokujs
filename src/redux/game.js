@@ -9,7 +9,9 @@ export const actions = {
   RESUME_GAME: createAction('RESUME_GAME'),
   RESET_GAME: createAction('RESET_GAME'),
   SET_NOTES_MODE: createAction('SET_NOTES_MODE'),
-  SET_TIME: createAction('SET_TIME')
+  SET_TIME: createAction('SET_TIME'),
+  SELECT_CELL: createAction('SELECT_CELL'),
+  SELECT_SELECTOR: createAction('SELECT_SELECTOR')
 };
 
 export const reducer = createReducer(
@@ -18,6 +20,8 @@ export const reducer = createReducer(
     notesMode: false,
     paused: false,
     time: 0,
+    selectedCell: -1,
+    selectorCell: -1,
     startedAt: undefined,
     stoppedAt: undefined
   },
@@ -58,6 +62,12 @@ export const reducer = createReducer(
     },
     [actions.SET_TIME]: (state, action) => {
       state.time = action.payload;
+    },
+    [actions.SELECT_CELL]: (state, action) => {
+      state.selectedCell = action.payload || 0;
+    },
+    [actions.SELECT_SELECTOR]: (state, action) => {
+      state.selectorCell = action.payload || 0;
     }
   }
 );
@@ -67,6 +77,8 @@ export const selectors = {
   isNotesMode: state => state.game.notesMode,
   isPaused: state => state.game.paused,
   getTime: state => state.game.time,
+  getSelectedCell: state => state.game.selectedCell,
+  getSelectorCell: state => state.game.selectorCell,
   getStartedAt: state => state.game.startedAt,
   getStoppedAt: state => state.game.stoppedAt
 }

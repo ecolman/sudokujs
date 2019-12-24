@@ -6,8 +6,8 @@ export const actions = {
 
 export const reducer = createReducer(
   {
-    feedback: false,
-    highlighting: false,
+    feedback: true,
+    highlighting: true,
     removeNotes: false,
     numberFirst: false,
     penalty: false,

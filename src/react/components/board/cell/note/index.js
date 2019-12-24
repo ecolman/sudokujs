@@ -14,20 +14,6 @@ const mapStateToProps = (state, props) => {
   });
 }
 
-const mapDispatchToProps = (dispatch, props) => ({
-  addNote: value => dispatch(boardsActions.ADD_NOTE({
-    row: props.row,
-    col: props.col,
-    value
-  })),
-  deleteNote: value => dispatch(boardsActions.DELETE_NOTE({
-    row: props.row,
-    col: props.col,
-    value
-  }))
-});
-
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToProps
 )(Notes);

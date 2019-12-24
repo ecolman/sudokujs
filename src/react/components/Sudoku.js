@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { Paper } from 'react-raphael';
 
 import Board from './board';
@@ -9,27 +9,35 @@ import Events from './common/events';
 import classes from './sudoku.less';
 
 function Sudoku() {
+  // css styles don't get loaded in time during development
+  // loads paper in 10ms if in dev mode
+  const [loaded, setLoaded] = useState(process.env.NODE_ENV === 'production');
   const paperContainer = useRef(null);
 
   useEffect(() => {
-    if (paperContainer.current.paper) {
+    if (!loaded) {
+      setTimeout(() => setLoaded(true), 10);
+    } else if (paperContainer.current.paper) {
       paperContainer.current.paper.setViewBox(0, 0, 545, 650, true);
-      paperContainer.current.paper.setSize('100%', '100%');
+      //paperContainer.current.paper.setSize('100%', '100%');
     }
-  })
+  });
 
-  return (
-    <Paper ref={paperContainer}
-      width={0} height={0}
-      container={{className: classes.paper}}>
-      <Header />
+  return loaded
+    ? (
+      <Paper
+        width={0} height={0} ref={paperContainer}
+        container={{className: classes.paper}}
+        load={() => console.log('loaded')}>
+        <Header />
 
-      <Board />
-      <Events />
+        <Board />
+        <Events />
 
-      <Footer />
-    </Paper>
-  );
+        <Footer />
+      </Paper>
+    )
+    : null;
 }
 
 export default Sudoku;

@@ -2,19 +2,21 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { filter, isArray } from 'lodash';
 
 import * as BoardUtils from '../game/board';
+import Solver from '../game/solver';
 import { BoardTypes } from '../game/constants';
-import { getCellIndex } from '../game/utilities';
+import { getCellIndex, getRowColumn } from '../game/utilities';
 
 export const actions = {
   SET_BOARD: createAction('SET_BOARD'),
   CLEAR_BOARD: createAction('CLEAR_BOARD'),
+  CHECK_BOARD: createAction('CHECK_BOARD'),
 
-  SELECT_CELL: createAction('SELECT_CELL'),
   SET_CELL: createAction('SET_CELL'),
   CLEAR_CELL: createAction('CLEAR_CELL'),
 
   ADD_NOTE: createAction('ADD_NOTE'),
-  DELETE_NOTE: createAction('DELETE_NOTE')
+  DELETE_NOTE: createAction('DELETE_NOTE'),
+  DELETE_NOTES: createAction('DELETE_NOTES')
 };
 
 export const reducer = createReducer(
@@ -24,7 +26,7 @@ export const reducer = createReducer(
     [BoardTypes.DISPLAY]: undefined,
     [BoardTypes.PLAYER]: undefined,
     [BoardTypes.NOTES]: undefined,
-    selectedCell: -1
+    solved: false
   },
   {
     [actions.CLEAR_BOARD]: (state, action) => {
@@ -36,17 +38,17 @@ export const reducer = createReducer(
     },
     [actions.CLEAR_CELL]: (state, action) => {
       const { col, row } = action.payload;
+      let displayBoard = state[BoardTypes.DISPLAY];
+      let playerBoard = state[BoardTypes.PLAYER];
 
-      if (state[BoardTypes.PLAYER]) {
-        BoardUtils.clearCell(state[BoardTypes.PLAYER], row, col);
+
+      if (playerBoard) {
+        BoardUtils.clearCell(playerBoard, row, col);
       }
 
-      state[BoardTypes.DISPLAY] = state[BoardTypes.DISPLAY] && state[BoardTypes.PLAYER]
-        ? BoardUtils.toDimensionalArray(state[BoardTypes.PLAYER])
-        : state[BoardTypes.DISPLAY];
-    },
-    [actions.SELECT_CELL]: (state, action) => {
-      state.selectedCell = action.payload || 0;
+      state[BoardTypes.DISPLAY] = displayBoard && playerBoard
+        ? BoardUtils.toDimensionalArray(playerBoard)
+        : displayBoard;
     },
     [actions.SET_BOARD]: (state, action) => {
       const { board, boardType } = action.payload;
@@ -55,29 +57,43 @@ export const reducer = createReducer(
     },
     [actions.SET_CELL]: (state, action) => {
       const { col, row, value } = action.payload;
+      let displayBoard = state[BoardTypes.DISPLAY];
+      let playerBoard = state[BoardTypes.PLAYER];
 
-      if (state[BoardTypes.PLAYER]) {
-        BoardUtils.setCell(state[BoardTypes.PLAYER], row, col, value);
+      if (playerBoard) {
+        BoardUtils.setCell(playerBoard, row, col, value);
+        state.completed = Solver.isBoardValid(playerBoard);
       }
 
-      state[BoardTypes.DISPLAY] = state[BoardTypes.DISPLAY] && state[BoardTypes.PLAYER]
-        ? BoardUtils.toDimensionalArray(state[BoardTypes.PLAYER])
-        : state[BoardTypes.DISPLAY]
+      state[BoardTypes.DISPLAY] = displayBoard && playerBoard
+        ? BoardUtils.toDimensionalArray(playerBoard)
+        : displayBoard
     },
     [actions.ADD_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
-      const anCellIndex = getCellIndex(row, col);
+      let anCellIndex = getCellIndex(row, col);
+      let notesBoard = state[BoardTypes.NOTES];
 
-      if (state[BoardTypes.NOTES] && isArray(state[BoardTypes.NOTES][anCellIndex]) && state[BoardTypes.NOTES][anCellIndex].indexOf(value) === -1) {
-        state[BoardTypes.NOTES][anCellIndex] = state[BoardTypes.NOTES][anCellIndex].concat([value]);
+      if (notesBoard && isArray(notesBoard[anCellIndex]) && notesBoard[anCellIndex].indexOf(value) === -1) {
+        notesBoard[anCellIndex] = notesBoard[anCellIndex].concat([value]);
       }
     },
     [actions.DELETE_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
       const dnCellIndex = getCellIndex(row, col);
+      let notesBoard = state[BoardTypes.NOTES];
 
-      if (state[BoardTypes.NOTES] && isArray(state[BoardTypes.NOTES][dnCellIndex])) {
-        state[BoardTypes.NOTES][dnCellIndex] = filter(state[BoardTypes.NOTES][dnCellIndex], v => v !== value);
+      if (notesBoard && isArray(notesBoard[dnCellIndex])) {
+        notesBoard[dnCellIndex] = filter(notesBoard[dnCellIndex], v => v !== value);
+      }
+    },
+    [actions.DELETE_NOTES]: (state, action) => {
+      const { col, row } = action.payload;
+      const dnCellIndex = getCellIndex(row, col);
+      let notesBoard = state[BoardTypes.NOTES];
+
+      if (notesBoard && isArray(notesBoard[dnCellIndex])) {
+        notesBoard[dnCellIndex] = [];
       }
     }
   }
@@ -85,5 +101,12 @@ export const reducer = createReducer(
 
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
-  getSelectedCell: state => state.boards.selectedCell
+  getSelectedCellValue: state => {
+    if (state.boards[BoardTypes.PLAYER] && state.game.selectedCell > -1) {
+      let rowCol = getRowColumn(state.game.selectedCell);
+      return BoardUtils.getCell(state.boards[BoardTypes.PLAYER], rowCol.row, rowCol.col);
+    }
+
+    return 0;
+  }
 }

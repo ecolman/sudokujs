@@ -16,6 +16,7 @@ function getTimerText(lengthMs) {
 function Timer(props) {
   const [seconds, setSeconds] = useState(0);
   const updateInterval = props.updateInterval || 1000;
+  let { active, paused, time, timerEnabled } = props;
 
   // watches for active/paused changes and starts interval to update state every second
   useEffect(() => {
@@ -24,18 +25,18 @@ function Timer(props) {
 
       return () => clearInterval(interval);
     }
-  }, [props.active, props.paused]);
+  }, [active, paused]);
 
   // when time changes, reset state
   useEffect(() => {
     setSeconds(0);
-  }, [props.time])
+  }, [time])
 
   return (
-    <Text text={getTimerText(props.time + (seconds * updateInterval))}
+    <Text text={getTimerText(time + (seconds * updateInterval))}
       x={480} y={28}
       styleName={'text'}
-      hide={!props.active}></Text>
+      hide={!timerEnabled || !active}></Text>
   );
 }
 

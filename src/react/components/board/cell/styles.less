@@ -11,6 +11,11 @@
     background-color: @cell-highlight-bg;
   }
 
+  &.hover {
+    fill: green;
+    background-color: green;
+  }
+
   &.inactive {
     opacity: .8;
   }
@@ -18,12 +23,6 @@
   &.selected {
     fill: @cell-selected-bg;
     background-color: @cell-selected-bg;
-  }
-
-  &.selector {
-    fill: @cell-selector-bg;
-    background-color: @cell-selector-bg;
-    stroke-width: 1 !important;
   }
 }
 
@@ -52,10 +51,6 @@
   &.prepopulated {
     font-family: 'Consolas' !important;
     font-weight: lighter;
-  }
-
-  &.selector {
-    font-weight: normal;
   }
 }
 
