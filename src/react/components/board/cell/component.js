@@ -10,6 +10,7 @@ function Cell(props) {
     canDelete,
     cssClass,
     col,
+    errored,
     hasNotes,
     height,
     isActive,
@@ -31,8 +32,8 @@ function Cell(props) {
 
   const isInactive = !isActive || isPaused;
   const rectCssClasses =  `bg${cssClass ? ` ${cssClass}` : ''}${isHighlighted && !isInactive ? ' highlight' : ''}${hovered && !isInactive ? ' hover ' : ''}${selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}`;
-  const textCssClasses = `text${cssClass ? ` ${cssClass}` : ''}${prepopulated && isActive ? ' prepopulated' : ''}`;
-  const showDelete = (canDelete === undefined || canDelete === true) && selected && isActive && !prepopulated && (value > 0 || hasNotes);
+  const textCssClasses = `text${cssClass ? ` ${cssClass}` : ''}${prepopulated && !isInactive ? ' prepopulated' : ''}`;
+  const showDelete = (canDelete === undefined || canDelete === true) && selected && !isInactive && !prepopulated && (value > 0 || hasNotes);
 
   function handleClick() {
     if (!isInactive) {
@@ -82,7 +83,7 @@ function Cell(props) {
         x={rectX + width - 10}
         y={rectY + 10}
         styleName={`text delete`}
-        click={() => hasNotes ? props.deleteNotes() : props.setCell(0)}
+        click={() => hasNotes ? props.deleteCellNotes() : props.clearCell()}
         hide={!showDelete} />
     </Set>
   );

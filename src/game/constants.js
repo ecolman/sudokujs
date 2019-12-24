@@ -1,3 +1,4 @@
+export const showLogs = false;
 export const rows = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const noteNums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -24,6 +25,20 @@ export const sizes = {
   }
 };
 
+export const difficulties = {
+  EASY: 'Easy',
+  MEDIUM: 'Medium',
+  HARD: 'Hard',
+  EXPERT: 'Expert'
+};
+
+export const cullCount = {
+  [difficulties.EASY]: 42,
+  [difficulties.MEDIUM]: 50,
+  [difficulties.HARD]: 58,
+  [difficulties.EXPERT]: 66,
+}
+
 export const BoardTypes = {
   BASE: 'base',
   COMPLETE: 'complete',
@@ -40,11 +55,4 @@ export const options = {
   REMOVE_NOTES: 'removeNotes',
   TIMER: 'timer',
   VISIBLE: 'visible'
-};
-
-export const difficulties = {
-  EASY: 'Easy',
-  MEDIUM: 'Medium',
-  HARD: 'Hard',
-  EXPERT: 'Expert'
 };

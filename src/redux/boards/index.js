@@ -1,10 +1,10 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import { filter, isArray } from 'lodash';
 
-import * as BoardUtils from '../game/board';
-import Solver from '../game/solver';
-import { BoardTypes } from '../game/constants';
-import { getCellIndex, getRowColumn } from '../game/utilities';
+import * as BoardUtils from '../../game/board';
+import { isBoardValid } from '../../game/solver';
+import { BoardTypes } from '../../game/constants';
+import { getCellIndex, getRowColumn } from '../../game/utilities';
 
 export const actions = {
   SET_BOARD: createAction('SET_BOARD'),
@@ -12,6 +12,7 @@ export const actions = {
   CHECK_BOARD: createAction('CHECK_BOARD'),
 
   SET_CELL: createAction('SET_CELL'),
+  SET_CELL_REQUEST: createAction('SET_CELL_REQUEST'),
   CLEAR_CELL: createAction('CLEAR_CELL'),
 
   ADD_NOTE: createAction('ADD_NOTE'),
@@ -33,7 +34,7 @@ export const reducer = createReducer(
       const { boardType } = action.payload;
 
       if (boardType && state[boardType]) {
-        BoardUtils.clear(state[boardType]);
+        BoardUtils.clearBoard(state[boardType]);
       }
     },
     [actions.CLEAR_CELL]: (state, action) => {
@@ -62,7 +63,7 @@ export const reducer = createReducer(
 
       if (playerBoard) {
         BoardUtils.setCell(playerBoard, row, col, value);
-        state.completed = Solver.isBoardValid(playerBoard);
+        state.completed = isBoardValid(playerBoard);
       }
 
       state[BoardTypes.DISPLAY] = displayBoard && playerBoard
@@ -110,3 +111,5 @@ export const selectors = {
     return 0;
   }
 }
+
+export { sagas } from './sagas';

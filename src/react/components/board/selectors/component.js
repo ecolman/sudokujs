@@ -12,7 +12,15 @@ const row = 11.5;
 let glows = {};
 
 function Selectors(props) {
-  const { active, baseBoard, height, isNumberFirst, selectedCellIndex, selectorCellIndex, width } = props;
+  const {
+    active,
+    baseBoard,
+    height,
+    isNumberFirst,
+    selectedCellIndex,
+    selectorCellIndex,
+    width
+  } = props;
 
   function getCoords(index) {
     return {

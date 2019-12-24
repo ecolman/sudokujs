@@ -21,6 +21,7 @@ const mapStateToProps = (state, props) => {
     notesMode: gameSelectors.isNotesMode(state),
     offsetX: props.offsetX || 0,
     offsetY: props.offsetY || 0,
+    errored: gameSelectors.getErrorCell(state) === props.index,
     selected: gameSelectors.getSelectedCell(state) === props.index,
     selectorIndex: gameSelectors.getSelectorCell(state),
     width: props.width || sizes.cell.width
@@ -28,11 +29,15 @@ const mapStateToProps = (state, props) => {
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-  deleteNotes: () => dispatch(boardsActions.DELETE_NOTES({
+  clearCell: () => dispatch(boardsActions.CLEAR_CELL({
     col: props.col,
     row: props.row
   })),
-  setCell: value => dispatch(boardsActions.SET_CELL({
+  deleteCellNotes: () => dispatch(boardsActions.DELETE_NOTES({
+    col: props.col,
+    row: props.row
+  })),
+  setCell: value => dispatch(boardsActions.SET_CELL_REQUEST({
     col: props.col,
     row: props.row,
     value

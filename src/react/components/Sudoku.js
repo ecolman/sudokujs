@@ -16,7 +16,7 @@ function Sudoku() {
 
   useEffect(() => {
     if (!loaded) {
-      setTimeout(() => setLoaded(true), 10);
+      setTimeout(() => setLoaded(true), 25);
     } else if (paperContainer.current.paper) {
       paperContainer.current.paper.setViewBox(0, 0, 545, 650, true);
       //paperContainer.current.paper.setSize('100%', '100%');
@@ -27,8 +27,7 @@ function Sudoku() {
     ? (
       <Paper
         width={0} height={0} ref={paperContainer}
-        container={{className: classes.paper}}
-        load={() => console.log('loaded')}>
+        container={{className: classes.paper}}>
         <Header />
 
         <Board />

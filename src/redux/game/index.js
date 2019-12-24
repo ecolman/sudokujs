@@ -1,8 +1,9 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
 
-import { getElapsedTime } from '../game/utilities';
+import { getElapsedTime } from '../../game/utilities';
 
 export const actions = {
+  START_GAME_REQUEST: createAction('START_GAME_REQUEST'),
   START_GAME: createAction('START_GAME'),
   DEACTIVATE_GAME: createAction('DEACTIVATE_GAME'),
   PAUSE_GAME: createAction('PAUSE_GAME'),
@@ -10,6 +11,7 @@ export const actions = {
   RESET_GAME: createAction('RESET_GAME'),
   SET_NOTES_MODE: createAction('SET_NOTES_MODE'),
   SET_TIME: createAction('SET_TIME'),
+  SET_ERROR: createAction('SET_ERROR'),
   SELECT_CELL: createAction('SELECT_CELL'),
   SELECT_SELECTOR: createAction('SELECT_SELECTOR')
 };
@@ -20,6 +22,7 @@ export const reducer = createReducer(
     notesMode: false,
     paused: false,
     time: 0,
+    errorCell: -1,
     selectedCell: -1,
     selectorCell: -1,
     startedAt: undefined,
@@ -31,6 +34,8 @@ export const reducer = createReducer(
 
       state.active = true;
       state.time = time;
+      state.selectedCell = -1;
+      state.selectorCell = -1;
       state.startedAt = new Date().getTime();
       state.stoppedAt = undefined;
     },
@@ -63,11 +68,14 @@ export const reducer = createReducer(
     [actions.SET_TIME]: (state, action) => {
       state.time = action.payload;
     },
+    [actions.SET_ERROR]: (state, action) => {
+      state.errorCell = action.payload || -1;
+    },
     [actions.SELECT_CELL]: (state, action) => {
-      state.selectedCell = action.payload || 0;
+      state.selectedCell = action.payload || -1;
     },
     [actions.SELECT_SELECTOR]: (state, action) => {
-      state.selectorCell = action.payload || 0;
+      state.selectorCell = action.payload || -1;
     }
   }
 );
@@ -77,8 +85,11 @@ export const selectors = {
   isNotesMode: state => state.game.notesMode,
   isPaused: state => state.game.paused,
   getTime: state => state.game.time,
+  getErrorCell: state => state.game.errorCell,
   getSelectedCell: state => state.game.selectedCell,
   getSelectorCell: state => state.game.selectorCell,
   getStartedAt: state => state.game.startedAt,
   getStoppedAt: state => state.game.stoppedAt
 }
+
+export { sagas } from './sagas';
