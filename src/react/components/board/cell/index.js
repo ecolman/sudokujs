@@ -18,6 +18,7 @@ const mapStateToProps = (state, props) => {
     isHighlighted: optionsSelectors.isHighlighting(state) && props.value > 0 && boardsSelectors.getSelectedCellValue(state) === props.value,
     isNumberFirst: optionsSelectors.isNumberFirst(state),
     isPaused: gameSelectors.isPaused(state),
+    isPenalty: optionsSelectors.isPenalty(state),
     notesMode: gameSelectors.isNotesMode(state),
     offsetX: props.offsetX || 0,
     offsetY: props.offsetY || 0,
@@ -42,7 +43,8 @@ const mapDispatchToProps = (dispatch, props) => ({
     row: props.row,
     value
   })),
-  selectCell: () => dispatch(gameActions.SELECT_CELL(props.index))
+  selectCell: () => dispatch(gameActions.SELECT_CELL(props.index)),
+  clearError: () => dispatch(gameActions.SET_ERROR(-1))
 });
 
 export default connect(

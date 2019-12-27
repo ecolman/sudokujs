@@ -12,8 +12,8 @@
   }
 
   &.hover {
-    fill: green;
-    background-color: green;
+    fill: @cell-hover-bg;
+    background-color: @cell-hover-bg;
   }
 
   &.inactive {
@@ -23,6 +23,10 @@
   &.selected {
     fill: @cell-selected-bg;
     background-color: @cell-selected-bg;
+  }
+
+  &.errored {
+    animation: blinkingBackground 0.5s;
   }
 }
 
@@ -54,6 +58,14 @@
   }
 }
 
+.penalty {
+  fill: #AE5050;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: 'Consolas';
+  cursor: 'pointer';
+}
+
 .overlay {
   background-color: transparent;
   cursor: pointer;
@@ -64,4 +76,11 @@
   &.inactive {
     cursor: default;
   }
+}
+
+@keyframes blinkingBackground{
+  0%{ fill: @cell-error-bg; background-color: @cell-error-bg; }
+  33%{ fill: @cell-selected-bg; background-color: @cell-selected-bg; }
+  66%{ fill: @cell-error-bg; background-color: @cell-error-bg; }
+  100%{ fill: @cell-selected-bg; background-color: @cell-selected-bg; }
 }

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Text } from 'react-raphael';
 
+import { penaltyMs } from '../../../../game/constants';
+
 import './styles.less';
 
 function getTimerText(lengthMs) {
@@ -16,7 +18,7 @@ function getTimerText(lengthMs) {
 function Timer(props) {
   const [seconds, setSeconds] = useState(0);
   const updateInterval = props.updateInterval || 1000;
-  let { active, paused, time, timerEnabled } = props;
+  let { active, paused, time, penalties, timerEnabled } = props;
 
   // watches for active/paused changes and starts interval to update state every second
   useEffect(() => {
@@ -33,7 +35,7 @@ function Timer(props) {
   }, [time])
 
   return (
-    <Text text={getTimerText(time + (seconds * updateInterval))}
+    <Text text={getTimerText(time + (penalties * penaltyMs) + (seconds * updateInterval))}
       x={480} y={28}
       styleName={'text'}
       hide={!timerEnabled || !active}></Text>

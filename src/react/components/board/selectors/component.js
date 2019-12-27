@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Set, Rect, Text } from 'react-raphael';
 import { times } from 'lodash';
 
@@ -42,6 +42,17 @@ function Selectors(props) {
     }
   }
 
+  // call remove on glow effects if not active, but don't remove glow from array
+  useEffect(() => {
+    if (!active) {
+      times(9, index => {
+        if (glows[index]) {
+          glows[index].remove();
+        }
+      })
+    }
+  }, [active]);
+
   return active ? (
     <Set>
       {times(9, index => {
@@ -54,6 +65,11 @@ function Selectors(props) {
             <Rect width={width} height={height}
               x={pos.x}
               y={pos.y}
+              load={el => {
+                if (glows[index] !== null) {
+                  glows[index] = el.glow();
+                }
+              }}
               update={el => {
                 if (active && isSelected && !glows[index]) {
                   glows[index] = el.glow();
@@ -63,6 +79,7 @@ function Selectors(props) {
                 }
               }}
               styleName={'bg'} />
+
             <Text text={selector.toString()}
               x={pos.x + width / 2}
               y={pos.y + height / 2}

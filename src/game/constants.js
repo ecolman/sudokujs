@@ -1,6 +1,7 @@
 export const showLogs = false;
 export const rows = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const noteNums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+export const penaltyMs = 5000;
 
 export const menuBoard = [
   [6, 0, 4, 0, 0, 0, 0, 0, 0],

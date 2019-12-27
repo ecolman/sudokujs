@@ -1,6 +1,8 @@
 import React from 'react'
 import { Path, Raphael, Set, Text } from 'react-raphael';
 
+import { penaltyMs } from '../../../../../game/constants';
+
 import Checkbox from '../../../common/checkbox';
 import './styles.less';
 
@@ -114,8 +116,8 @@ function Options(props) {
           click={() => props.setOption(props.options.PENALTY, !props.penalty)}
           hide={hide}
           update={el => { el.toFront(); } }></Text>
-        <Text text={'(when instant feedback enabled)'}
-          x={222} y={440}
+        <Text text={`(+${penaltyMs / 1000} seconds, when instant feedback enabled)`}
+          x={180} y={440}
           styleName={`option description`}
           click={() => props.setOption(props.options.PENALTY, !props.penalty)}
           hide={hide}

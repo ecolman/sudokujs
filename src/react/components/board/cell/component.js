@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { Set, Rect, Text } from 'react-raphael';
+import { Raphael, Set, Rect, Text } from 'react-raphael';
+
+import { penaltyMs } from '../../../../game/constants';
 
 import Notes from './note';
 import './styles.less';
@@ -16,6 +18,7 @@ function Cell(props) {
     isActive,
     isHighlighted,
     isPaused,
+    isPenalty,
     isNumberFirst,
     prepopulated,
     offsetX,
@@ -31,9 +34,16 @@ function Cell(props) {
   const rectY = height * (row + 1) + offsetY;
 
   const isInactive = !isActive || isPaused;
-  const rectCssClasses =  `bg${cssClass ? ` ${cssClass}` : ''}${isHighlighted && !isInactive ? ' highlight' : ''}${hovered && !isInactive ? ' hover ' : ''}${selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}`;
-  const textCssClasses = `text${cssClass ? ` ${cssClass}` : ''}${prepopulated && !isInactive ? ' prepopulated' : ''}`;
   const showDelete = (canDelete === undefined || canDelete === true) && selected && !isInactive && !prepopulated && (value > 0 || hasNotes);
+
+  let rectCssClasses =  `bg${cssClass ? ` ${cssClass}` : ''}${isHighlighted && !isInactive ? ' highlight' : ''}`;
+  rectCssClasses += `${hovered && !isInactive ? ' hover ' : ''}${selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}${errored ? ' errored' : ''}`;
+  let textCssClasses = `text${cssClass ? ` ${cssClass}` : ''}${prepopulated && !isInactive ? ' prepopulated' : ''}`;
+
+  // clear error after animation plays
+  if (errored) {
+    setTimeout(props.clearError, 500);
+  }
 
   function handleClick() {
     if (!isInactive) {
@@ -68,6 +78,13 @@ function Cell(props) {
         x={width * col + (offsetX || 0)}
         y={height * row + (offsetY || 0) + height}
         hide={prepopulated || !isActive} />
+
+      <Text text={`+${penaltyMs / 1000} sec`}
+        x={rectX + width / 2}
+        y={rectY + height / 2}
+        hide={!(errored && isPenalty)}
+        animate={Raphael.animation({ y: rectY + height / 2 - 60 }, 500)}
+        styleName={'penalty'} />
 
       {/* Rect to capture events and highlight for entire cell */}
       <Rect width={width} height={height}

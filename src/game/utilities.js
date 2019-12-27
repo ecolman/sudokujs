@@ -29,6 +29,30 @@ export function getRegionBounds(row = 0, col = 0) {
   };
 }
 
+export function getCellRelations(row, col) {
+  let relations = [];
+  const regionLimits = getRegionBounds(row, col); // get region cells
+
+  // add region cell
+  for (let r = regionLimits.start.row; r < regionLimits.end.row; r++) {
+    for (let c = regionLimits.start.col; c < regionLimits.end.col; c++) {
+      relations.push({ row: r, col: c });
+    }
+  }
+
+  // get row cells
+  for (let tempCol = 0; tempCol < 9; tempCol++) {
+    relations.push({ row, col: tempCol });
+  }
+
+  // get column cells
+  for (let tempRow = 0; tempRow < 9; tempRow++) {
+    relations.push({ row: tempRow, col });
+  }
+
+  return relations;
+}
+
 export function getElapsedTime(time, startedAt, stoppedAt = new Date().getTime()) {
   if (!startedAt) {
     return 0;

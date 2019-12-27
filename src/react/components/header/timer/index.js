@@ -7,6 +7,7 @@ import { selectors as optionsSelectors } from '../../../../redux/options'
 const mapStateToProps = (state, props) => ({
   active: gameSelectors.isActive(state),
   paused: gameSelectors.isPaused(state),
+  penalties: gameSelectors.getPenalties(state),
   time: gameSelectors.getTime(state),
   timerEnabled: optionsSelectors.isTimer(state),
   startedAt: gameSelectors.getStartedAt(state),
