@@ -1,11 +1,12 @@
+import { times } from 'lodash';
+import sudoku from 'sudoku-umd';
+
 import * as BoardUtils from './board';
 import * as Solver from './solver';
 import * as Utils from './utilities';
-import { showLogs } from './constants';
+import { SHOW_LOGS } from './constants';
 
-let enableWebWorkers = false;
-let attemptsPerBoard = 10;
-let boardsToAttempt = 10;
+import { ATTEMPTS_PER_BOARD, BOARDS_TO_ATTEMPT, WEB_WORKERS_ENABLED } from './constants';
 
 export let lastGeneration = {
   steps: 0,
@@ -23,14 +24,14 @@ export function generate(cullCount) {
   let boards = 1;
 
   // loop to generate board and then try to create a player board with a unique solution
-  while (boards < boardsToAttempt && culled === null) {
+  while (boards < BOARDS_TO_ATTEMPT && culled === null) {
     solved = generateSolved();
-    culled = generateCulled(solved, cullCount, attemptsPerBoard);
+    culled = generateCulled(solved, cullCount, ATTEMPTS_PER_BOARD);
 
     boards++;
   }
 
-  if (showLogs) {
+  if (SHOW_LOGS) {
     console.log('solved', solved);
     console.log('culled', culled);
     console.log(`culled ${cullCount} cells from ${boards} boards with ${lastGeneration.steps} steps, taking ${lastGeneration.time / 1000} seconds to complete`);
@@ -45,10 +46,10 @@ export function generate(cullCount) {
 // clears N cells from supplied sudoku board randomly
 export function cull(board, cullCount) {
   let culledBoard = BoardUtils.createBoard(BoardUtils.toString(board));
-  let cells = _.times(81, i => i);  // fill array with seed values
+  let cells = times(81, i => i);  // fill array with seed values
 
   // pick a random number, splice off rnd number from array, set calculated row and column to 0
-  _.times(cullCount, () => {
+  times(cullCount, () => {
     let rnd = Math.floor(Math.random() * cells.length);
     let value = cells.splice(rnd, 1);
     let row = Math.floor(value / 9);
@@ -62,12 +63,12 @@ export function cull(board, cullCount) {
 }
 
 // generate a single solution culled board
-export function generateCulled(board, cullCount, attempts = 5) {
+export function generateCulled(board, cullCount, attempts = ATTEMPTS_PER_BOARD) {
   let attemptCount = 1;
-  let culledBoard = cull(board, cullCount);;
+  let culledBoard = cull(board, cullCount);
   let solution = null;
 
-  if (enableWebWorkers) {
+  if (WEB_WORKERS_ENABLED) {
     // start the workers
     sendNewBoardsToSolver(cullCount);
   } else {
@@ -80,7 +81,7 @@ export function generateCulled(board, cullCount, attempts = 5) {
       lastGeneration.steps += Solver.lastSolution.steps;
 
       if (Solver.isBoardValid(solved) && BoardUtils.equals(board, solved)) {
-        if (showLogs) {
+        if (SHOW_LOGS) {
           console.log('sweet, found a solution', BoardUtils.toString(solved));
         }
 
@@ -140,7 +141,7 @@ export function generateSolved() {
     }
   }
 
-  if (showLogs) {
+  if (SHOW_LOGS) {
     console.log(BoardUtils.toString(newBoard));
   }
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { Set, Text } from 'react-raphael';
 import { isArray, map } from 'lodash';
 
-import { noteNums } from '../../../../../game/constants';
+import { NOTE_NUMS } from '../../../../constants';
 import './styles.less';
 
 function Notes(props) {
@@ -10,7 +10,7 @@ function Notes(props) {
 
   return !hide ? (
     <Set>
-      {map(noteNums, n => {
+      {map(NOTE_NUMS, n => {
         const noteOffset = (n + 2) % 3;
         const noteRow = n <= 3 ? 1 : n > 3 && n <= 6 ? 2 : 3;
 

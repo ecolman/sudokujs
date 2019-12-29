@@ -34,7 +34,7 @@ function Footer({ active, difficulty, notesMode, setNotesMode }) {
           click={() => setNotesMode(!notesMode)}
           hide={!active}></Text>
         <Checkbox
-          x={515} y={580}
+          x={515} y={585}
           click={() => setNotesMode(!notesMode)}
           cssClass={'red'}
           hide={!active}

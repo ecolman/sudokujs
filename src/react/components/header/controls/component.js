@@ -26,16 +26,16 @@ function Controls(props) {
         <Rect x={0} y={0}
           width={67} height={30}
           styleName={'container'}
-          click={active ? props.deactivateGame : props.resumeGame}
+          click={props.deactivateGame}
           hide={!active}></Rect>
         <Path d={'M 15 15 l 0 20 l -10 -10 z'}
           styleName={'path'}
-          click={active ? props.deactivateGame : props.resumeGame}
+          click={props.deactivateGame}
           hide={!active}></Path>
         <Text x={40} y={25}
           text={'Menu'}
           styleName={'text'}
-          click={active ? props.deactivateGame : props.resumeGame}
+          click={props.deactivateGame}
           hide={!active}></Text>
       </Set>
 
@@ -44,17 +44,17 @@ function Controls(props) {
         <Rect x={65} y={0}
           width={80} height={30}
           styleName={'container'}
-          click={() => paused ? props.resumeGame() : props.pauseGame()}
+          click={paused ? props.resumeGame : props.pauseGame}
           hide={!active}></Rect>
         <Path d={path}
           styleName={'path'}
-          click={() => paused ? props.resumeGame() : props.pauseGame()}
+          click={paused ? props.resumeGame : props.pauseGame}
           animate={animation}
           hide={!active}></Path>
         <Text x={paused ? 85.5 : 93} y={25}
           text={`| ${btnText}`}
           styleName={'text'}
-          click={() => paused ? props.resumeGame() : props.pauseGame()}
+          click={paused ? props.resumeGame : props.pauseGame}
           hide={!active}></Text>
       </Set>
     </Set>

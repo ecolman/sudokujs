@@ -1,19 +1,20 @@
 import { connect } from 'react-redux'
 
 import Cell from './component'
-import { BoardTypes, sizes } from '../../../../game/constants';
+import { BOARD_TYPES } from '../../../constants';
+import { SIZES } from '../../../constants';
 import { actions as boardsActions, selectors as boardsSelectors } from '../../../../redux/boards';
 import { actions as gameActions, selectors as gameSelectors } from '../../../../redux/game';
 import { selectors as optionsSelectors } from '../../../../redux/options';
 
 const mapStateToProps = (state, props) => {
-  let notesBoard = boardsSelectors.getBoard(state, BoardTypes.NOTES);
+  let notesBoard = boardsSelectors.getBoard(state, BOARD_TYPES.NOTES);
 
   return ({
     hasNotes: notesBoard !== undefined && notesBoard[props.index]
       ? notesBoard[props.index].length > 0
       : false,
-    height: props.height || sizes.cell.height,
+    height: props.height || SIZES.CELL.HEIGHT,
     isActive: gameSelectors.isActive(state),
     isHighlighted: optionsSelectors.isHighlighting(state) && props.value > 0 && boardsSelectors.getSelectedCellValue(state) === props.value,
     isNumberFirst: optionsSelectors.isNumberFirst(state),
@@ -25,7 +26,7 @@ const mapStateToProps = (state, props) => {
     errored: gameSelectors.getErrorCell(state) === props.index,
     selected: gameSelectors.getSelectedCell(state) === props.index,
     selectorIndex: gameSelectors.getSelectorCell(state),
-    width: props.width || sizes.cell.width
+    width: props.width || SIZES.CELL.WIDTH
   });
 }
 

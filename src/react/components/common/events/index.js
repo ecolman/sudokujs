@@ -1,14 +1,14 @@
 import { connect } from 'react-redux'
 
 import Events from './component'
-import { BoardTypes } from '../../../../game/constants';
+import { BOARD_TYPES } from '../../../constants';
 import { actions as boardsActions, selectors as boardsSelectors } from '../../../../redux/boards';
 import { actions as gameActions, selectors as gameSelectors } from '../../../../redux/game';
 
 const mapStateToProps = (state, props) => ({
   active: gameSelectors.isActive(state),
-  baseBoard: boardsSelectors.getBoard(state, BoardTypes.BASE),
-  notesBoard: boardsSelectors.getBoard(state, BoardTypes.NOTES),
+  baseBoard: boardsSelectors.getBoard(state, BOARD_TYPES.BASE),
+  notesBoard: boardsSelectors.getBoard(state, BOARD_TYPES.NOTES),
   notesMode: gameSelectors.isNotesMode(state),
   selectedCell: gameSelectors.getSelectedCell(state)
 });

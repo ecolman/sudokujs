@@ -1,25 +1,20 @@
 import { isArray, isNumber, isString, map, reduce } from 'lodash';
 
-import { rows } from './constants';
+import { BLANK_ROW, ROWS } from './constants';
 import { getRegionBounds } from './utilities';
-
-const blankRow = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 export const Board = {
   difficulty: null,
-  startTime: new Date().getTime(),
-  timePlayed: 0,
   type: null,
-  0: [...blankRow],
-  1: [...blankRow],
-  2: [...blankRow],
-  3: [...blankRow],
-  4: [...blankRow],
-  5: [...blankRow],
-  6: [...blankRow],
-  7: [...blankRow],
-  8: [...blankRow],
-  9: [...blankRow]
+  0: [...BLANK_ROW],
+  1: [...BLANK_ROW],
+  2: [...BLANK_ROW],
+  3: [...BLANK_ROW],
+  4: [...BLANK_ROW],
+  5: [...BLANK_ROW],
+  6: [...BLANK_ROW],
+  7: [...BLANK_ROW],
+  8: [...BLANK_ROW]
 };
 
 export function createBoard(cells, props) {
@@ -40,15 +35,15 @@ export function setBoard(board, cells) {
   }
 
   if (cellsToSet.length === 81) {
-    for (let row = 0; row < 9; row++) {
+    map(ROWS, row => {
       board[row] = map(cellsToSet.slice(row * 9, row * 9 + 9), Number);
-    }
+    });
   }
 }
 
 export function clearBoard(board) {
   for (let row = 0; row < 9; row++) {
-    board[row] = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0);
+    board[row] = [...BLANK_ROW];
   }
 }
 
@@ -57,7 +52,7 @@ export function getRow(board, index) {
 }
 
 export function getColumn(board, index) {
-  return map(rows, r => board[r][index]);
+  return map(ROWS, r => board[r][index]);
 }
 
 export function checkCell(board, row = 0, col = 0, value = 0) {
@@ -108,9 +103,9 @@ export function toString(board) {
 }
 
 export function toArray(board) {
-  return reduce(rows, (arr, row) => arr.concat(board[row]), []);
+  return reduce(ROWS, (arr, row) => arr.concat(board[row]), []);
 }
 
 export function toDimensionalArray(board) {
-  return map(rows, r => board[r]);
+  return map(ROWS, r => board[r]);
 }

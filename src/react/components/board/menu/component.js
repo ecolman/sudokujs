@@ -3,12 +3,12 @@ import { Raphael, Rect, Set, Text } from 'react-raphael';
 import { map } from 'lodash';
 
 import Options from './options';
-import { difficulties } from '../../../../game/constants';
+import { DIFFICULTIES } from '../../../constants';
 import './styles.less';
 
 function Menu(props) {
   const hide = props.isActive || props.optionsVisible;
-  const toFront = el => { el.toFront(); }
+  const elToFront = el => { el.toFront(); }
 
   const optionsTextTopY = 420;
   const optionsTextBottomY = 120;
@@ -40,7 +40,7 @@ function Menu(props) {
   return (
     <Set>
       {/* Difficulties, transforms done through css */}
-      {map(difficulties, d => (
+      {map(DIFFICULTIES, d => (
         <Set key={`menu-difficulty-${d}-container`}>
           <Text text={d}
             x={275} y={117}
@@ -48,13 +48,13 @@ function Menu(props) {
             styleName={`difficulty ${d.toLowerCase()}`}
             click={() => props.startGame(d)}
             hide={hide}
-            load={toFront} update={toFront}></Text>
+            load={elToFront} update={elToFront}></Text>
           <Rect x={275} y={117}
             key={`menu-difficulty-${d}-btn`}
             styleName={`difficulty ${d.toLowerCase()} rect`}
             hide={hide}
             click={() => props.startGame(d)}
-            load={toFront} update={toFront}></Rect>
+            load={elToFront} update={elToFront}></Rect>
         </Set>
       ))}
 
@@ -65,19 +65,19 @@ function Menu(props) {
           styleName={`action resume`}
           click={props.resumeGame}
           hide={hide || props.stoppedAt === undefined}
-          load={toFront} update={toFront}></Text>
+          load={elToFront} update={elToFront}></Text>
         <Text text={'Load Last Game'}
           x={275} y={380}
           styleName={`action load`}
           hide={hide}
-          load={toFront} update={toFront}></Text>
+          load={elToFront} update={elToFront}></Text>
         <Text text={'Options'}
           x={275} y={optionsTextY}
           styleName={`action options`}
           animate={animation}
           click={props.showOptions}
           hide={props.isActive}
-          load={toFront} update={toFront}></Text>
+          load={elToFront} update={elToFront}></Text>
       </Set>
 
       <Options></Options>

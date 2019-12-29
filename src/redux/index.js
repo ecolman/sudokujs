@@ -7,19 +7,13 @@ import * as localStorageStore from 'store';
 import { reducer as boardsReducer, sagas as boardsSagas } from './boards';
 import { reducer as gameReducer, actions as gameActions, sagas as gameSagas } from './game';
 import { reducer as optionssReducer } from './options';
-import { getElapsedTime } from '../game/utilities';
 
 const sagaMiddleware = createSagaMiddleware()
 const isDev = !(process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test');
 
 let middleware = [...getDefaultMiddleware(), sagaMiddleware];
 
-// if (isDev) {
-//   middleware.push(createLogger({
-//     collapsed: true
-//   }));
-// }
-
+// check local storage for redux state
 let localStorageState = localStorageStore.get('state');
 
 if (localStorageState) {
@@ -36,16 +30,6 @@ if (localStorageState) {
     stoppedAt: localStorageState.game.stoppedAt || undefined
   }
 }
-
-window.addEventListener('unload', event => {
-  const state = store.getState();
-
-  if (state.game.active) {
-    store.dispatch(gameActions.PAUSE_GAME());
-  }
-
-  localStorageStore.set('state', store.getState());
-});
 
 const store = configureStore({
   reducer: {
@@ -65,8 +49,20 @@ sagaMiddleware.run(function*() {
   ])
 });
 
+// write redux state to local storage at most every 1 second
 store.subscribe(throttle(() => {
   localStorageStore.set('state', store.getState());
 }, 1000));
+
+// before browser window closes, if game is active, set pause state and then save state local storage
+window.addEventListener('unload', event => {
+  const state = store.getState();
+
+  if (state.game.active) {
+    store.dispatch(gameActions.PAUSE_GAME());
+  }
+
+  localStorageStore.set('state', store.getState());
+});
 
 export default store;

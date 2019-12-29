@@ -5,15 +5,15 @@ import { actions as boardsActions, selectors as boardsSelectors } from '../board
 import { selectors as optionsSelectors } from '../options';
 import { actions as gameActions } from '../game'
 import { checkCell } from '../../game/board';
-import { BoardTypes } from '../../game/constants';
+import { BOARD_TYPES } from '../../react/constants'
 import { getCellIndex, getCellRelations } from '../../game/utilities';
 
 function* setCell(action) {
   try {
     const { row, col, value } = action.payload;
-    const baseBoard = yield select(boardsSelectors.getBoard, BoardTypes.BASE);
-    const completeBoard = yield select(boardsSelectors.getBoard, BoardTypes.COMPLETE);
-    const playerBoard = yield select(boardsSelectors.getBoard, BoardTypes.PLAYER);
+    const baseBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.BASE);
+    const completeBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.COMPLETE);
+    const playerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);
     const isCorrect = completeBoard[row][col] === value;
     const isCellCorrect = playerBoard[row][col] === completeBoard[row][col];
     const isPrepopulated = !checkCell(baseBoard, row, col, 0);

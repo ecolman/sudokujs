@@ -3,51 +3,60 @@ import { map, times } from 'lodash';
 
 import { actions as boardsActions } from '../boards';
 import { actions as gameActions } from '../game';
-import { BoardTypes, cullCount } from '../../game/constants';
+
+import { CULL_COUNT, GIVEN_COUNT } from '../constants';
+import { BOARD_TYPES } from '../../react/constants';
+
 import * as BoardUtils from '../../game/board';
 import * as Generator from '../../game/generator';
+import { generate } from '../../game';
 
 function* startGame(action) {
   try {
     const { difficulty } = action.payload;
+    const cull = difficulty in CULL_COUNT ? CULL_COUNT[difficulty] : 42;
+    const givenCount = difficulty in GIVEN_COUNT ? GIVEN_COUNT[difficulty] : 42;
 
-    //let board = Generator.generate(difficulty in cullCount ? cullCount[difficulty] : 42);
-    let board = Generator.generate(20);
-    console.log(`generated board with ${Generator.lastGeneration.steps} steps, taking ${Generator.lastGeneration.time / 1000} seconds`);
+    let generated = generate(givenCount);
+    // let generated = Generator.generate(cull);
+    let base = generated.base;
+    let solution = generated.solution;
     let time = 0;
 
-    let baseBoard = BoardUtils.createBoard(BoardUtils.toString(board.base), {
+    let baseBoard = BoardUtils.createBoard(base, {
       difficulty,
-      type: BoardTypes.BASE
+      type: BOARD_TYPES.BASE
     });
 
-    let completeBoard = BoardUtils.createBoard(BoardUtils.toString(board.solved), {
+    let completeBoard = BoardUtils.createBoard(solution, {
       difficulty,
-      type: BoardTypes.COMPLETE
+      type: BOARD_TYPES.COMPLETE
     });
+
+    console.log(baseBoard, completeBoard);
 
     yield put(boardsActions.SET_BOARD({
-      boardType: BoardTypes.COMPLETE,
+      boardType: BOARD_TYPES.COMPLETE,
       board: Object.assign({}, completeBoard)
     }));
 
     yield put(boardsActions.SET_BOARD({
-      boardType: BoardTypes.PLAYER,
-      board: Object.assign({}, baseBoard, { type: BoardTypes.PLAYER })
+      boardType: BOARD_TYPES.PLAYER,
+      board: Object.assign({}, baseBoard, { type: BOARD_TYPES.PLAYER })
     }));
 
     yield put(boardsActions.SET_BOARD({
-      boardType: BoardTypes.BASE,
+      boardType: BOARD_TYPES.BASE,
       board: Object.assign({}, baseBoard)
     }));
 
     yield put(boardsActions.SET_BOARD({
-      boardType: BoardTypes.DISPLAY,
-      board: BoardUtils.toDimensionalArray(board.base)
+      boardType: BOARD_TYPES.DISPLAY,
+      board: Object.assign({}, baseBoard)
     }));
 
     yield put(boardsActions.SET_BOARD({
-      boardType: BoardTypes.NOTES,
+      boardType: BOARD_TYPES.NOTES,
       board: map(times(81, n => []))
     }));
 

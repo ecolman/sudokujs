@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Text } from 'react-raphael';
 
-import { penaltyMs } from '../../../../game/constants';
+import { PENALTY_MS } from '../../../constants';
 
 import './styles.less';
 
@@ -35,7 +35,7 @@ function Timer(props) {
   }, [time])
 
   return (
-    <Text text={getTimerText(time + (penalties * penaltyMs) + (seconds * updateInterval))}
+    <Text text={getTimerText(time + (penalties * PENALTY_MS) + (seconds * updateInterval))}
       x={480} y={28}
       styleName={'text'}
       hide={!timerEnabled || !active}></Text>

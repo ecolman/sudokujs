@@ -13,13 +13,13 @@ function Events(props) {
 
   useEffect(() => {
     if (props.active) {
-      document.addEventListener('keydown', onKeyDown);
+      document.addEventListener('keydown', handleKeyDown);
 
-      return () => document.removeEventListener('keydown', onKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
     }
   }, [props.active]);
 
-  function onKeyDown(event) {
+  function handleKeyDown(event) {
     let { baseBoard, notesBoard, notesMode, selectedCell } = latestProps.current;
 
     const key = event.charCode || event.keyCode || 0;

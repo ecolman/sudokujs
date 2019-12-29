@@ -10,7 +10,7 @@ import classes from './sudoku.less';
 
 function Sudoku() {
   // css styles don't get loaded in time during development
-  // loads paper in 10ms if in dev mode
+  // delays loading paper if in dev mode
   const [loaded, setLoaded] = useState(process.env.NODE_ENV === 'production');
   const paperContainer = useRef(null);
 

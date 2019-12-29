@@ -3,7 +3,7 @@ import { filter, isArray } from 'lodash';
 
 import * as BoardUtils from '../../game/board';
 import { isBoardValid } from '../../game/solver';
-import { BoardTypes } from '../../game/constants';
+import { BOARD_TYPES } from '../../react/constants';
 import { getCellIndex, getRowColumn } from '../../game/utilities';
 
 export const actions = {
@@ -22,11 +22,11 @@ export const actions = {
 
 export const reducer = createReducer(
   {
-    [BoardTypes.BASE]: undefined,
-    [BoardTypes.COMPLETE]: undefined,
-    [BoardTypes.DISPLAY]: undefined,
-    [BoardTypes.PLAYER]: undefined,
-    [BoardTypes.NOTES]: undefined,
+    [BOARD_TYPES.BASE]: undefined,
+    [BOARD_TYPES.COMPLETE]: undefined,
+    [BOARD_TYPES.DISPLAY]: undefined,
+    [BOARD_TYPES.PLAYER]: undefined,
+    [BOARD_TYPES.NOTES]: undefined,
     solved: false
   },
   {
@@ -39,15 +39,15 @@ export const reducer = createReducer(
     },
     [actions.CLEAR_CELL]: (state, action) => {
       const { col, row } = action.payload;
-      let displayBoard = state[BoardTypes.DISPLAY];
-      let playerBoard = state[BoardTypes.PLAYER];
+      let displayBoard = state[BOARD_TYPES.DISPLAY];
+      let playerBoard = state[BOARD_TYPES.PLAYER];
 
 
       if (playerBoard) {
         BoardUtils.clearCell(playerBoard, row, col);
       }
 
-      state[BoardTypes.DISPLAY] = displayBoard && playerBoard
+      state[BOARD_TYPES.DISPLAY] = displayBoard && playerBoard
         ? BoardUtils.toDimensionalArray(playerBoard)
         : displayBoard;
     },
@@ -58,22 +58,22 @@ export const reducer = createReducer(
     },
     [actions.SET_CELL]: (state, action) => {
       const { col, row, value } = action.payload;
-      let displayBoard = state[BoardTypes.DISPLAY];
-      let playerBoard = state[BoardTypes.PLAYER];
+      let displayBoard = state[BOARD_TYPES.DISPLAY];
+      let playerBoard = state[BOARD_TYPES.PLAYER];
 
       if (playerBoard) {
         BoardUtils.setCell(playerBoard, row, col, value);
         state.completed = isBoardValid(playerBoard);
       }
 
-      state[BoardTypes.DISPLAY] = displayBoard && playerBoard
+      state[BOARD_TYPES.DISPLAY] = displayBoard && playerBoard
         ? BoardUtils.toDimensionalArray(playerBoard)
         : displayBoard
     },
     [actions.ADD_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
       let anCellIndex = getCellIndex(row, col);
-      let notesBoard = state[BoardTypes.NOTES];
+      let notesBoard = state[BOARD_TYPES.NOTES];
 
       if (notesBoard && isArray(notesBoard[anCellIndex]) && notesBoard[anCellIndex].indexOf(value) === -1) {
         notesBoard[anCellIndex] = notesBoard[anCellIndex].concat([value]);
@@ -82,7 +82,7 @@ export const reducer = createReducer(
     [actions.DELETE_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
       const dnCellIndex = getCellIndex(row, col);
-      let notesBoard = state[BoardTypes.NOTES];
+      let notesBoard = state[BOARD_TYPES.NOTES];
 
       if (notesBoard && isArray(notesBoard[dnCellIndex])) {
         notesBoard[dnCellIndex] = filter(notesBoard[dnCellIndex], v => v !== value);
@@ -91,7 +91,7 @@ export const reducer = createReducer(
     [actions.DELETE_NOTES]: (state, action) => {
       const { col, row } = action.payload;
       const dnCellIndex = getCellIndex(row, col);
-      let notesBoard = state[BoardTypes.NOTES];
+      let notesBoard = state[BOARD_TYPES.NOTES];
 
       if (notesBoard && isArray(notesBoard[dnCellIndex])) {
         notesBoard[dnCellIndex] = [];
@@ -103,9 +103,9 @@ export const reducer = createReducer(
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
   getSelectedCellValue: state => {
-    if (state.boards[BoardTypes.PLAYER] && state.game.selectedCell > -1) {
+    if (state.boards[BOARD_TYPES.PLAYER] && state.game.selectedCell > -1) {
       let rowCol = getRowColumn(state.game.selectedCell);
-      return BoardUtils.getCell(state.boards[BoardTypes.PLAYER], rowCol.row, rowCol.col);
+      return BoardUtils.getCell(state.boards[BOARD_TYPES.PLAYER], rowCol.row, rowCol.col);
     }
 
     return 0;

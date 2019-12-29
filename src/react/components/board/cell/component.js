@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Raphael, Set, Rect, Text } from 'react-raphael';
 
-import { penaltyMs } from '../../../../game/constants';
+import { PENALTY_MS } from '../../../constants';
 
 import Notes from './note';
 import './styles.less';
@@ -49,7 +49,7 @@ function Cell(props) {
     if (!isInactive) {
       props.selectCell();
 
-      if (!prepopulated && isNumberFirst) {
+      if (!prepopulated && isNumberFirst && selectorIndex > -1) {
         props.setCell(selectorIndex + 1)
       }
     }
@@ -79,7 +79,7 @@ function Cell(props) {
         y={height * row + (offsetY || 0) + height}
         hide={prepopulated || !isActive} />
 
-      <Text text={`+${penaltyMs / 1000} sec`}
+      <Text text={`+${PENALTY_MS / 1000} sec`}
         x={rectX + width / 2}
         y={rectY + height / 2}
         hide={!(errored && isPenalty)}

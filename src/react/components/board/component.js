@@ -6,11 +6,12 @@ import Cell from './cell';
 import Menu from './menu';
 import Selectors from './selectors';
 import { checkCell } from '../../../game/board';
+import { MENU_BOARD } from '../../constants';
 
 import './styles.less';
 
 function Board(props) {
-  const { active, baseBoard, displayBoard, menuBoard, paused } = props;
+  const { active, baseBoard, displayBoard, paused } = props;
   const gridClass = active ? `gridline active` : `gridline`;
   const gridLines = [
     { path:'M2,50L545,50', class: gridClass },
@@ -36,7 +37,7 @@ function Board(props) {
               if (active) {
                 cellVal = displayBoard[rowIndex][colIndex];
               } else {
-                cellVal = menuBoard[rowIndex][colIndex];
+                cellVal = MENU_BOARD[rowIndex][colIndex];
               }
             }
 

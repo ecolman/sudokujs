@@ -1,6 +1,6 @@
 import * as BoardUtils from './board';
 import * as Utils from './utilities';
-import { showLogs } from './constants';
+import { SHOW_LOGS } from './constants';
 
 export let lastSolution = {
   board: null,
@@ -108,11 +108,11 @@ export function isBoardValid(board, zeroValid = false) {
     let valid = true;
 
     for(let i = 0; i < 81; i++) {
-      let pos = Utils.getRowColumn(i);
+      const pos = Utils.getRowColumn(i);
       valid = isCellValid(board, pos.row, pos.col, zeroValid);
 
       if (!valid) {
-        if (showLogs) {
+        if (SHOW_LOGS) {
           console.log(`validation failed on position ${pos.row}, ${pos.col}`)
         }
 
@@ -162,7 +162,7 @@ export function solve(board) {
 
       let validNumbersEmpty = !validNumbers || validNumbers.length === 0;
 
-      if (!validNumbersEmpty && showLogs) {
+      if (!validNumbersEmpty && SHOW_LOGS) {
         console.log(`testing ${validNumbers} in cell ${pos.row}, ${pos.col}`);
       }
 
@@ -175,11 +175,11 @@ export function solve(board) {
         // check that we haven't seen this solution before, then check if it's valid
         if (isCellValid(board, pos.row, pos.col, true)) {
           found = true;
-          if (showLogs) {
+          if (SHOW_LOGS) {
             console.log(`${value} is valid in cell ${pos.row}, ${pos.col}`);
           }
           break;
-        } else if (showLogs) {
+        } else if (SHOW_LOGS) {
           console.log(`${value} is not valid in cell ${pos.row}, ${pos.col}, removing`);
         }
       }
@@ -188,7 +188,7 @@ export function solve(board) {
       if (validNumbersEmpty || !found) {
         BoardUtils.setCell(board, pos.row, pos.col, 0);
 
-        if (showLogs) {
+        if (SHOW_LOGS) {
           console.log(`no values worked for cell ${pos.row}, ${pos.col}, backtracking`);
         }
 
@@ -229,7 +229,7 @@ export function solve(board) {
     time: Date.now() - startTime
   };
 
-  if (showLogs) {
+  if (SHOW_LOGS) {
     console.log(`${steps} steps solved ${_.filter(BoardUtils.toArray(board), s => s !== 0).length} cells, ${BoardUtils.toString(board)}`);
   }
 
