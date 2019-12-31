@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react'
-import { Set, Rect, Text } from 'react-raphael';
+import React, { useEffect, useRef } from 'react'
+import { Raphael, Set, Rect, Text } from 'react-raphael';
 import { times } from 'lodash';
 
+import { FADE_MS } from '../../../constants';
 import { checkCell } from '../../../../game/board';
 import { getRowColumn } from '../../../../game/utilities';
 
@@ -21,6 +22,13 @@ function Selectors(props) {
     selectorCellIndex,
     width
   } = props;
+
+  let isLoaded = useRef(false);
+  const animation = isLoaded.current
+    ? Raphael.animation({ opacity: active ? 1 : 0 }, FADE_MS)
+    : Raphael.animation({ opacity: 0 });
+
+  isLoaded.current = true;
 
   function getCoords(index) {
     return {
@@ -53,7 +61,7 @@ function Selectors(props) {
     }
   }, [active]);
 
-  return active ? (
+  return (
     <Set>
       {times(9, index => {
         const pos = getCoords(index);
@@ -78,24 +86,27 @@ function Selectors(props) {
                   glows[index] = null;
                 }
               }}
-              styleName={'bg'} />
+              styleName={'bg'}
+              animate={animation} />
 
             <Text text={selector.toString()}
               x={pos.x + width / 2}
               y={pos.y + height / 2}
-              styleName={'text'} />
+              styleName={'text'}
+              animate={animation} />
 
             {/* Rect to capture events and highlight for entire cell */}
             <Rect width={width} height={height}
               x={pos.x}
               y={pos.y}
               styleName={'overlay'}
+              animate={animation}
               click={() => handleClick(index)} />
           </Set>
         )
       })}
     </Set>
-  ) : null;
+  );
 };
 
 export default Selectors;

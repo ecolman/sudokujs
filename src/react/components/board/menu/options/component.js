@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Path, Raphael, Set, Text } from 'react-raphael';
 
-import { PENALTY_MS } from '../../../../constants';
+import { FADE_MS, PENALTY_MS } from '../../../../constants';
 
 import Checkbox from '../../../common/checkbox';
 import './styles.less';
@@ -18,8 +18,16 @@ function Options(props) {
     timer
   } = props;
   const hide = !optionsVisible;
-  const elToFront = el => { el.toFront(); };
-  let animation = Raphael.animation({ opacity: hide ? 0 : .7 }, 300);
+  const elToFront = el => optionsVisible ? el.toFront() : el.toBack();
+
+  let isLoaded = useRef(false);
+  let animation = isLoaded.current
+    ? optionsVisible
+      ? Raphael.animation({ opacity: 1 }, FADE_MS)
+      : Raphael.animation({ opacity: 0 }, FADE_MS)
+    : Raphael.animation({ opacity: 0 })
+
+  isLoaded.current = true;
 
   return (
     <Set>
@@ -27,15 +35,14 @@ function Options(props) {
       <Set>
         <Text text={'Save Options'}
           x={70} y={25}
-          animate={animation}
           styleName={'save text'}
+          animate={animation}
           click={() => props.setOption(options.VISIBLE, false)}
-          hide={hide}></Text>
-        <Path d={'M 15 15 l 0 20 l -10 -10 z'}
+          update={elToFront} />
+        <Path d={'M15,15 L15,35 L5,25 Z'}
           styleName={'save path'}
           animate={animation}
-          click={() => props.setOption(options.VISIBLE, false)}
-          hide={hide}></Path>
+          click={() => props.setOption(options.VISIBLE, false)} />
       </Set>
 
       {/* Timer */}
@@ -43,14 +50,15 @@ function Options(props) {
         <Text text={'Enable Timer'}
           x={270} y={175}
           styleName={'option'}
+          animate={animation}
           click={() => props.setOption(options.TIMER, !timer)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Checkbox
           x={350} y={160}
-          hide={hide}
           click={() => props.setOption(options.TIMER, !timer)}
-          value={timer}></Checkbox>
+          hide={hide}
+          animate={animation}
+          value={timer} />
       </Set>
 
       {/* Highlighting */}
@@ -58,14 +66,15 @@ function Options(props) {
         <Text text={'Number highlighting'}
           x={232} y={225}
           styleName={`option`}
+          animate={animation}
           click={() => props.setOption(options.HIGHLIGHTING, !highlighting)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Checkbox
           x={350} y={210}
           click={() => props.setOption(options.HIGHLIGHTING, !highlighting)}
           hide={hide}
-          value={highlighting}></Checkbox>
+          animate={animation}
+          value={highlighting} />
       </Set>
 
       {/* Notes */}
@@ -73,14 +82,15 @@ function Options(props) {
         <Text text={'Auto Remove Notes'}
           x={244} y={275}
           styleName={`option`}
+          animate={animation}
           click={() => props.setOption(options.REMOVE_NOTES, !removeNotes)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Checkbox
           x={350} y={260}
           click={() => props.setOption(options.REMOVE_NOTES, !removeNotes)}
           hide={hide}
-          value={removeNotes}></Checkbox>
+          animate={animation}
+          value={removeNotes} />
       </Set>
 
       {/* Number First */}
@@ -88,20 +98,21 @@ function Options(props) {
         <Text text={'Select Number First'}
           x={233} y={325}
           styleName={`option`}
+          animate={animation}
           click={() => props.setOption(options.NUMBER_FIRST, !numberFirst)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Text text={'(instead of selecting cell and then number)'}
           x={180} y={343}
           styleName={`option description`}
+          animate={animation}
           click={() => props.setOption(options.NUMBER_FIRST, !numberFirst)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Checkbox
           x={350} y={310}
           click={() => props.setOption(options.NUMBER_FIRST, !numberFirst)}
           hide={hide}
-          value={numberFirst}></Checkbox>
+          animate={animation}
+          value={numberFirst} />
       </Set>
 
       {/* Instant Feedback */}
@@ -109,14 +120,15 @@ function Options(props) {
         <Text text={'Instant Feedback'}
           x={248} y={378}
           styleName={`option`}
+          animate={animation}
           click={() => props.setOption(options.FEEDBACK, !feedback)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Checkbox
           x={350} y={360}
           click={() => props.setOption(options.FEEDBACK, !feedback)}
           hide={hide}
-          value={feedback}></Checkbox>
+          animate={animation}
+          value={feedback} />
       </Set>
 
       {/* Penalty */}
@@ -124,20 +136,21 @@ function Options(props) {
         <Text text={'Penalty for wrong number'}
           x={206} y={425}
           styleName={`option`}
+          animate={animation}
           click={() => props.setOption(options.PENALTY, !penalty)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Text text={`(+${PENALTY_MS / 1000} seconds, when instant feedback enabled)`}
           x={180} y={440}
           styleName={`option description`}
+          animate={animation}
           click={() => props.setOption(options.PENALTY, !penalty)}
-          hide={hide}
-          update={elToFront}></Text>
+          update={elToFront} />
         <Checkbox
           x={350} y={410}
           click={() => props.setOption(options.PENALTY, !penalty)}
           hide={hide}
-          value={penalty}></Checkbox>
+          animate={animation}
+          value={penalty} />
       </Set>
     </Set>
   )

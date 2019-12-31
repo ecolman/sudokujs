@@ -29,6 +29,8 @@ if (localStorageState) {
     startedAt: localStorageState.game.startedAt || undefined,
     stoppedAt: localStorageState.game.stoppedAt || undefined
   }
+
+  localStorageState.options.visible = false;
 }
 
 const store = configureStore({

@@ -3,6 +3,7 @@ import { Raphael, Set, Rect, Text } from 'react-raphael';
 
 import { PENALTY_MS } from '../../../constants';
 
+import Delete from './delete';
 import Notes from './note';
 import './styles.less';
 
@@ -95,12 +96,10 @@ function Cell(props) {
         mouseover={toggleHovered}
         mouseout={toggleHovered} />
 
-      {/* Delete Button */}
-      <Text text={'X'}
+      <Delete row={row} col={col}
         x={rectX + width - 10}
         y={rectY + 10}
-        styleName={`text delete`}
-        click={() => hasNotes ? props.deleteCellNotes() : props.clearCell()}
+        hasNotes={hasNotes}
         hide={!showDelete} />
     </Set>
   );

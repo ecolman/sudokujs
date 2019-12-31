@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import { Text } from 'react-raphael';
+import React, { useEffect, useState, useRef } from 'react'
+import { Raphael, Text } from 'react-raphael';
 
-import { PENALTY_MS } from '../../../constants';
+import { FADE_MS, PENALTY_MS } from '../../../constants';
 
 import './styles.less';
 
@@ -16,9 +16,20 @@ function getTimerText(lengthMs) {
 }
 
 function Timer(props) {
-  const [seconds, setSeconds] = useState(0);
-  const updateInterval = props.updateInterval || 1000;
   let { active, paused, time, penalties, timerEnabled } = props;
+
+  const [seconds, setSeconds] = useState(0);
+  let isLoaded = useRef(false);
+
+  const updateInterval = props.updateInterval || 1000;
+
+  const animation = isLoaded.current
+    ? active && timerEnabled
+      ? Raphael.animation({ opacity: 1 }, FADE_MS)
+      : Raphael.animation({ opacity: 0 }, FADE_MS)
+    : Raphael.animation({ opacity: 0 });
+
+  isLoaded.current = true;
 
   // watches for active/paused changes and starts interval to update state every second
   useEffect(() => {
@@ -38,7 +49,7 @@ function Timer(props) {
     <Text text={getTimerText(time + (penalties * PENALTY_MS) + (seconds * updateInterval))}
       x={480} y={28}
       styleName={'text'}
-      hide={!timerEnabled || !active}></Text>
+      animate={animation} />
   );
 }
 
