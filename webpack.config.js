@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = (env, argv) => {
@@ -26,8 +26,19 @@ module.exports = (env, argv) => {
 
     stats: 'minimal',
     optimization: {
+      minimize: !isDev,
       minimizer: [
-        new UglifyJsPlugin()
+        new TerserPlugin({
+          chunkFilter: (chunk) => {
+            // Exclude uglification for the `vendor` chunk
+            if (chunk.name === 'vendor') {
+              return false;
+            }
+
+            return true;
+          },
+          sourceMap: isDev
+        }),
       ],
       splitChunks: {
         cacheGroups: {
