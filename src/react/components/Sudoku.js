@@ -5,7 +5,7 @@ import Board from './board';
 import Footer from './footer';
 import Header from './header';
 import Events from './common/events';
-import Fireworks from './fireworks';
+import Fireworks from './common/fireworks';
 
 import classes from './sudoku.less';
 

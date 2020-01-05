@@ -4,10 +4,10 @@ import { filter, times } from 'lodash';
 import './styles.less';
 
 let SCREEN_WIDTH = window.innerWidth - 4;
-let SCREEN_HEIGHT = window.innerHeight - 4;
+let SCREEN_HEIGHT = window.innerHeight - 64;
 
 // taken from https://jsfiddle.net/dtrooper/dA7sM/
-function Fireworks({ showFireworks, ...props }) {
+function Fireworks({ showSolved, ...props }) {
   const context = useRef(null);
   const MAX_PARTICLES = 400;
 
@@ -15,8 +15,8 @@ function Fireworks({ showFireworks, ...props }) {
   let rockets = [];
 
   useEffect(() => {
-    if (showFireworks) {
-      let launchInterval = setInterval(launch, 2000);
+    if (showSolved) {
+      let launchInterval = setInterval(launch, 500);
       let loopInterval = setInterval(loop, 1000 / 50);
       document.addEventListener('click', handleClick);
 
@@ -26,7 +26,7 @@ function Fireworks({ showFireworks, ...props }) {
         document.removeEventListener('click', handleClick);
       }
     }
-  }, [showFireworks])
+  }, [showSolved])
 
   function launch() {
     launchFrom(Math.floor(Math.random() * SCREEN_WIDTH));
@@ -58,8 +58,8 @@ function Fireworks({ showFireworks, ...props }) {
     let canvasContext = context.current.getContext('2d');
 
     // clear canvas
-    canvasContext.fillStyle = "rgba(255, 255, 255, 0.5)";
-    //canvasContext.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    canvasContext.fillStyle = "rgba(255, 255, 255, 1)";
+    canvasContext.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     rockets = filter(rockets, rocket => {
       rocket.update();
@@ -101,10 +101,10 @@ function Fireworks({ showFireworks, ...props }) {
   }
 
   function handleClick() {
-    props.setShowFireworks(false);
+    props.setShowSolved(false);
   }
 
-  return showFireworks
+  return showSolved
     ? (
       <canvas width={SCREEN_WIDTH} height={SCREEN_HEIGHT}
         ref={context}

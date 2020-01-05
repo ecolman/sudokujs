@@ -60,7 +60,7 @@ function* setCell(action) {
         // check if board is valid and set solved flag
         if (isBoardValid(updatedPlayerBoard)) {
           yield put(boardsActions.SET_SOLVED(true));
-          yield put(gameActions.SET_SHOW_FIREWORKS(true));
+          yield put(gameActions.SET_SHOW_SOLVED(true));
 
           const time = yield select(gameSelectors.getTime);
           const startedAt = yield select(gameSelectors.getStartedAt);
