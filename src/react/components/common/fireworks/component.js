@@ -4,7 +4,7 @@ import { filter, times } from 'lodash';
 import './styles.less';
 
 let SCREEN_WIDTH = window.innerWidth - 4;
-let SCREEN_HEIGHT = window.innerHeight - 64;
+let SCREEN_HEIGHT = window.innerHeight - 4;
 
 // taken from https://jsfiddle.net/dtrooper/dA7sM/
 function Fireworks({ showSolved, ...props }) {
@@ -58,7 +58,7 @@ function Fireworks({ showSolved, ...props }) {
     let canvasContext = context.current.getContext('2d');
 
     // clear canvas
-    canvasContext.fillStyle = "rgba(255, 255, 255, 1)";
+    canvasContext.fillStyle = 'rgba(0, 0, 0, 0.05)';
     canvasContext.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     rockets = filter(rockets, rocket => {
@@ -162,16 +162,16 @@ class Particle {
 
     c.save();
 
-    c.globalCompositeOperation = 'darker';
+    c.globalCompositeOperation = 'lighter';
 
     let x = this.pos.x;
     let y = this.pos.y;
     let r = this.size / 2;
 
     let gradient = c.createRadialGradient(x, y, 0.1, x, y, r);
-    gradient.addColorStop(0.1, "rgba(0,0,0," + this.alpha + ")");
-    gradient.addColorStop(0.8, "hsla(" + this.color + ", 100%, 50%, " + this.alpha + ")");
-    gradient.addColorStop(1, "hsla(" + this.color + ", 100%, 50%, 0.1)");
+    gradient.addColorStop(0.1, `rgba(0, 0, 0, ${this.alpha})`);
+    gradient.addColorStop(0.8, `hsla(${this.color}, 100%, 50%, ${this.alpha})`);
+    gradient.addColorStop(1, `hsla(${this.color}, 100%, 50%, 0.1)`);
 
     c.fillStyle = gradient;
 
@@ -274,15 +274,15 @@ class Rocket extends Particle {
 
     c.save();
 
-    c.globalCompositeOperation = 'darker';
+    c.globalCompositeOperation = 'lighter';
 
     let x = this.pos.x;
     let y = this.pos.y;
     let r = this.size / 2;
 
     let gradient = c.createRadialGradient(x, y, 0.1, x, y, r);
-    gradient.addColorStop(0.1, "rgba(0, 0, 0 ," + this.alpha + ")");
-    gradient.addColorStop(1, "rgba(255, 255, 255, " + this.alpha + ")");
+    gradient.addColorStop(0.1, `rgba(255, 255, 255, ${this.alpha})`);
+    gradient.addColorStop(1, `rgba(0, 0, 0, ${this.alpha})`);
 
     c.fillStyle = gradient;
 
