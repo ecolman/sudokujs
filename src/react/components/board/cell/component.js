@@ -38,7 +38,7 @@ function Cell(props) {
   const showDelete = (canDelete === undefined || canDelete === true) && selected && !isInactive && !prepopulated && (value > 0 || hasNotes);
 
   let rectCssClasses =  `bg${cssClass ? ` ${cssClass}` : ''}${isHighlighted && !isInactive ? ' highlight' : ''}`;
-  rectCssClasses += `${hovered && !isInactive ? ' hover ' : ''}${selected && !isInactive ? ' selected' : ''}${isInactive ? ' inactive' : ''}${errored ? ' errored' : ''}`;
+  rectCssClasses += `${hovered && !isInactive ? ' hover ' : ''}${selected && !isInactive ? ' selected' : ''}${!isActive ? ' inactive' : ''}${errored ? ' errored' : ''}`;
   let textCssClasses = `text${cssClass ? ` ${cssClass}` : ''}${prepopulated && !isInactive ? ' prepopulated' : ''}`;
 
   // clear error after animation plays
@@ -84,8 +84,8 @@ function Cell(props) {
         x={rectX + width / 2}
         y={rectY + height / 2}
         hide={!(errored && isPenalty)}
-        animate={Raphael.animation({ y: rectY + height / 2 - 60 }, 500)}
-        styleName={'penalty'} />
+        styleName={'penalty'}
+        animate={Raphael.animation({ y: rectY + height / 2 - 60 }, 500)} />
 
       {/* Rect to capture events and highlight for entire cell */}
       <Rect width={width} height={height}

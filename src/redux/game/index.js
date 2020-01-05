@@ -15,6 +15,7 @@ export const actions = {
   SET_ERROR: createAction('SET_ERROR'),
   SET_PENALTY: createAction('SET_PENALTY'),
   SET_ERROR_AND_PENALTY: createAction('SET_ERROR_AND_PENALTY'),
+  SET_SHOW_FIREWORKS: createAction('SET_SHOW_FIREWORKS'),
   SELECT_CELL: createAction('SELECT_CELL'),
   SELECT_SELECTOR: createAction('SELECT_SELECTOR')
 };
@@ -29,6 +30,7 @@ export const reducer = createReducer(
     errorCell: -1,
     selectedCell: -1,
     selectorCell: -1,
+    showFireworks: false,
     startedAt: undefined,
     stoppedAt: undefined
   },
@@ -82,6 +84,10 @@ export const reducer = createReducer(
         state.penalties += 1;
       }
     },
+    [actions.SET_SHOW_FIREWORKS]: (state, action) => {
+      state.showFireworks = action.payload;
+    },
+
     [actions.SELECT_CELL]: (state, action) => {
       state.selectedCell = isNumber(action.payload) ? action.payload : -1;
     },
@@ -100,6 +106,7 @@ export const selectors = {
   getPenalties: state => state.game.penalties,
   getSelectedCell: state => state.game.selectedCell,
   getSelectorCell: state => state.game.selectorCell,
+  getShowFireworks: state => state.game.showFireworks,
   getStartedAt: state => state.game.startedAt,
   getStoppedAt: state => state.game.stoppedAt
 }

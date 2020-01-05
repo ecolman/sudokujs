@@ -3,10 +3,11 @@ import { map } from 'lodash';
 
 import { actions as boardsActions, selectors as boardsSelectors } from '../boards';
 import { selectors as optionsSelectors } from '../options';
-import { actions as gameActions } from '../game'
+import { actions as gameActions, selectors as gameSelectors } from '../game'
 import { checkCell } from '../../game/board';
+import { isBoardValid } from '../../game/solver';
 import { BOARD_TYPES } from '../../react/constants'
-import { getCellIndex, getCellRelations } from '../../game/utilities';
+import { getCellIndex, getCellRelations, getElapsedTime } from '../../game/utilities';
 
 function* setCell(action) {
   try {
@@ -29,7 +30,7 @@ function* setCell(action) {
       // feedback will let user know the entered number is wrong
       if (isFeedback) {
         if (isCorrect) {
-          yield put(boardsActions.SET_CELL({ row, col, value }));
+          yield put(boardsActions.SET_CELL_SUCCESS({ row, col, value }));
           wasSet = true;
         } else if (!isCellCorrect) {
           yield put(gameActions.SET_ERROR({
@@ -38,19 +39,35 @@ function* setCell(action) {
           }));
         }
       } else {
-        yield put(boardsActions.SET_CELL({ row, col, value }));
+        yield put(boardsActions.SET_CELL_SUCCESS({ row, col, value }));
         wasSet = true;
       }
 
-      // remove note from row, col, and region of cell for value
-      if (wasSet && isRemoveNotes) {
-        let cellRelations = getCellRelations(row, col);
+      if (wasSet) {
+        // remove note from row, col, and region of cell for value
+        if (isRemoveNotes) {
+          let cellRelations = getCellRelations(row, col);
 
-        yield all(map(cellRelations, cr => put(boardsActions.DELETE_NOTE({
-          row: cr.row,
-          col: cr.col,
-          value
-        }))));
+          yield all(map(cellRelations, cr => put(boardsActions.DELETE_NOTE({
+            row: cr.row,
+            col: cr.col,
+            value
+          }))));
+        }
+
+        const updatedPlayerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);
+
+        // check if board is valid and set solved flag
+        if (isBoardValid(updatedPlayerBoard)) {
+          yield put(boardsActions.SET_SOLVED(true));
+          yield put(gameActions.SET_SHOW_FIREWORKS(true));
+
+          const time = yield select(gameSelectors.getTime);
+          const startedAt = yield select(gameSelectors.getStartedAt);
+          const stoppedAt = yield select(gameSelectors.getStoppedAt);
+
+          yield put(gameActions.SET_TIME(getElapsedTime(time, startedAt, stoppedAt)));
+        }
       }
     }
   }

@@ -99,7 +99,7 @@ function Selectors(props) {
             <Rect width={width} height={height}
               x={pos.x}
               y={pos.y}
-              styleName={'overlay'}
+              styleName={`overlay${!active ? ' inactive' : ''}`}
               animate={animation}
               click={() => handleClick(index)} />
           </Set>

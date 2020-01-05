@@ -2,7 +2,6 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { filter, isArray } from 'lodash';
 
 import * as BoardUtils from '../../game/board';
-import { isBoardValid } from '../../game/solver';
 import { BOARD_TYPES } from '../../react/constants';
 import { getCellIndex, getRowColumn } from '../../game/utilities';
 
@@ -11,13 +10,15 @@ export const actions = {
   CLEAR_BOARD: createAction('CLEAR_BOARD'),
   CHECK_BOARD: createAction('CHECK_BOARD'),
 
-  SET_CELL: createAction('SET_CELL'),
   SET_CELL_REQUEST: createAction('SET_CELL_REQUEST'),
+  SET_CELL_SUCCESS: createAction('SET_CELL_SUCCESS'),
   CLEAR_CELL: createAction('CLEAR_CELL'),
 
   ADD_NOTE: createAction('ADD_NOTE'),
   DELETE_NOTE: createAction('DELETE_NOTE'),
-  DELETE_NOTES: createAction('DELETE_NOTES')
+  DELETE_NOTES: createAction('DELETE_NOTES'),
+
+  SET_SOLVED: createAction('SET_SOLVED')
 };
 
 export const reducer = createReducer(
@@ -42,7 +43,6 @@ export const reducer = createReducer(
       let displayBoard = state[BOARD_TYPES.DISPLAY];
       let playerBoard = state[BOARD_TYPES.PLAYER];
 
-
       if (playerBoard) {
         BoardUtils.clearCell(playerBoard, row, col);
       }
@@ -56,14 +56,13 @@ export const reducer = createReducer(
 
       state[boardType] = board;
     },
-    [actions.SET_CELL]: (state, action) => {
+    [actions.SET_CELL_SUCCESS]: (state, action) => {
       const { col, row, value } = action.payload;
       let displayBoard = state[BOARD_TYPES.DISPLAY];
       let playerBoard = state[BOARD_TYPES.PLAYER];
 
       if (playerBoard) {
         BoardUtils.setCell(playerBoard, row, col, value);
-        state.completed = isBoardValid(playerBoard);
       }
 
       state[BOARD_TYPES.DISPLAY] = displayBoard && playerBoard
@@ -96,12 +95,16 @@ export const reducer = createReducer(
       if (notesBoard && isArray(notesBoard[dnCellIndex])) {
         notesBoard[dnCellIndex] = [];
       }
-    }
+    },
+    [actions.SET_SOLVED]: (state, action) => {
+      state.solved = action.payload || false
+    },
   }
 );
 
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
+  isSolved: state => state.boards.solved,
   getSelectedCellValue: state => {
     if (state.boards[BOARD_TYPES.PLAYER] && state.game.selectedCell > -1) {
       let rowCol = getRowColumn(state.game.selectedCell);

@@ -16,10 +16,6 @@
     background-color: @cell-hover-bg;
   }
 
-  &.inactive {
-    opacity: .8;
-  }
-
   &.selected {
     fill: @cell-selected-bg;
     background-color: @cell-selected-bg;
@@ -71,7 +67,9 @@
 
 @keyframes blinkingBackground{
   0%{ fill: @cell-error-bg; background-color: @cell-error-bg; }
-  33%{ fill: @cell-selected-bg; background-color: @cell-selected-bg; }
-  66%{ fill: @cell-error-bg; background-color: @cell-error-bg; }
+  20%{ fill: @cell-selected-bg; background-color: @cell-selected-bg; }
+  40%{ fill: @cell-error-bg; background-color: @cell-error-bg; }
+  60%{ fill: @cell-selected-bg; background-color: @cell-selected-bg; }
+  80%{ fill: @cell-error-bg; background-color: @cell-error-bg; }
   100%{ fill: @cell-selected-bg; background-color: @cell-selected-bg; }
 }

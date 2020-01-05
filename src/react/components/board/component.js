@@ -64,14 +64,14 @@ function Board(props) {
         <Path d={'M230,207 L230,342 L260,342 L260,207 L230,207 M280,207 L280,342 L310,342 L310,207 Z'}
           styleName={'pause path'}
           hide={!paused}
-          update={elToFront}></Path>
+          update={elToFront} />
         <Rect
           x={230} y={207}
           height={135} width={80}
           styleName={'pause container'}
           click={props.resumeGame}
           hide={!paused}
-          update={elToFront}></Rect>
+          update={elToFront} />
       </Set>
 
       {/* Gridlines */}
@@ -81,7 +81,7 @@ function Board(props) {
             key={`gridline${index}`}
             styleName={'gridline'}
             animate={line.animation}
-            update={elToFront}></Path>
+            update={elToFront} />
         ))}
       </Set>
 

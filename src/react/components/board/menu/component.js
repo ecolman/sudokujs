@@ -9,7 +9,7 @@ import './styles.less';
 function Menu(props) {
   const { isActive, optionsVisible, paused, showOptions, stoppedAt } = props;
   const hide = isActive || optionsVisible;
-  const elToFront = el => {
+  const showEl = el => {
     if (!hide) {
       el.show();
       el.toFront();
@@ -17,7 +17,7 @@ function Menu(props) {
       el.hide()
     }
   };
-  const elToFront1 = el => {
+  const showElNotActive = el => {
     if (!isActive && !paused) {
       el.show();
       el.toFront();
@@ -59,8 +59,7 @@ function Menu(props) {
       <Rect width={540} height={450}
         x={3} y={50}
         styleName={`container abc`}
-        hide={isActive}
-        load={elToFront1} update={elToFront1} />
+        load={showElNotActive} update={showElNotActive} />
 
       {/* Difficulties, transforms done through css */}
       {map(DIFFICULTIES, d => (
@@ -70,12 +69,12 @@ function Menu(props) {
             key={`menu-difficulty-${d}`}
             styleName={`difficulty ${d.toLowerCase()}`}
             click={() => props.startGame(d)}
-            load={elToFront} update={elToFront}></Text>
+            load={showEl} update={showEl}></Text>
           <Rect x={275} y={117}
             key={`menu-difficulty-${d}-btn`}
             styleName={`difficulty ${d.toLowerCase()} rect`}
             click={() => props.startGame(d)}
-            load={elToFront} update={elToFront}></Rect>
+            load={showEl} update={showEl}></Rect>
         </Set>
       ))}
 
@@ -86,17 +85,17 @@ function Menu(props) {
           styleName={`action resume`}
           click={props.resumeGame}
           hide={hide || stoppedAt === undefined}
-          load={elToFront} update={elToFront}></Text>
-        <Text text={'Load Last Game'}
+          load={showEl} update={showEl}></Text>
+        {/* <Text text={'Load Last Game'}
           x={275} y={380}
           styleName={`action load`}
-          load={elToFront} update={elToFront}></Text>
+          load={showEl} update={showEl}></Text> */}
         <Text text={'Options'}
           x={275} y={optionsTextY}
           styleName={`action options`}
           animate={animation}
           click={showOptions}
-          load={elToFront1} update={elToFront1}></Text>
+          load={showElNotActive} update={showElNotActive}></Text>
       </Set>
 
       <Options></Options>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { Raphael, Text } from 'react-raphael';
 
-import { FADE_MS, PENALTY_MS } from '../../../constants';
+import { FADE_MS, PENALTY_MS, UPDATE_MS } from '../../../constants';
 
 import './styles.less';
 
@@ -16,12 +16,10 @@ function getTimerText(lengthMs) {
 }
 
 function Timer(props) {
-  let { active, paused, time, penalties, timerEnabled } = props;
+  let { active, isSolved, paused, penalties, time, timerEnabled } = props;
 
   const [seconds, setSeconds] = useState(0);
   let isLoaded = useRef(false);
-
-  const updateInterval = props.updateInterval || 1000;
 
   const animation = isLoaded.current
     ? active && timerEnabled
@@ -33,12 +31,12 @@ function Timer(props) {
 
   // watches for active/paused changes and starts interval to update state every second
   useEffect(() => {
-    if (props.active && !props.paused) {
-      let interval = setInterval(() => setSeconds(seconds => seconds + 1), updateInterval);
+    if (props.active && !props.isSolved && !props.paused) {
+      let interval = setInterval(() => setSeconds(seconds => seconds + 1), UPDATE_MS);
 
       return () => clearInterval(interval);
     }
-  }, [active, paused]);
+  }, [active, isSolved, paused]);
 
   // when time changes, reset state
   useEffect(() => {
@@ -46,7 +44,7 @@ function Timer(props) {
   }, [time])
 
   return (
-    <Text text={getTimerText(time + (penalties * PENALTY_MS) + (seconds * updateInterval))}
+    <Text text={getTimerText(time + (penalties * PENALTY_MS) + (seconds * UPDATE_MS))}
       x={480} y={28}
       styleName={'text'}
       animate={animation} />

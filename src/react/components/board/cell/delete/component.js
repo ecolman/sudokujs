@@ -17,10 +17,6 @@ function Cell(props) {
           styleName={'path'}
           click={handleClick} />
 
-{/* <path d="M 80 80
-           A 45 45, 0, 0, 0, 125 125
-           L 125 80 Z" fill="green"/> */}
-
         <Text text={'X'}
           x={x + 4}
           y={y - 3}

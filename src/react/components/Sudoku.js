@@ -5,6 +5,7 @@ import Board from './board';
 import Footer from './footer';
 import Header from './header';
 import Events from './common/events';
+import Fireworks from './fireworks';
 
 import classes from './sudoku.less';
 
@@ -25,16 +26,20 @@ function Sudoku() {
 
   return loaded
     ? (
-      <Paper
-        width={0} height={0} ref={paperContainer}
-        container={{className: classes.paper}}>
-        <Header />
+      <>
+        <Paper
+          width={0} height={0} ref={paperContainer}
+          container={{className: classes.paper}}>
+          <Header />
 
-        <Board />
-        <Events />
+          <Board />
+          <Events />
 
-        <Footer />
-      </Paper>
+          <Footer />
+        </Paper>
+
+        <Fireworks />
+      </>
     )
     : null;
 }

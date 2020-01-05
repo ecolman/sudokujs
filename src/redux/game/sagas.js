@@ -1,8 +1,8 @@
-import { put, takeEvery } from 'redux-saga/effects';
+import { put, select, takeEvery } from 'redux-saga/effects';
 import { map, times } from 'lodash';
 
-import { actions as boardsActions } from '../boards';
-import { actions as gameActions } from '../game';
+import { actions as boardsActions, selectors as boardsSelectors } from '../boards';
+import { actions as gameActions, selectors as gameSelectors } from '../game';
 
 import { CULL_COUNT, GIVEN_COUNT } from '../constants';
 import { BOARD_TYPES } from '../../react/constants';
@@ -33,8 +33,6 @@ function* startGame(action) {
       type: BOARD_TYPES.COMPLETE
     });
 
-    console.log(baseBoard, completeBoard);
-
     yield put(boardsActions.SET_BOARD({
       boardType: BOARD_TYPES.COMPLETE,
       board: Object.assign({}, completeBoard)
@@ -60,6 +58,7 @@ function* startGame(action) {
       board: map(times(81, n => []))
     }));
 
+    yield put(boardsActions.SET_SOLVED(false));
     yield put(gameActions.START_GAME({ difficulty, time }));
   }
   catch(e) {
