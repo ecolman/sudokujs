@@ -17,6 +17,7 @@ function Selectors(props) {
     active,
     baseBoard,
     height,
+    isNotesMode,
     isNumberFirst,
     selectedCellIndex,
     selectorCellIndex,
@@ -45,7 +46,11 @@ function Selectors(props) {
       const prepopulated = !checkCell(baseBoard, coords.row, coords.col, 0);
 
       if (!prepopulated) {
-        props.setCell(coords.row, coords.col, index + 1);
+        if (isNotesMode) {
+          props.addNote(coords.row, coords.col, index + 1);
+        } else {
+          props.setCell(coords.row, coords.col, index + 1);
+        }
       }
     }
   }

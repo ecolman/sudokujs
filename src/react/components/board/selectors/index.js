@@ -13,11 +13,13 @@ const mapStateToProps = (state, props) => ({
   height: SIZES.SELECTOR.HEIGHT,
   selectedCellIndex: gameSelectors.getSelectedCell(state),
   selectorCellIndex: gameSelectors.getSelectorCell(state),
+  isNotesMode: gameSelectors.isNotesMode(state),
   isNumberFirst: optionsSelectors.isNumberFirst(state),
   width: SIZES.SELECTOR.WIDTH
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
+  addNote: (row, col, value) => dispatch(boardsActions.ADD_NOTE({ row, col, value })),
   setCell: (row, col, value) => dispatch(boardsActions.SET_CELL_REQUEST({ row, col, value })),
   setSelector: index => dispatch(gameActions.SELECT_SELECTOR(index))
 });

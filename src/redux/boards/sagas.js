@@ -44,6 +44,8 @@ function* setCell(action) {
       }
 
       if (wasSet) {
+        yield put(boardsActions.CLEAR_NOTES({ row, col }));
+
         // remove note from row, col, and region of cell for value
         if (isRemoveNotes) {
           let cellRelations = getCellRelations(row, col);
