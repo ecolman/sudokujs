@@ -35,7 +35,7 @@ const mapDispatchToProps = (dispatch, props) => ({
     col: props.col,
     row: props.row
   })),
-  deleteCellNotes: () => dispatch(boardsActions.DELETE_NOTES({
+  deleteCellNotes: () => dispatch(boardsActions.CLEAR_NOTES({
     col: props.col,
     row: props.row
   })),

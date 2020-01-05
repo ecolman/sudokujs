@@ -48,11 +48,7 @@ function* setCell(action) {
         if (isRemoveNotes) {
           let cellRelations = getCellRelations(row, col);
 
-          yield all(map(cellRelations, cr => put(boardsActions.DELETE_NOTE({
-            row: cr.row,
-            col: cr.col,
-            value
-          }))));
+          yield put(boardsActions.DELETE_CELLS_NOTE({ cells: cellRelations, value }));
         }
 
         const updatedPlayerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);

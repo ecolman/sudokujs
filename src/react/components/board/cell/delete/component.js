@@ -5,7 +5,6 @@ import './styles.less';
 
 function Cell(props) {
   const { hasNotes, hide, x, y } = props;
-  const modifier = 10;
   const handleClick = () => hasNotes ? props.deleteCellNotes() : props.clearCell();
 
   return !hide

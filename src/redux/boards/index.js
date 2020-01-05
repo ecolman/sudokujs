@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
-import { filter, isArray } from 'lodash';
+import { filter, isArray, times } from 'lodash';
 
 import * as BoardUtils from '../../game/board';
 import { BOARD_TYPES } from '../../react/constants';
@@ -16,7 +16,8 @@ export const actions = {
 
   ADD_NOTE: createAction('ADD_NOTE'),
   DELETE_NOTE: createAction('DELETE_NOTE'),
-  DELETE_NOTES: createAction('DELETE_NOTES'),
+  DELETE_CELLS_NOTE: createAction('DELETE_CELLS_NOTE'),
+  CLEAR_NOTES: createAction('CLEAR_NOTES'),
 
   SET_SOLVED: createAction('SET_SOLVED')
 };
@@ -87,7 +88,22 @@ export const reducer = createReducer(
         notesBoard[dnCellIndex] = filter(notesBoard[dnCellIndex], v => v !== value);
       }
     },
-    [actions.DELETE_NOTES]: (state, action) => {
+    [actions.DELETE_CELLS_NOTE]: (state, action) => {
+      const { cells, value } = action.payload;
+
+      times(cells.length, i => {
+        let col = cells[i].col;
+        let row = cells[i].row;
+
+        const dnCellIndex = getCellIndex(row, col);
+        let notesBoard = state[BOARD_TYPES.NOTES];
+
+        if (notesBoard && isArray(notesBoard[dnCellIndex])) {
+          notesBoard[dnCellIndex] = filter(notesBoard[dnCellIndex], v => v !== value);
+        }
+      });
+    },
+    [actions.CLEAR_NOTES]: (state, action) => {
       const { col, row } = action.payload;
       const dnCellIndex = getCellIndex(row, col);
       let notesBoard = state[BOARD_TYPES.NOTES];
