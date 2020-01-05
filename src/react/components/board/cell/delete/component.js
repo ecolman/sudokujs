@@ -5,7 +5,7 @@ import './styles.less';
 
 function Delete(props) {
   const { hide, showCellNotes, x, y } = props;
-  const handleClick = () => showCellNotes ? props.deleteCellNotes() : props.clearCell();
+  const handleClick = () => showCellNotes ? props.clearCellNotes() : props.clearCell();
 
   return !hide
     ? (

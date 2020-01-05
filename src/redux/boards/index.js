@@ -16,9 +16,9 @@ export const actions = {
 
   ADD_NOTE: createAction('ADD_NOTE'),
   DELETE_NOTE: createAction('DELETE_NOTE'),
-  DELETE_CELL_NOTES: createAction('DELETE_CELL_NOTES'),
-  DELETE_CELLS_NOTES: createAction('DELETE_CELLS_NOTES'),
-  CLEAR_NOTES: createAction('CLEAR_NOTES'),
+  DELETE_CELLS_NOTE: createAction('DELETE_CELLS_NOTE'),
+  CLEAR_CELL_NOTES: createAction('CLEAR_CELL_NOTES'),
+  SET_SHOW_NOTES: createAction('SET_SHOW_NOTES'),
 
   SET_SOLVED: createAction('SET_SOLVED')
 };
@@ -94,7 +94,7 @@ export const reducer = createReducer(
         notesBoard[cellIndex] = filter(notesBoard[cellIndex], v => v !== value);
       }
     },
-    [actions.DELETE_CELL_NOTES]: (state, action) => {
+    [actions.CLEAR_CELL_NOTES]: (state, action) => {
       const { col, row } = action.payload;
       const cellIndex = getCellIndex(row, col);
       let notesBoard = state[BOARD_TYPES.NOTES];
@@ -103,7 +103,7 @@ export const reducer = createReducer(
         notesBoard[cellIndex] = [];
       }
     },
-    [actions.DELETE_CELLS_NOTES]: (state, action) => {
+    [actions.DELETE_CELLS_NOTE]: (state, action) => {
       const { cells, value } = action.payload;
 
       times(cells.length, i => {
@@ -118,7 +118,7 @@ export const reducer = createReducer(
         }
       });
     },
-    [actions.CLEAR_NOTES]: (state, action) => {
+    [actions.SET_SHOW_NOTES]: (state, action) => {
       const { col, row } = action.payload;
       const cellIndex = getCellIndex(row, col);
 

@@ -44,13 +44,13 @@ function* setCell(action) {
       }
 
       if (wasSet) {
-        yield put(boardsActions.CLEAR_NOTES({ row, col }));
+        yield put(boardsActions.SET_SHOW_NOTES({ row, col }));
 
         // remove note from row, col, and region of cell for value
         if (isRemoveNotes) {
           let cellRelations = getCellRelations(row, col);
 
-          yield put(boardsActions.DELETE_CELLS_NOTES({ cells: cellRelations, value }));
+          yield put(boardsActions.DELETE_CELLS_NOTE({ cells: cellRelations, value }));
         }
 
         const updatedPlayerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);
