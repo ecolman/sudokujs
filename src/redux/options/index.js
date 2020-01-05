@@ -8,7 +8,7 @@ export const reducer = createReducer(
   {
     feedback: false,
     highlighting: true,
-    removeNotes: false,
+    removeNotes: true,
     numberFirst: false,
     penalty: false,
     timer: true,
