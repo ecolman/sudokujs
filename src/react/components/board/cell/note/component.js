@@ -19,7 +19,8 @@ function Notes(props) {
             key={`${row}-${col}-note-${n.toString()}`}
             x={x + (width / 4 * noteOffset) + 12.5}
             y={y + noteRow * 15 - 5}
-            styleName={'text'} />
+            styleName={'text'}
+            click={props.click} />
         ) : null;
       })}
     </Set>

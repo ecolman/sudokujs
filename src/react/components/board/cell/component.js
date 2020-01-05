@@ -27,6 +27,7 @@ function Cell(props) {
     row,
     selected,
     selectorIndex,
+    showCellNotes,
     width,
     value
   } = props;
@@ -78,7 +79,8 @@ function Cell(props) {
         row={row} col={col}
         x={width * col + (offsetX || 0)}
         y={height * row + (offsetY || 0) + height}
-        hide={prepopulated || !isActive} />
+        click={handleClick}
+        hide={prepopulated || !isActive || !showCellNotes} />
 
       <Text text={`+${PENALTY_MS / 1000} sec`}
         x={rectX + width / 2}

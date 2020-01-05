@@ -1,5 +1,5 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
-import { filter, isArray, times } from 'lodash';
+import { filter, isArray, map, times } from 'lodash';
 
 import * as BoardUtils from '../../game/board';
 import { BOARD_TYPES } from '../../react/constants';
@@ -29,6 +29,7 @@ export const reducer = createReducer(
     [BOARD_TYPES.DISPLAY]: undefined,
     [BOARD_TYPES.PLAYER]: undefined,
     [BOARD_TYPES.NOTES]: undefined,
+    showNotes: map(times(81, () => false)),
     solved: false
   },
   {
@@ -43,9 +44,11 @@ export const reducer = createReducer(
       const { col, row } = action.payload;
       let displayBoard = state[BOARD_TYPES.DISPLAY];
       let playerBoard = state[BOARD_TYPES.PLAYER];
+      let cellIndex = getCellIndex(row, col);
 
       if (playerBoard) {
         BoardUtils.clearCell(playerBoard, row, col);
+        state.showNotes[cellIndex] = true;
       }
 
       state[BOARD_TYPES.DISPLAY] = displayBoard && playerBoard
@@ -77,6 +80,7 @@ export const reducer = createReducer(
 
       if (notesBoard && isArray(notesBoard[anCellIndex]) && notesBoard[anCellIndex].indexOf(value) === -1) {
         notesBoard[anCellIndex] = notesBoard[anCellIndex].concat([value]);
+        state.showNotes[anCellIndex] = true;
       }
     },
     [actions.DELETE_NOTE]: (state, action) => {
@@ -106,11 +110,12 @@ export const reducer = createReducer(
     [actions.CLEAR_NOTES]: (state, action) => {
       const { col, row } = action.payload;
       const dnCellIndex = getCellIndex(row, col);
-      let notesBoard = state[BOARD_TYPES.NOTES];
+      state.showNotes[dnCellIndex] = false;
+      // let notesBoard = state[BOARD_TYPES.NOTES];
 
-      if (notesBoard && isArray(notesBoard[dnCellIndex])) {
-        notesBoard[dnCellIndex] = [];
-      }
+      // if (notesBoard && isArray(notesBoard[dnCellIndex])) {
+      //   notesBoard[dnCellIndex] = [];
+      // }
     },
     [actions.SET_SOLVED]: (state, action) => {
       state.solved = action.payload || false
@@ -121,6 +126,7 @@ export const reducer = createReducer(
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
   isSolved: state => state.boards.solved,
+  showCellNotes: (state, index) => state.boards.showNotes[index],
   getSelectedCellValue: state => {
     if (state.boards[BOARD_TYPES.PLAYER] && state.game.selectedCell > -1) {
       let rowCol = getRowColumn(state.game.selectedCell);

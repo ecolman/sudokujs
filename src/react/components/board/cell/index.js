@@ -21,6 +21,7 @@ const mapStateToProps = (state, props) => {
     isPaused: gameSelectors.isPaused(state),
     isPenalty: optionsSelectors.isPenalty(state),
     notesMode: gameSelectors.isNotesMode(state),
+    showCellNotes: boardsSelectors.showCellNotes(state, props.index),
     offsetX: props.offsetX || 0,
     offsetY: props.offsetY || 0,
     errored: gameSelectors.getErrorCell(state) === props.index,
@@ -31,14 +32,6 @@ const mapStateToProps = (state, props) => {
 }
 
 const mapDispatchToProps = (dispatch, props) => ({
-  clearCell: () => dispatch(boardsActions.CLEAR_CELL({
-    col: props.col,
-    row: props.row
-  })),
-  deleteCellNotes: () => dispatch(boardsActions.CLEAR_NOTES({
-    col: props.col,
-    row: props.row
-  })),
   setCell: value => dispatch(boardsActions.SET_CELL_REQUEST({
     col: props.col,
     row: props.row,
