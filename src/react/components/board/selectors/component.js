@@ -43,15 +43,7 @@ function Selectors(props) {
       props.setSelector(selectorCellIndex === index ? -1 : index);
     } else if (selectedCellIndex > -1) {
       const coords = getRowColumn(selectedCellIndex);
-      const prepopulated = !checkCell(baseBoard, coords.row, coords.col, 0);
-
-      if (!prepopulated) {
-        if (isNotesMode) {
-          props.addNote(coords.row, coords.col, index + 1);
-        } else {
-          props.setCell(coords.row, coords.col, index + 1);
-        }
-      }
+      props.setCell(coords.row, coords.col, index + 1);
     }
   }
 

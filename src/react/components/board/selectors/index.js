@@ -19,7 +19,6 @@ const mapStateToProps = (state, props) => ({
 });
 
 const mapDispatchToProps = (dispatch, props) => ({
-  addNote: (row, col, value) => dispatch(boardsActions.ADD_NOTE({ row, col, value })),
   setCell: (row, col, value) => dispatch(boardsActions.SET_CELL_REQUEST({ row, col, value })),
   setSelector: index => dispatch(gameActions.SELECT_SELECTOR(index))
 });

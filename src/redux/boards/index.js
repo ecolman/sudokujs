@@ -119,10 +119,10 @@ export const reducer = createReducer(
       });
     },
     [actions.SET_SHOW_NOTES]: (state, action) => {
-      const { col, row } = action.payload;
+      const { col, row, value } = action.payload;
       const cellIndex = getCellIndex(row, col);
 
-      state.showNotes[cellIndex] = false;
+      state.showNotes[cellIndex] = value || false;
     },
     [actions.SET_SOLVED]: (state, action) => {
       state.solved = action.payload || false

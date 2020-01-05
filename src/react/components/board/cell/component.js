@@ -80,7 +80,7 @@ function Cell(props) {
         x={width * col + (offsetX || 0)}
         y={height * row + (offsetY || 0) + height}
         click={handleClick}
-        hide={prepopulated || !isActive || !showCellNotes} />
+        hide={prepopulated || isInactive || !showCellNotes} />
 
       <Text text={`+${PENALTY_MS / 1000} sec`}
         x={rectX + width / 2}

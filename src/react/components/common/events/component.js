@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 
 import { getRowColumn } from '../../../../game/utilities';
-import { checkCell } from '../../../../game/board';
+import { checkCell, getCell } from '../../../../game/board';
 
 function Events(props) {
   // keep latest props in a ref.
@@ -28,22 +28,10 @@ function Events(props) {
       // 1 - 9, add number to board
       const cellRowCol = getRowColumn(selectedCell);
       const keyDiff = key >= 49 && key <= 57 ? 48 : 96;
-      const num = key - keyDiff;
+      const value = key - keyDiff;
 
       if (cellRowCol.row >= 0 && cellRowCol.col >= 0) {
-        const prepopulated = !checkCell(baseBoard, cellRowCol.row, cellRowCol.col, 0);
-
-        if (!prepopulated) {
-          if (notesMode) {
-            if (notesBoard[selectedCell].indexOf(num) > -1) {
-              props.deleteNote(cellRowCol.row, cellRowCol.col, num)
-            } else {
-              props.addNote(cellRowCol.row, cellRowCol.col, num)
-            }
-          } else {
-            props.setCell(cellRowCol.row, cellRowCol.col, num)
-          }
-        }
+        props.setCell(cellRowCol.row, cellRowCol.col, value);
       }
     } else if (key >= 37 && key <= 40) {  // arrow keys
       let cellIndex = selectedCell;

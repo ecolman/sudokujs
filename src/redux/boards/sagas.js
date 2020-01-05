@@ -1,5 +1,4 @@
-import { all, put, select, takeEvery } from 'redux-saga/effects';
-import { map } from 'lodash';
+import { put, select, takeEvery } from 'redux-saga/effects';
 
 import { actions as boardsActions, selectors as boardsSelectors } from '../boards';
 import { selectors as optionsSelectors } from '../options';
@@ -15,9 +14,12 @@ function* setCell(action) {
     const baseBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.BASE);
     const completeBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.COMPLETE);
     const playerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);
+    const notesBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.NOTES);
+    const notesMode = yield select(gameSelectors.isNotesMode);
     const isCorrect = completeBoard[row][col] === value;
     const isCellCorrect = playerBoard[row][col] === completeBoard[row][col];
     const isPrepopulated = !checkCell(baseBoard, row, col, 0);
+    const cellIndex = getCellIndex(row, col);
 
     let wasSet = false;
 
@@ -25,16 +27,22 @@ function* setCell(action) {
     if (!isPrepopulated) {
       const isFeedback = yield select(optionsSelectors.isFeedback);
       const isPenalty = yield select(optionsSelectors.isPenalty);
-      const isRemoveNotes = yield select(optionsSelectors.isRemoveNotes);
 
-      // feedback will let user know the entered number is wrong
-      if (isFeedback) {
+      if (notesMode) {
+        // check if note exists and decide add/remove
+        if (notesBoard[cellIndex].indexOf(value) > -1) {
+          yield put(boardsActions.DELETE_NOTE({ row, col, value }));
+        } else {
+          yield put(boardsActions.ADD_NOTE({ row, col, value }));
+        }
+      } else if (isFeedback) {
+        // feedback will let user know the entered number is wrong
         if (isCorrect) {
           yield put(boardsActions.SET_CELL_SUCCESS({ row, col, value }));
           wasSet = true;
         } else if (!isCellCorrect) {
           yield put(gameActions.SET_ERROR({
-            index: getCellIndex(row, col),
+            index: cellIndex,
             penalty: isPenalty
           }));
         }
@@ -44,7 +52,9 @@ function* setCell(action) {
       }
 
       if (wasSet) {
-        yield put(boardsActions.SET_SHOW_NOTES({ row, col }));
+        const isRemoveNotes = yield select(optionsSelectors.isRemoveNotes);
+
+        yield put(boardsActions.SET_SHOW_NOTES({ row, col, value: false }));
 
         // remove note from row, col, and region of cell for value
         if (isRemoveNotes) {
