@@ -16,7 +16,8 @@ export const actions = {
 
   ADD_NOTE: createAction('ADD_NOTE'),
   DELETE_NOTE: createAction('DELETE_NOTE'),
-  DELETE_CELLS_NOTE: createAction('DELETE_CELLS_NOTE'),
+  DELETE_CELL_NOTES: createAction('DELETE_CELL_NOTES'),
+  DELETE_CELLS_NOTES: createAction('DELETE_CELLS_NOTES'),
   CLEAR_NOTES: createAction('CLEAR_NOTES'),
 
   SET_SOLVED: createAction('SET_SOLVED')
@@ -44,6 +45,7 @@ export const reducer = createReducer(
       const { col, row } = action.payload;
       let displayBoard = state[BOARD_TYPES.DISPLAY];
       let playerBoard = state[BOARD_TYPES.PLAYER];
+
       let cellIndex = getCellIndex(row, col);
 
       if (playerBoard) {
@@ -75,47 +77,52 @@ export const reducer = createReducer(
     },
     [actions.ADD_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
-      let anCellIndex = getCellIndex(row, col);
+      let cellIndex = getCellIndex(row, col);
       let notesBoard = state[BOARD_TYPES.NOTES];
 
-      if (notesBoard && isArray(notesBoard[anCellIndex]) && notesBoard[anCellIndex].indexOf(value) === -1) {
-        notesBoard[anCellIndex] = notesBoard[anCellIndex].concat([value]);
-        state.showNotes[anCellIndex] = true;
+      if (notesBoard && isArray(notesBoard[cellIndex]) && notesBoard[cellIndex].indexOf(value) === -1) {
+        notesBoard[cellIndex] = notesBoard[cellIndex].concat([value]);
+        state.showNotes[cellIndex] = true;
       }
     },
     [actions.DELETE_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
-      const dnCellIndex = getCellIndex(row, col);
+      const cellIndex = getCellIndex(row, col);
       let notesBoard = state[BOARD_TYPES.NOTES];
 
-      if (notesBoard && isArray(notesBoard[dnCellIndex])) {
-        notesBoard[dnCellIndex] = filter(notesBoard[dnCellIndex], v => v !== value);
+      if (notesBoard && isArray(notesBoard[cellIndex])) {
+        notesBoard[cellIndex] = filter(notesBoard[cellIndex], v => v !== value);
       }
     },
-    [actions.DELETE_CELLS_NOTE]: (state, action) => {
+    [actions.DELETE_CELL_NOTES]: (state, action) => {
+      const { col, row } = action.payload;
+      const cellIndex = getCellIndex(row, col);
+      let notesBoard = state[BOARD_TYPES.NOTES];
+
+      if (notesBoard && isArray(notesBoard[cellIndex])) {
+        notesBoard[cellIndex] = [];
+      }
+    },
+    [actions.DELETE_CELLS_NOTES]: (state, action) => {
       const { cells, value } = action.payload;
 
       times(cells.length, i => {
         let col = cells[i].col;
         let row = cells[i].row;
 
-        const dnCellIndex = getCellIndex(row, col);
+        const cellIndex = getCellIndex(row, col);
         let notesBoard = state[BOARD_TYPES.NOTES];
 
-        if (notesBoard && isArray(notesBoard[dnCellIndex])) {
-          notesBoard[dnCellIndex] = filter(notesBoard[dnCellIndex], v => v !== value);
+        if (notesBoard && isArray(notesBoard[cellIndex])) {
+          notesBoard[cellIndex] = filter(notesBoard[cellIndex], v => v !== value);
         }
       });
     },
     [actions.CLEAR_NOTES]: (state, action) => {
       const { col, row } = action.payload;
-      const dnCellIndex = getCellIndex(row, col);
-      state.showNotes[dnCellIndex] = false;
-      // let notesBoard = state[BOARD_TYPES.NOTES];
+      const cellIndex = getCellIndex(row, col);
 
-      // if (notesBoard && isArray(notesBoard[dnCellIndex])) {
-      //   notesBoard[dnCellIndex] = [];
-      // }
+      state.showNotes[cellIndex] = false;
     },
     [actions.SET_SOLVED]: (state, action) => {
       state.solved = action.payload || false

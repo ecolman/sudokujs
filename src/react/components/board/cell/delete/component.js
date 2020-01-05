@@ -3,9 +3,9 @@ import { Raphael, Set, Path, Text } from 'react-raphael';
 
 import './styles.less';
 
-function Cell(props) {
-  const { hasNotes, hide, x, y } = props;
-  const handleClick = () => hasNotes ? props.deleteCellNotes() : props.clearCell();
+function Delete(props) {
+  const { hide, showCellNotes, x, y } = props;
+  const handleClick = () => showCellNotes ? props.deleteCellNotes() : props.clearCell();
 
   return !hide
     ? (
@@ -26,4 +26,4 @@ function Cell(props) {
     : null;
 }
 
-export default Cell;
+export default Delete;

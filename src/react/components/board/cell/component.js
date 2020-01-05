@@ -98,7 +98,8 @@ function Cell(props) {
         mouseover={toggleHovered}
         mouseout={toggleHovered} />
 
-      <Delete row={row} col={col}
+      <Delete index={props.index}
+        row={row} col={col}
         x={rectX + width - 10}
         y={rectY + 10}
         hasNotes={hasNotes}
