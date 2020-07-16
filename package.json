@@ -26,7 +26,7 @@
   "homepage": "https://github.com/ecolman/sudokujs#readme",
   "dependencies": {
     "@reduxjs/toolkit": "^1.1.0",
-    "lodash": ">=4.17.13",
+    "lodash": ">=4.17.19",
     "raphael": "^2.3.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
