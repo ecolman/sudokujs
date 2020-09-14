@@ -1,0 +1,23 @@
+@import '../../css/variables.less';
+
+.gridline {
+  fill: @grid-color;
+  opacity: .1;
+  stroke: @grid-color;
+  stroke-width: 4;
+}
+
+.pause {
+  &.container {
+    cursor: pointer;
+    fill: #fff;
+    stroke: #fff;
+    opacity: 0;
+  }
+
+  &.path {
+    fill: #000;
+    stroke: #000;
+    opacity: .4;
+  }
+}

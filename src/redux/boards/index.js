@@ -1,8 +1,8 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
-import { filter, isArray, map, times } from 'lodash';
+import { filter, forEach, isArray, map, times, remove } from 'lodash';
 
 import * as BoardUtils from '../../game/board';
-import { BOARD_TYPES } from '../../react/constants';
+import { BOARD_TYPES } from '../../components/constants';
 import { getCellIndex, getRowColumn } from '../../game/utilities';
 
 export const actions = {
@@ -71,9 +71,11 @@ export const reducer = createReducer(
         BoardUtils.setCell(playerBoard, row, col, value);
       }
 
+      BoardUtils.setCell(state[BOARD_TYPES.DISPLAY], row, col, value);
+
       state[BOARD_TYPES.DISPLAY] = displayBoard && playerBoard
         ? BoardUtils.toDimensionalArray(playerBoard)
-        : displayBoard
+        : displayBoard;
     },
     [actions.ADD_NOTE]: (state, action) => {
       const { col, row, value } = action.payload;
@@ -105,18 +107,18 @@ export const reducer = createReducer(
     },
     [actions.DELETE_CELLS_NOTE]: (state, action) => {
       const { cells, value } = action.payload;
+      let notesBoard = state[BOARD_TYPES.NOTES];
 
-      times(cells.length, i => {
-        let col = cells[i].col;
-        let row = cells[i].row;
+      if (notesBoard) {
+        forEach(cells, cell => {
+          const cellIndex = getCellIndex(cell.row, cell.col);
+          const notes = notesBoard[cellIndex];
 
-        const cellIndex = getCellIndex(row, col);
-        let notesBoard = state[BOARD_TYPES.NOTES];
-
-        if (notesBoard && isArray(notesBoard[cellIndex])) {
-          notesBoard[cellIndex] = filter(notesBoard[cellIndex], v => v !== value);
-        }
-      });
+          if (notes && isArray(notes) && notes.indexOf(value) > -1) {
+            notesBoard[cellIndex] = filter(notes, v => v !== value);
+          }
+        });
+      }
     },
     [actions.SET_SHOW_NOTES]: (state, action) => {
       const { col, row, value } = action.payload;
@@ -132,6 +134,8 @@ export const reducer = createReducer(
 
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
+  getCell: (state, type, row, col) => BoardUtils.getCell(state.boards[type], row, col),
+  getCellIndex: (state, type, index) => state.boards[type][index],
   isSolved: state => state.boards.solved,
   showCellNotes: (state, index) => state.boards.showNotes[index],
   getSelectedCellValue: state => {

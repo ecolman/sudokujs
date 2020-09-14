@@ -1,46 +1,119 @@
 import { times } from 'lodash';
-import sudoku from 'sudoku-umd';
 
+import CullWorker from './workers/cull.worker';
+import SolverWorker from './workers/solver.worker';
 import * as BoardUtils from './board';
 import * as Solver from './solver';
 import * as Utils from './utilities';
-import { SHOW_LOGS } from './constants';
+import { SHOW_LOGS, UNIQUE_RESULT } from './constants';
 
 import { ATTEMPTS_PER_BOARD, BOARDS_TO_ATTEMPT, WEB_WORKERS_ENABLED } from './constants';
 
 export let lastGeneration = {
   steps: 0,
-  time: 0
+  time: 0,
+  boards: 0
 };
 
 export function generate(cullCount) {
   lastGeneration = {
     steps: 0,
-    time: 0
+    time: 0,
+    boards: 0
   };
 
-  let solved = null;
+  let solution = null;
   let culled = null;
-  let boards = 1;
+  let boards = 0;
+  let totalTime = 0;
 
-  // loop to generate board and then try to create a player board with a unique solution
-  while (boards < BOARDS_TO_ATTEMPT && culled === null) {
-    solved = generateSolved();
-    culled = generateCulled(solved, cullCount, ATTEMPTS_PER_BOARD);
+  return new Promise((resolve, reject) => {
+    if (WEB_WORKERS_ENABLED) {
+      const solverWorker = new SolverWorker();
 
-    boards++;
-  }
+      solverWorker.onmessage = sEvent => {
+        let attempts = 0;
+        let board = sEvent.data.board;
 
-  if (SHOW_LOGS) {
-    console.log('solved', solved);
-    console.log('culled', culled);
-    console.log(`culled ${cullCount} cells from ${boards} boards with ${lastGeneration.steps} steps, taking ${lastGeneration.time / 1000} seconds to complete`);
-  }
+        //if (SHOW_LOGS) {
+          console.log(`SOLVER WORKER MESSAGE, took ${sEvent.data.time / 1000}`, sEvent, boards);
+        //}
 
-  return {
-    base: culled,
-    solved: solved
-  }
+        totalTime += sEvent.data.time;
+        attempts = 0;
+        boards++;
+
+        const cullWorker = new CullWorker();
+
+        // cull message
+        cullWorker.onmessage = cEvent => {
+          totalTime += cEvent.data.time;
+          attempts++;
+          //if (SHOW_LOGS) {
+            console.log(`CULL WORKER MESSAGE, took ${cEvent.data.time / 1000}`, cEvent, attempts);
+          //}
+
+          if (cEvent.data) {
+            lastGeneration.boards = boards;
+
+            resolve({
+              base: BoardUtils.toString(cEvent.data),
+              solution: BoardUtils.toString(sEvent.data),
+              time: totalTime
+            });
+          } else if (attempts < ATTEMPTS_PER_BOARD) {
+            cullWorker.postMessage({ board, cullCount, attempts: ATTEMPTS_PER_BOARD })
+          } else if (boards < BOARDS_TO_ATTEMPT) {
+            solverWorker.postMessage({});
+          } else {
+            reject({ message: 'cull error, attempt limit exceeded'});
+          }
+        }
+
+        // cull error
+        cullWorker.onerror = event => {
+          console.error(event);
+        }
+
+        // kick off cull if we're under board limit
+        if (boards < BOARDS_TO_ATTEMPT) {
+          cullWorker.postMessage({ board: sEvent.data, cullCount, attempts: ATTEMPTS_PER_BOARD })
+        } else {
+          reject({ message: 'solver error, board limit exceeded', boards});
+        }
+      }
+
+      // solver erropr
+      solverWorker.onerror = event => {
+        console.error(event);
+      }
+
+      // kick it off
+      solverWorker.postMessage({});
+    } else {
+      let startTime = Date.now();
+      // loop to generate board and then try to create a player board with a unique solution
+      while (boards < BOARDS_TO_ATTEMPT && culled === null) {
+        solution = generateSolved();
+        culled = generateCulled(solution, cullCount, ATTEMPTS_PER_BOARD);
+
+        boards++;
+      }
+
+      lastGeneration.boards = boards;
+
+      if (SHOW_LOGS) {
+        console.log(`culled ${cullCount} cells from ${boards} boards with ${lastGeneration.steps} steps, taking ${lastGeneration.time / 1000} seconds to complete`);
+        console.log('solution', solution);
+      }
+
+      resolve({
+        base: BoardUtils.toString(culled),
+        solution: BoardUtils.toString(solution),
+        time: Date.now() - startTime
+      });
+    }
+  });
 }
 
 // clears N cells from supplied sudoku board randomly
@@ -65,37 +138,40 @@ export function cull(board, cullCount) {
 // generate a single solution culled board
 export function generateCulled(board, cullCount, attempts = ATTEMPTS_PER_BOARD) {
   let attemptCount = 1;
-  let culledBoard = cull(board, cullCount);
+  let culledBoard = null;
   let solution = null;
 
-  if (WEB_WORKERS_ENABLED) {
-    // start the workers
-    sendNewBoardsToSolver(cullCount);
-  } else {
-    // while the sudoku puzzle is not unique or unsolvable, keep retrying with different culls
-    while (attemptCount < attempts) {
-      let copiedBoard = BoardUtils.createBoard(BoardUtils.toString(culledBoard));
-      let solved = Solver.solve(copiedBoard);
+  // while the sudoku puzzle is not unique or unsolvable, keep retrying with different culls
+  while (attemptCount < attempts) {
+    culledBoard = cull(board, cullCount);
+    //let copiedBoard = BoardUtils.createBoard(BoardUtils.toString(culledBoard));
+    let isUnique = Solver.testUniqueness(culledBoard);
 
-      lastGeneration.time += Solver.lastSolution.time;
-      lastGeneration.steps += Solver.lastSolution.steps;
+    if (isUnique !== UNIQUE_RESULT.UNIQUE) {
+      console.log('not a unique board');
+      continue;
+    }
 
-      if (Solver.isBoardValid(solved) && BoardUtils.equals(board, solved)) {
-        if (SHOW_LOGS) {
-          console.log('sweet, found a solution', BoardUtils.toString(solved));
-        }
+    let solved = Solver.solve(culledBoard);
 
-        // we already found a solution and current solution is not the same, board isn't unique
-        if (solution !== null && !BoardUtils.equals(solution, solved)) {
-          solution = false;
-          break;
-        }
+    lastGeneration.time += Solver.lastSolution.time;
+    lastGeneration.steps += Solver.lastSolution.steps;
 
-        solution = solved;
+    if (Solver.isBoardValid(solved) && BoardUtils.equals(board, solved)) {
+      if (SHOW_LOGS) {
+        console.log('sweet, found a solution', BoardUtils.toString(solved));
       }
 
-      attemptCount++;
+      // we already found a solution and current solution is not the same, board isn't unique
+      if (solution !== null && !BoardUtils.equals(solution, solved)) {
+        solution = false;
+        break;
+      }
+
+      solution = solved;
     }
+
+    attemptCount++;
   }
 
   // if no unique solution was found, return null

@@ -1,6 +1,7 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import { isNumber } from 'lodash';
 
+import { gameDefaults } from '../constants';
 import { getElapsedTime } from '../../game/utilities';
 
 export const actions = {
@@ -12,6 +13,7 @@ export const actions = {
   RESET_GAME: createAction('RESET_GAME'),
   SET_NOTES_MODE: createAction('SET_NOTES_MODE'),
   SET_TIME: createAction('SET_TIME'),
+  SET_LOADING: createAction('SET_LOADING'),
   SET_ERROR: createAction('SET_ERROR'),
   SET_PENALTY: createAction('SET_PENALTY'),
   SET_ERROR_AND_PENALTY: createAction('SET_ERROR_AND_PENALTY'),
@@ -21,19 +23,7 @@ export const actions = {
 };
 
 export const reducer = createReducer(
-  {
-    active: false,
-    notesMode: false,
-    paused: false,
-    time: 0,
-    penalties: 0,
-    errorCell: -1,
-    selectedCell: -1,
-    selectorCell: -1,
-    showSolved: false,
-    startedAt: undefined,
-    stoppedAt: undefined
-  },
+  gameDefaults,
   {
     [actions.START_GAME]: (state, action) => {
       const { time, penalties } = action.payload;
@@ -73,6 +63,9 @@ export const reducer = createReducer(
     [actions.SET_NOTES_MODE]: (state, action) => {
       state.notesMode = action.payload || false;
     },
+    [actions.SET_LOADING]: (state, action) => {
+      state.loading = action.payload;
+    },
     [actions.SET_TIME]: (state, action) => {
       state.time = action.payload;
     },
@@ -100,12 +93,15 @@ export const reducer = createReducer(
 export const selectors = {
   isActive: state => state.game.active,
   isNotesMode: state => state.game.notesMode,
+  isLoading: state => state.game.loading,
   isPaused: state => state.game.paused,
   getTime: state => state.game.time,
-  getErrorCell: state => state.game.errorCell,
-  getPenalties: state => state.game.penalties,
+  isErrorCell: (state, cellIndex) => state.game.errorCell === cellIndex,
+  isSelectedCell: (state, cellIndex) => state.game.selectedCell === cellIndex,
+  isPenalty: state => state.game.penalties > 0,
   getSelectedCell: state => state.game.selectedCell,
   getSelectorCell: state => state.game.selectorCell,
+  getPenalties: state => state.game.penalties,
   getShowSolved: state => state.game.showSolved,
   getStartedAt: state => state.game.startedAt,
   getStoppedAt: state => state.game.stoppedAt

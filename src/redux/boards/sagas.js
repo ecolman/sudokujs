@@ -3,40 +3,42 @@ import { put, select, takeEvery } from 'redux-saga/effects';
 import { actions as boardsActions, selectors as boardsSelectors } from '../boards';
 import { selectors as optionsSelectors } from '../options';
 import { actions as gameActions, selectors as gameSelectors } from '../game'
-import { checkCell } from '../../game/board';
-import { isBoardValid } from '../../game/solver';
-import { BOARD_TYPES } from '../../react/constants'
+import { equals } from '../../game/board';
+import { BOARD_TYPES } from '../../components/constants'
 import { getCellIndex, getCellRelations, getElapsedTime } from '../../game/utilities';
 
 function* setCell(action) {
   try {
+    console.time('SET CELL');
     const { row, col, value } = action.payload;
-    const baseBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.BASE);
-    const completeBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.COMPLETE);
-    const playerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);
-    const notesBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.NOTES);
-    const notesMode = yield select(gameSelectors.isNotesMode);
-    const isCorrect = completeBoard[row][col] === value;
-    const isCellCorrect = playerBoard[row][col] === completeBoard[row][col];
-    const isPrepopulated = !checkCell(baseBoard, row, col, 0);
-    const cellIndex = getCellIndex(row, col);
-
+    const baseCell = yield select(boardsSelectors.getCell, BOARD_TYPES.BASE, row, col);
+    const isPaused = yield select(gameSelectors.isPaused);
+    const isPrepopulated = baseCell ? baseCell !== 0 : false;
     let wasSet = false;
 
-    // don't set prepopulated or already correct cells
-    if (!isPrepopulated) {
+    // don't update cell when paused or prepopulated
+    if (!isPaused && !isPrepopulated) {
+      const cellIndex = getCellIndex(row, col);
+      const completeCell = yield select(boardsSelectors.getCell, BOARD_TYPES.COMPLETE, row, col);
+      const playerCell = yield select(boardsSelectors.getCell, BOARD_TYPES.PLAYER, row, col);
+      const isNotesMode = yield select(gameSelectors.isNotesMode);
       const isFeedback = yield select(optionsSelectors.isFeedback);
-      const isPenalty = yield select(optionsSelectors.isPenalty);
 
-      if (notesMode) {
+      if (isNotesMode) {
         // check if note exists and decide add/remove
-        if (notesBoard[cellIndex].indexOf(value) > -1) {
+        const notesCell = yield select(boardsSelectors.getCellIndex, BOARD_TYPES.NOTES, cellIndex);
+
+        if (notesCell.indexOf(value) > -1) {
           yield put(boardsActions.DELETE_NOTE({ row, col, value }));
         } else {
           yield put(boardsActions.ADD_NOTE({ row, col, value }));
         }
       } else if (isFeedback) {
         // feedback will let user know the entered number is wrong
+        const isCorrect = completeCell === value;
+        const isCellCorrect = playerCell === completeCell;
+        const isPenalty = yield select(optionsSelectors.isPenalty);
+
         if (isCorrect) {
           yield put(boardsActions.SET_CELL_SUCCESS({ row, col, value }));
           wasSet = true;
@@ -64,9 +66,10 @@ function* setCell(action) {
         }
 
         const updatedPlayerBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.PLAYER);
+        const completeBoard = yield select(boardsSelectors.getBoard, BOARD_TYPES.COMPLETE);
 
-        // check if board is valid and set solved flag
-        if (isBoardValid(updatedPlayerBoard)) {
+        // check if board is valid, set solved flag
+        if (equals(updatedPlayerBoard, completeBoard)) {
           yield put(boardsActions.SET_SOLVED(true));
           yield put(gameActions.SET_SHOW_SOLVED(true));
 
@@ -78,6 +81,7 @@ function* setCell(action) {
         }
       }
     }
+    console.timeEnd('SET CELL');
   }
   catch(e) {
     console.error(e);

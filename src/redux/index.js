@@ -1,34 +1,30 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { all } from 'redux-saga/effects';
-import { throttle } from 'lodash';
+import { isNil, throttle } from 'lodash';
 import * as localStorageStore from 'store';
 
 import { reducer as boardsReducer, sagas as boardsSagas } from './boards';
 import { reducer as gameReducer, actions as gameActions, sagas as gameSagas } from './game';
 import { reducer as optionssReducer } from './options';
+import { gameDefaults } from './constants';
 
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware();
 const isDev = !(process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test');
 
 let middleware = [...getDefaultMiddleware(), sagaMiddleware];
 
 // check local storage for redux state
 let localStorageState = localStorageStore.get('state');
+//let localStorageState = null;
 
 if (localStorageState) {
-  localStorageState.game = {
-    active: false,
-    notesMode: false,
-    paused: false,
+  localStorageState.game = Object.assign({}, gameDefaults, {
     time: localStorageState.game.time || 0,
     penalties: localStorageState.game.penalties || 0,
-    errorCell: -1,
-    selectedCell: -1,
-    selectorCell: -1,
     startedAt: localStorageState.game.startedAt || undefined,
     stoppedAt: localStorageState.game.stoppedAt || undefined
-  }
+  });
 
   localStorageState.options.visible = false;
 }
@@ -41,7 +37,7 @@ const store = configureStore({
   },
   middleware,
   devTools: isDev,
-  preloadedState: localStorageState
+  preloadedState: !isNil(localStorageState) ? localStorageState : undefined
 });
 
 sagaMiddleware.run(function*() {

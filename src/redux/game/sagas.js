@@ -1,14 +1,15 @@
-import { put, select, takeEvery } from 'redux-saga/effects';
+import { delay, put, takeEvery } from 'redux-saga/effects';
 import { map, times } from 'lodash';
 
-import { actions as boardsActions, selectors as boardsSelectors } from '../boards';
-import { actions as gameActions, selectors as gameSelectors } from '../game';
+import { actions as boardsActions } from '../boards';
+import { actions as gameActions } from '../game';
 
 import { CULL_COUNT, GIVEN_COUNT } from '../constants';
-import { BOARD_TYPES } from '../../react/constants';
+import { BOARD_TYPES } from '../../components/constants';
 
 import * as BoardUtils from '../../game/board';
 import * as Generator from '../../game/generator';
+import * as Solver from '../../game/solver';
 import { generate } from '../../game';
 
 function* startGame(action) {
@@ -17,8 +18,16 @@ function* startGame(action) {
     const cull = difficulty in CULL_COUNT ? CULL_COUNT[difficulty] : 42;
     const givenCount = difficulty in GIVEN_COUNT ? GIVEN_COUNT[difficulty] : 42;
 
-    let generated = generate(givenCount);
-    // let generated = Generator.generate(cull);
+    yield put(gameActions.SET_LOADING(true));
+
+    console.time('puzzle generation');
+    let generated = yield generate(givenCount);
+    //let generated = yield Generator.generate(cull);
+    console.timeEnd('puzzle generation');
+    // console.log(`generation took ${generated.time / 1000} seconds`);
+    //console.log(`culled ${cull} cells from ${Generator.lastGeneration.boards} boards with ${Generator.lastGeneration.steps} steps, taking ${Generator.lastGeneration.time / 1000} seconds to complete`);
+    console.log(generated);
+
     let base = generated.base;
     let solution = generated.solution;
     let time = 0;
@@ -59,9 +68,11 @@ function* startGame(action) {
     }));
 
     yield put(boardsActions.SET_SOLVED(false));
+    yield put(gameActions.SET_LOADING(false));
     yield put(gameActions.START_GAME({ difficulty, time }));
   }
   catch(e) {
+    yield put(gameActions.SET_LOADING(false));
     console.error(e);
   }
 }

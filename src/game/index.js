@@ -1,31 +1,69 @@
 import sudoku from 'sudoku-umd';
 
+import { testUniqueness } from './solver';
+import { BOARDS_TO_ATTEMPT, UNIQUENESS_ATTEMPTS, UNIQUE_RESULT } from './constants';
+
 export function generate(given) {
   const startTime = Date.now();
-  const base = sudoku.generate(given);
-  let solutions = []
+  let generationAttempts = 0;
+  let uniqueAttempts = 0;
 
-  for (let index = 0; index < 100; index++) {
-    let solution = sudoku.solve(base);
+  let boards = {
+    base: null,
+    solution: null
+  };
 
-    if (solutions.indexOf(solution) === -1) {
-      solutions.push(solution);
+  // loop to generate and test boards
+  while (boards.solution === null && generationAttempts < BOARDS_TO_ATTEMPT) {
+    let base = sudoku.generate(given);
+    let isUnique = testUniqueness(base.replace(/\./g, 0));
+
+    generationAttempts++;
+
+    if (isUnique === UNIQUE_RESULT.UNIQUE) {
+      let solution = sudoku.solve(base);
+      boards.base = base;
+      boards.solution = solution;
     }
   }
 
-  console.log(`generation took ${(Date.now() - startTime) / 1000} seconds, has ${solutions.length} solution(s)`);
+  // while (boards.solution === null && generationAttempts < BOARDS_TO_ATTEMPT) {
+  //   let base = sudoku.generate(given);
+  //   let solution = sudoku.solve(base);
+  //   let uniqueValues = [];
 
-  let convertedBase = base.replace(/\./g, 0)
+  //   generationAttempts++;
 
-  if (solutions.length === 1) {
+  //   // loop to test board uniqueness multiple times
+  //   while (uniqueValues.indexOf(UNIQUE_RESULT.NOT_UNIQUE) === -1 && uniqueValues.indexOf(UNIQUE_RESULT.NO_SOLUTION) === -1 && uniqueAttempts < UNIQUENESS_ATTEMPTS) {
+  //     uniqueAttempts++;
+
+  //     let isUnique = testUniqueness(base.replace(/\./g, 0));
+
+  //     if (uniqueValues.indexOf(isUnique) === -1) {
+  //       uniqueValues.push(isUnique);
+  //     }
+  //   }
+
+  //   if (uniqueValues.length === 1 && uniqueValues.indexOf(UNIQUE_RESULT.UNIQUE) > -1) {
+  //     boards.base = base;
+  //     boards.solution = solution;
+  //   }
+
+  //   console.log(uniqueValues, uniqueAttempts);
+  // }
+
+  console.log(`Generated ${generationAttempts} board(s) to find a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
+
+  if (boards.base && boards.solution) {
     return {
-      base: convertedBase,
-      solution: solutions[0]
+      base: boards.base.replace(/\./g, 0),
+      solution: boards.solution.replace(/\./g, 0)
     };
   } else {
     return {
-      base: convertedBase,
+      base: null,
       solution: null
-    };
+    }
   }
 }

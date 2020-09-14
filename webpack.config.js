@@ -60,6 +60,13 @@ module.exports = (env, argv) => {
     module: {
       rules: [
         {
+          test: /\.worker\.js$/,
+          loader: 'worker-loader',
+          include: [
+            path.resolve(__dirname, 'src/'),
+          ]
+        },
+        {
           test: /\.js$/,
           loader: 'babel-loader',
           include: [

@@ -1,3 +1,5 @@
+import { uniqWith, isEqual } from 'lodash';
+
 export function getRowColumn(index = 0) {
   let row = Math.floor(index / 9);
 
@@ -50,7 +52,7 @@ export function getCellRelations(row, col) {
     relations.push({ row: tempRow, col });
   }
 
-  return relations;
+  return uniqWith(relations, isEqual);
 }
 
 export function getElapsedTime(time, startedAt, stoppedAt = new Date().getTime()) {

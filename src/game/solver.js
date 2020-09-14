@@ -1,6 +1,6 @@
 import * as BoardUtils from './board';
 import * as Utils from './utilities';
-import { SHOW_LOGS } from './constants';
+import { SHOW_LOGS, UNIQUE_RESULT } from './constants';
 
 export let lastSolution = {
   board: null,
@@ -104,6 +104,7 @@ export function isRegionValid(board, row = 0, col = 0, zeroValid = false) {
 }
 
 export function isBoardValid(board, zeroValid = false) {
+  console.time('isBoardValid');
   if (board) {
     let valid = true;
 
@@ -120,9 +121,11 @@ export function isBoardValid(board, zeroValid = false) {
       }
     }
 
+    console.timeEnd('isBoardValid');
     return valid;
   }
 
+  console.timeEnd('isBoardValid');
   return false;
 }
 
@@ -234,4 +237,146 @@ export function solve(board) {
   }
 
   return _.filter(BoardUtils.toArray(board), s => s !== 0).length === 81 && !BoardUtils.equals(board, originalBoard) ? board : null;
+}
+
+/**
+* Runs board through a series of tests to ensure that it only has one solution
+* @method
+* @private
+*/
+export function testUniqueness(board) {
+  // Find untouched location with most information
+  let rp = 0
+  let cp = 0;
+  let Mp = null;
+  let cMp = 10;
+  const boardCopy = BoardUtils.createBoard(board);
+
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      // is this spot unused?
+      if (boardCopy[row][col] == 0) {
+        let M = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // set M of possible solutions
+        let cM = 0;
+
+        // remove used numbers in the vertical direction
+        for (let c = 0; c < 9; c++) {
+          M[boardCopy[row][c]] = 0;
+        }
+
+        // remove used numbers in the horizontal direction
+        for (let r = 0; r < 9; r++) {
+          M[boardCopy[r][col]] = 0;
+        }
+
+        // remove used numbers in the region
+        let regionLimits = Utils.getRegionBounds(row, col);
+
+        for (let x = regionLimits.start.row; x < regionLimits.end.row; x++) {
+          for (let y = regionLimits.start.col; y < regionLimits.end.col; y++) {
+            M[boardCopy[x][y]] = 0;
+          }
+        }
+
+        // calculate cardinality of M
+        for (let d = 1; d < 10; d++) {
+          cM += M[d] == 0 ? 0 : 1;
+        }
+
+        // is there more information in this spot than in the best yet?
+        if (cM < cMp) {
+          cMp = cM;
+          Mp = M;
+          rp = row;
+          cp = col;
+        }
+      }
+    }
+  }
+
+  // finished?
+  if (cMp == 10) {
+    if (SHOW_LOGS) {
+      console.log('result: unique (cMp == 10)');
+    }
+    return UNIQUE_RESULT.UNIQUE;
+  }
+
+  // couldn't find a solution?
+  if (cMp == 0) {
+    if (SHOW_LOGS) {
+      console.log('result: no solution (cMp == 0)');
+    }
+    return UNIQUE_RESULT.NO_SOLUTION;
+  }
+
+  let success = 0;
+
+  for (let i = 1; i < 10; i++) {
+    if (Mp[i] != 0) {
+      boardCopy[rp][cp] = Mp[i];
+
+      if (SHOW_LOGS) {
+        console.log('row: ' + rp + ' col: ' + cp + ' value: ' + Mp[i]);
+      }
+
+      switch (testUniqueness(boardCopy)) {
+        case UNIQUE_RESULT.UNIQUE:
+          success++;
+
+          if (SHOW_LOGS) {
+            console.log('result: unique (_testUniqueness result)');
+          }
+
+          break;
+
+        case UNIQUE_RESULT.NOT_UNIQUE:
+          if (SHOW_LOGS) {
+            console.log('result: not unique (_testUniqueness result)');
+          }
+
+          return UNIQUE_RESULT.NOT_UNIQUE;
+
+        case UNIQUE_RESULT.NO_SOLUTION:
+          if (SHOW_LOGS) {
+            console.log('result: no solution (_testUniqueness result)');
+          }
+
+          break;
+      }
+
+      // more than one solution found?
+      if (success > 1) {
+        if (SHOW_LOGS) {
+          console.log('result: not unique (success > 1)');
+        }
+
+        return UNIQUE_RESULT.NOT_UNIQUE;
+      }
+    }
+  }
+
+  switch (success) {
+    case 0:
+      if (SHOW_LOGS) {
+        console.log('result: no solution (success switch)');
+      }
+
+      return UNIQUE_RESULT.NO_SOLUTION;
+
+    case 1:
+      if (SHOW_LOGS) {
+        console.log('result: unique (success switch)');
+      }
+
+      return UNIQUE_RESULT.UNIQUE;
+
+    default:
+      // won't happen, not unique
+      if (SHOW_LOGS) {
+        console.log('result: not unique (success switch)');
+      }
+
+      return UNIQUE_RESULT.NOT_UNIQUE;
+  }
 }

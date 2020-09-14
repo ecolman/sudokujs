@@ -9,6 +9,9 @@
             "syntax": "postcss-less"
           }
         }
+      }],
+      ["module-resolver", {
+        "root": ["./src"]
       }]
     ]
 }
