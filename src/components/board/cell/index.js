@@ -31,7 +31,7 @@ function Cell({
   const notesCell = useSelector(state => boardsSelectors.getCellIndex(state, BOARD_TYPES.NOTES, index));
 
   const isPrepopulated = baseCell ? baseCell !== 0 : false;
-  const hasNotes = notesCell.length > 0;
+  const hasNotes = notesCell && notesCell.length > 0;
   let cellVal = isActive ? displayCell : menuValue;
 
   const height = props.height || SIZES.CELL.HEIGHT;

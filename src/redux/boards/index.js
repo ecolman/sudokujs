@@ -134,10 +134,10 @@ export const reducer = createReducer(
 
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
-  getCell: (state, type, row, col) => BoardUtils.getCell(state.boards[type], row, col),
-  getCellIndex: (state, type, index) => state.boards[type][index],
+  getCell: (state, type, row, col) => state.boards[type] ? BoardUtils.getCell(state.boards[type], row, col) : null,
+  getCellIndex: (state, type, index) => state.boards[type]?.[index],
   isSolved: state => state.boards.solved,
-  showCellNotes: (state, index) => state.boards.showNotes[index],
+  showCellNotes: (state, index) => state.boards.showNotes?.[index],
   getSelectedCellValue: state => {
     if (state.boards[BOARD_TYPES.PLAYER] && state.game.selectedCell > -1) {
       let rowCol = getRowColumn(state.game.selectedCell);
