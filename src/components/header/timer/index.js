@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Raphael, Text } from 'react-raphael';
 
-import { FADE_MS, PENALTY_MS, UPDATE_MS } from 'components/constants';
+import { FADES_MS, PENALTY_MS, UPDATE_MS } from 'components/constants';
 
 import { selectors as boardsSelectors } from 'redux/boards'
 import { selectors as gameSelectors } from 'redux/game'
@@ -33,28 +33,34 @@ function Timer() {
 
   const animation = isLoaded.current
     ? active && timerEnabled
-      ? Raphael.animation({ opacity: 1 }, FADE_MS)
-      : Raphael.animation({ opacity: 0 }, FADE_MS)
+      ? Raphael.animation({ opacity: 1 }, FADES_MS.FAST)
+      : Raphael.animation({ opacity: 0 }, FADES_MS.FAST)
     : Raphael.animation({ opacity: 0 });
 
   isLoaded.current = true;
 
   // watches for active/paused changes and starts interval to update state every second
   useEffect(() => {
-    if (active && !isSolved && !paused) {
-      let interval = setInterval(() => setSeconds(seconds => seconds + 1), UPDATE_MS);
+    let interval;
 
-      return () => clearInterval(interval);
+    if (active && !isSolved && !paused) {
+      interval = setInterval(() => setSeconds(seconds => seconds + 1), UPDATE_MS);
     }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [active, isSolved, paused]);
 
-  // when time changes, reset state
+  // // when time changes, reset state
   useEffect(() => {
     setSeconds(0);
   }, [time])
 
   return (
-    <Text text={getTimerText(time + (penalties * PENALTY_MS) + (seconds * UPDATE_MS))}
+    <Text text={getTimerText(time + (penalties * PENALTY_MS) + (!isSolved && !paused ? seconds * UPDATE_MS : 0))}
       x={480} y={28}
       styleName={'text'}
       animate={animation} />

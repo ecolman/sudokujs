@@ -1,7 +1,13 @@
-export const FADE_MS = 300;
 export const PENALTY_MS = 5000;
 export const UPDATE_MS = 1000;
+export const CELL_ROWS = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 export const NOTE_NUMS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+export const FADES_MS = {
+  SLOW: 500,
+  MEDIUM: 400,
+  FAST: 300
+};
 
 export const BOARD_TYPES = {
   BASE: 'base',

@@ -25,7 +25,7 @@ function Fireworks() {
     if (showSolved) {
       let launchInterval = setInterval(launch, 500);
       let loopInterval = setInterval(loop, 1000 / 50);
-      document.addEventListener('click', handleClick);
+      setTimeout(() => document.addEventListener('click', handleClick), 1000);
 
       return () => {
         clearInterval(launchInterval);

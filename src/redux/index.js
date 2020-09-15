@@ -16,7 +16,6 @@ let middleware = [...getDefaultMiddleware(), sagaMiddleware];
 
 // check local storage for redux state
 let localStorageState = localStorageStore.get('state');
-//let localStorageState = null;
 
 if (localStorageState) {
   localStorageState.game = Object.assign({}, gameDefaults, {

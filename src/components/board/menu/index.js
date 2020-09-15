@@ -5,7 +5,7 @@ import { map } from 'lodash';
 
 import Options from './options';
 
-import { DIFFICULTIES, FADE_MS, OPTIONS } from 'components/constants';
+import { DIFFICULTIES, FADES_MS, OPTIONS } from 'components/constants';
 import { actions as gameActions, selectors as gameSelectors } from 'redux/game'
 import { actions as optionsActions, selectors as optionsSelectors } from 'redux/options';
 
@@ -58,10 +58,10 @@ function Menu() {
     // if options visible, animate to 125
     // if options not visible and not coming from an active board, animate
     if (optionsVisible) {
-      animation = Raphael.animation({ y: optionsTextBottomY }, FADE_MS, '<>');
+      animation = Raphael.animation({ y: optionsTextBottomY }, FADES_MS.FAST, '<>');
     } else if (prevOptionsVisible.current.isActive === false) {
       optionsTextY = 125;
-      animation = Raphael.animation({ y: optionsTextTopY }, FADE_MS, '<>');
+      animation = Raphael.animation({ y: optionsTextTopY }, FADES_MS.FAST, '<>');
     }
   }
 
@@ -97,6 +97,10 @@ function Menu() {
           click={() => dispatch(gameActions.RESUME_GAME())}
           hide={hide || stoppedAt === undefined}
           load={showEl} update={showEl}></Text>
+        <Rect x={275} y={335}
+          styleName={`action resume rect`}
+          click={() => dispatch(gameActions.RESUME_GAME())}
+          load={showEl} update={showEl}></Rect>
         {/* <Text text={'Load Last Game'}
           x={275} y={380}
           styleName={`action load`}
@@ -107,6 +111,10 @@ function Menu() {
           animate={animation}
           click={() => dispatch(optionsActions.SET_OPTION({ option: OPTIONS.VISIBLE, value: true }))}
           load={showElNotActive} update={showElNotActive}></Text>
+        <Rect x={275} y={optionsTextY}
+          styleName={`action options rect`}
+          click={() => dispatch(optionsActions.SET_OPTION({ option: OPTIONS.VISIBLE, value: true }))}
+          load={showEl} update={showEl}></Rect>
       </Set>
 
       <Options></Options>

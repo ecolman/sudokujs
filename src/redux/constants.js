@@ -13,7 +13,6 @@ export const GIVEN_COUNT = {
   [DIFFICULTIES.MEDIUM]: 50,
   [DIFFICULTIES.HARD]: 46,
   [DIFFICULTIES.EXPERT]: 42
-  //[DIFFICULTIES.EXPERT]: 80
 };
 
 export const gameDefaults = {

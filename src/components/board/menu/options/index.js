@@ -4,7 +4,7 @@ import { Path, Raphael, Set, Text } from 'react-raphael';
 
 import Checkbox from 'components/common/checkbox';
 
-import { FADE_MS, OPTIONS, PENALTY_MS } from 'components/constants';
+import { FADES_MS, OPTIONS, PENALTY_MS } from 'components/constants';
 import { actions as optionsActions, selectors as optionsSelectors } from 'redux/options';
 
 import './styles.less';
@@ -27,8 +27,8 @@ function Options(props) {
   let isLoaded = useRef(false);
   let animation = isLoaded.current
     ? optionsVisible
-      ? Raphael.animation({ opacity: 1 }, FADE_MS)
-      : Raphael.animation({ opacity: 0 }, FADE_MS)
+      ? Raphael.animation({ opacity: 1 }, FADES_MS.FAST)
+      : Raphael.animation({ opacity: 0 }, FADES_MS.FAST)
     : Raphael.animation({ opacity: 0 })
 
   isLoaded.current = true;

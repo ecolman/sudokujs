@@ -59,8 +59,9 @@ export function getElapsedTime(time, startedAt, stoppedAt = new Date().getTime()
   if (!startedAt) {
     return 0;
   } else {
-    let calculatedDiff = stoppedAt - startedAt;
+    //const calculatedDiff = stoppedAt - startedAt;
+    const calculatedDiff = Math.floor((stoppedAt - startedAt)/1000) * 1000
 
-    return calculatedDiff !== time ? calculatedDiff + time : calculatedDiff;
+    return time !== 0 && calculatedDiff !== time ? calculatedDiff + time : calculatedDiff;
   }
 }

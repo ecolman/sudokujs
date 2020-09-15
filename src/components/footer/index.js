@@ -4,7 +4,7 @@ import { Raphael, Set, Text } from 'react-raphael';
 
 import Checkbox from '../common/checkbox';
 
-import { BOARD_TYPES, FADE_MS } from 'components/constants';
+import { BOARD_TYPES, FADES_MS } from 'components/constants';
 import { selectors as boardsSelectors } from 'redux/boards';
 import { actions as gameActions, selectors as gameSelectors } from 'redux/game';
 
@@ -13,16 +13,17 @@ import './styles.less';
 function Footer() {
   const dispatch = useDispatch();
   const baseBoard = useSelector(state => boardsSelectors.getBoard(state, BOARD_TYPES.BASE));
+  const isSolved = useSelector(boardsSelectors.isSolved);
 
   const active = useSelector(gameSelectors.isActive);
   const difficulty = baseBoard ? baseBoard.difficulty : '';
   const notesMode = useSelector(gameSelectors.isNotesMode);
-  const setNotesMode = isNotesMode => dispatch(gameActions.SET_NOTES_MODE(isNotesMode));
+  const setNotesMode = isNotesMode => !isSolved ? dispatch(gameActions.SET_NOTES_MODE(isNotesMode)) : null;
 
   let isLoaded = useRef(false);
 
   const animation = isLoaded.current
-    ? Raphael.animation({ opacity: active ? 1 : 0 }, FADE_MS)
+    ? Raphael.animation({ opacity: active ? 1 : 0 }, FADES_MS.FAST)
     : Raphael.animation({ opacity: 0 });
 
   isLoaded.current = true;

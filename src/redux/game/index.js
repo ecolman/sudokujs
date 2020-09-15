@@ -80,7 +80,6 @@ export const reducer = createReducer(
     [actions.SET_SHOW_SOLVED]: (state, action) => {
       state.showSolved = action.payload;
     },
-
     [actions.SELECT_CELL]: (state, action) => {
       state.selectedCell = isNumber(action.payload) ? action.payload : -1;
     },

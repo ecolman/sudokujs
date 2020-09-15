@@ -9,7 +9,6 @@ import { getCellIndex, getCellRelations, getElapsedTime } from '../../game/utili
 
 function* setCell(action) {
   try {
-    console.time('SET CELL');
     const { row, col, value } = action.payload;
     const baseCell = yield select(boardsSelectors.getCell, BOARD_TYPES.BASE, row, col);
     const isPaused = yield select(gameSelectors.isPaused);
@@ -81,7 +80,6 @@ function* setCell(action) {
         }
       }
     }
-    console.timeEnd('SET CELL');
   }
   catch(e) {
     console.error(e);

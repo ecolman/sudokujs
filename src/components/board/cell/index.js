@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Raphael, Set, Rect, Text } from 'react-raphael';
 
-import { BOARD_TYPES, PENALTY_MS, SIZES } from 'components/constants';
+import { BOARD_TYPES, FADES_MS, PENALTY_MS, SIZES } from 'components/constants';
 
 import { actions as boardsActions, selectors as boardsSelectors } from 'redux/boards';
 import { actions as gameActions, selectors as gameSelectors } from 'redux/game';
@@ -32,15 +32,7 @@ function Cell({
 
   const isPrepopulated = baseCell ? baseCell !== 0 : false;
   const hasNotes = notesCell.length > 0;
-  let cellVal = 0;
-
-  if (!isPaused) {
-    if (isActive) {
-      cellVal = displayCell;
-    } else {
-      cellVal = menuValue;
-    }
-  }
+  let cellVal = isActive ? displayCell : menuValue;
 
   const height = props.height || SIZES.CELL.HEIGHT;
   const width = props.width || SIZES.CELL.WIDTH;
@@ -51,9 +43,11 @@ function Cell({
 
   const isHighlighted = useSelector(state => (optionsSelectors.isHighlighting(state) && cellVal > 0 && boardsSelectors.getSelectedCellValue(state) === cellVal));
   const isNumberFirst = useSelector(optionsSelectors.isNumberFirst);
+  const isPenalty = useSelector(optionsSelectors.isPenalty);
   const isInactive = !isActive || isPaused;
   const isErrored = useSelector(state => gameSelectors.isErrorCell(state, index));
   const isSelected = useSelector(state => gameSelectors.isSelectedCell(state, index));
+  const isSolved = useSelector(boardsSelectors.isSolved);
   const selectorIndex = useSelector(gameSelectors.getSelectorCell);
   const showDelete = (canDelete === undefined || canDelete === true) && isSelected && !isInactive && !isPrepopulated && (cellVal > 0 || hasNotes);
   const showCellNotes = useSelector(state => boardsSelectors.showCellNotes(state, index));
@@ -64,14 +58,14 @@ function Cell({
 
   // clear error after animation plays
   if (isErrored) {
-    setTimeout(() => dispatch(gameActions.SET_ERROR(-1)), 500);
+    setTimeout(() => dispatch(gameActions.SET_ERROR(-1)), FADES_MS.SLOW);
   }
 
   function handleClick() {
     if (!isInactive) {
       dispatch(gameActions.SELECT_CELL(index));
 
-      if (!isPrepopulated && isNumberFirst && selectorIndex > -1) {
+      if (!isPrepopulated && isNumberFirst && selectorIndex > -1 && !isSolved) {
         dispatch(boardsActions.SET_CELL_REQUEST({
           col, row,
           value: selectorIndex + 1
@@ -95,7 +89,8 @@ function Cell({
       <Text text={cellVal && cellVal > 0 ? cellVal.toString() : ''}
         x={rectX + width / 2}
         y={rectY + height / 2}
-        styleName={textCssClasses} />
+        styleName={textCssClasses}
+        hide={isPaused} />
 
       <Notes index={index}
         width={width}
@@ -107,9 +102,9 @@ function Cell({
       <Text text={`+${PENALTY_MS / 1000} sec`}
         x={rectX + width / 2}
         y={rectY + height / 2}
-        hide={!isErrored}
+        hide={!isErrored || !isPenalty}
         styleName={'penalty'}
-        animate={Raphael.animation({ y: rectY + height / 2 - 60 }, 500)} />
+        animate={Raphael.animation({ y: rectY + height / 2 - 60 }, FADES_MS.SLOW)} />
 
       {/* Rect to capture events and highlight for entire cell */}
       <Rect width={width} height={height}
@@ -124,7 +119,7 @@ function Cell({
         row={row} col={col}
         x={rectX + width - 10}
         y={rectY + 10}
-        hide={!showDelete} />
+        hide={!showDelete || isSolved} />
     </Set>
   );
 }

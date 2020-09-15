@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Set, Raphael, Rect, Path } from 'react-raphael';
 
-import { FADE_MS } from 'components/constants';
+import { FADES_MS } from 'components/constants';
 
 import './styles.less'
 
@@ -17,8 +17,8 @@ function Checkbox({ animate, click, cssClass, hide, value, x, y }) {
   };
   const checkAnimation = isLoaded.current
     ? value && !hide
-      ? Raphael.animation({ opacity: 1 }, FADE_MS, function() { this.show(); })
-      : Raphael.animation({ opacity: 0 }, FADE_MS, function() { this.hide(); })
+      ? Raphael.animation({ opacity: 1 }, FADES_MS.FAST, function() { this.show(); })
+      : Raphael.animation({ opacity: 0 }, FADES_MS.FAST, function() { this.hide(); })
     : Raphael.animation({ opacity: 0 }, 0, function() { this.hide(); });
 
   isLoaded.current = true;

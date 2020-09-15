@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Raphael, Set, Rect, Text } from 'react-raphael';
 import { times } from 'lodash';
 
-import { FADE_MS, SIZES } from 'components/constants';
+import { FADES_MS, SIZES } from 'components/constants';
 import { getRowColumn } from 'game/utilities';
+import { actions as boardsActions, selectors as boardsSelectors } from 'redux/boards';
 import { actions as gameActions, selectors as gameSelectors } from 'redux/game';
-import { actions as boardsActions } from 'redux/boards';
 import { selectors as optionsSelectors } from 'redux/options';
 
 import './styles.less';
@@ -21,6 +21,7 @@ function Selectors(props) {
   const selectedCellIndex = useSelector(gameSelectors.getSelectedCell);
   const selectorCellIndex = useSelector(gameSelectors.getSelectorCell);
   const isNumberFirst = useSelector(optionsSelectors.isNumberFirst);
+  const isSolved = useSelector(boardsSelectors.isSolved);
 
   const height = SIZES.SELECTOR.HEIGHT;
   const width = SIZES.SELECTOR.WIDTH;
@@ -30,7 +31,7 @@ function Selectors(props) {
 
   let isLoaded = useRef(false);
   const animation = isLoaded.current
-    ? Raphael.animation({ opacity: active ? 1 : 0 }, FADE_MS)
+    ? Raphael.animation({ opacity: active ? 1 : 0 }, FADES_MS.FAST)
     : Raphael.animation({ opacity: 0 });
 
   isLoaded.current = true;
@@ -43,11 +44,13 @@ function Selectors(props) {
   }
 
   function handleClick(index) {
-    if (isNumberFirst) {
-      setSelector(selectorCellIndex === index ? -1 : index);
-    } else if (selectedCellIndex > -1) {
-      const coords = getRowColumn(selectedCellIndex);
-      setCell(coords.row, coords.col, index + 1);
+    if (!isSolved) {
+      if (isNumberFirst) {
+        setSelector(selectorCellIndex === index ? -1 : index);
+      } else if (selectedCellIndex > -1) {
+        const coords = getRowColumn(selectedCellIndex);
+        setCell(coords.row, coords.col, index + 1);
+      }
     }
   }
 
