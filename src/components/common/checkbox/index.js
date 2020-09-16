@@ -17,8 +17,8 @@ function Checkbox({ animate, click, cssClass, hide, value, x, y }) {
   };
   const checkAnimation = isLoaded.current
     ? value && !hide
-      ? Raphael.animation({ opacity: 1 }, FADES_MS.FAST, function() { this.show(); })
-      : Raphael.animation({ opacity: 0 }, FADES_MS.FAST, function() { this.hide(); })
+      ? Raphael.animation({ opacity: 1 }, FADES_MS.FASTER, function() { this.show(); })
+      : Raphael.animation({ opacity: 0 }, FADES_MS.FASTER, function() { this.hide(); })
     : Raphael.animation({ opacity: 0 }, 0, function() { this.hide(); });
 
   isLoaded.current = true;
