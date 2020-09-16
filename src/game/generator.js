@@ -1,7 +1,7 @@
 import { times } from 'lodash';
 
-import CullWorker from './workers/cull.worker';
-import SolverWorker from './workers/solver.worker';
+// import CullWorker from './workers/cull.worker';
+// import SolverWorker from './workers/solver.worker';
 import * as BoardUtils from './board';
 import * as Solver from './solver';
 import * as Utils from './utilities';
