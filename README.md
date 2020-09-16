@@ -11,7 +11,7 @@ http://sudoku2.subtledetour.com/
 - Notes mode
 
 ### Dependencies:
-- [sudoku-umd](https://github.com/apieceofbart/sudoku.js) - sudoku puzzle generator and solver
+- [sudokutoolcollection](https://github.com/lacrioque/sudoku.js#readme) - sudoku puzzle generator and solver
 - [react-raphael](https://github.com/liuhong1happy/react-raphael) - reactified raphael components
 
 ### Built with:

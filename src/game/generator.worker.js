@@ -41,7 +41,7 @@ onmessage = function (event) {
 
   if (boards.base && boards.solution) {
     //if (SHOW_LOGS) {
-      console.log(`Generated ${generationAttempts} board(s) to find one with a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
+      console.log(`Generated ${generationAttempts} boards to find one with a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
       console.log('Boards', boards);
     //}
 
@@ -51,7 +51,7 @@ onmessage = function (event) {
     });
   } else {
     //if (SHOW_LOGS) {
-      console.log(`Generated ${generationAttempts} board(s), wasn't able to find board with a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
+      console.log(`Generated ${generationAttempts} boards, wasn't able to find board with a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
     //}
 
     postMessage({
