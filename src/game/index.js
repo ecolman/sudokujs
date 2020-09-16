@@ -1,4 +1,6 @@
-import sudoku from 'sudoku-umd';
+import sudokuUmd from 'sudoku-umd';
+import SudokuToolCollection from 'sudokutoolcollection';
+import { flatten, findIndex } from 'lodash';
 
 import { testUniqueness } from './solver';
 import { BOARDS_TO_ATTEMPT, UNIQUENESS_ATTEMPTS, UNIQUE_RESULT } from './constants';
@@ -14,18 +16,38 @@ export function generate(given) {
   };
 
   // loop to generate and test boards
+  const sudoku = SudokuToolCollection();
+
   while (boards.solution === null && generationAttempts < BOARDS_TO_ATTEMPT) {
-    let base = sudoku.generate(given);
-    let isUnique = testUniqueness(base.replace(/\./g, 0));
+    const base = sudoku.generator.generate(given);
+    const zeroedBase = base.replace(/\./g, 0)
+    const candidates = sudoku.getCandidates.get(base);
+    const dupes = flatten(candidates);
+    const hasDupes = dupes.join('').length > 81;
 
     generationAttempts++;
 
-    if (isUnique === UNIQUE_RESULT.UNIQUE) {
-      let solution = sudoku.solve(base);
-      boards.base = base;
+    if (!hasDupes) {
+      let solution = sudoku.solver.solve(base);
+      boards.base = zeroedBase;
       boards.solution = solution;
+    } else {
+      console.log('had duplicates');
     }
   }
+
+  // while (boards.solution === null && generationAttempts < BOARDS_TO_ATTEMPT) {
+  //   let base = sudokuUmd.generate(given);
+  //   let isUnique = testUniqueness(base.replace(/\./g, 0));
+
+  //   generationAttempts++;
+
+  //   if (isUnique === UNIQUE_RESULT.UNIQUE) {
+  //     let solution = sudokuUmd.solve(base);
+  //     boards.base = base;
+  //     boards.solution = solution;
+  //   }
+  // }
 
   // while (boards.solution === null && generationAttempts < BOARDS_TO_ATTEMPT) {
   //   let base = sudoku.generate(given);

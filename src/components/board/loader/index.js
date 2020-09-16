@@ -1,156 +1,62 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Raphael, Set, Rect, Text, Utils } from 'react-raphael';
-import { forEach } from 'lodash';
+import { Raphael, Set, Rect, Paper, Text, Utils } from 'react-raphael';
 
 import { selectors as gameSelectors } from 'redux/game';
 
 import classes from './styles.less';
 
-// taken from https://codepen.io/anon/pen/dmEMdO
+// taken from https://codepen.io/thgaskell/pen/KmRjOx
 function Loader() {
-  const setRef = useRef(null);
   const isLoading = useSelector(gameSelectors.isLoading);
-
-  const elToFront = el => el.toFront();
-  let box = null;
-
-  const ww = window.innerWidth;
-  const wh = window.innerHeight;
-  const g = [272, 220];
-  const size = wh - 158;
-
-  const dots = [[g[0], g[1] - size / 4], [g[0] + size / 2 / Math.sqrt(3), g[1] + size / 4], [g[0] - size / 2 / Math.sqrt(3), g[1] + size / 4], [g[0], g[1] - size / 4]];
-  const tPath = `M${dots[0][0]},${dots[0][1]}L${dots[1][0]},${dots[1][1]}L${dots[2][0]},${dots[2][1]}Z`;
-  const pathCssClasses = `${classes.path}`;
-
-  let triangle;
-  let triangle2;
-
-  let triangle3 = [];
-  let triangle4 = [];
-  let triangle4_2 = [];
-
-  let box2 = [];
-  let count = 0;
-  let count2 = 0;
-  let loop = null;
+  const elToFront = el => setTimeout(() => el.toFront());
 
   useEffect(() => {
-    if (1 == 2 && isLoading) {
-      setTimeout(start);
+    if (Utils.papers.length === 1) {
+      const paper = Utils.papers[0];
 
-      loop = setTimeout(reset, 5000);
+      paper.defs.innerHTML = `<linearGradient id="loader-gradient-fill" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="300" y2="0">
+        <stop offset="0%">
+          <animate attributeName="stop-color" values="#00E06B;#CB0255;#00E06B" dur="5s" repeatCount="indefinite" />
+        </stop>
+        <stop offset="100%">
+          <animate attributeName="stop-color" values="#04AFC8;#8904C5;#04AFC8" dur="8s" repeatCount="indefinite" />
+        </stop>
+      </linearGradient>
+      <clipPath id="loader-clip">
+        <rect class="${classes.square} ${classes.s1}" x="0" y="0" rx="12" ry="12" height="90" width="90"></rect>
+        <rect class="${classes.square} ${classes.s2}" x="100" y="0" rx="12" ry="12" height="90" width="90"></rect>
+        <rect class="${classes.square} ${classes.s3}" x="200" y="0" rx="12" ry="12" height="90" width="90"></rect>
+        <rect class="${classes.square} ${classes.s4}" x="0" y="100" rx="12" ry="12" height="90" width="90"></rect>
+        <rect class="${classes.square} ${classes.s5}" x="200" y="100" rx="12" ry="12" height="90" width="90"></rect>
+        <rect class="${classes.square} ${classes.s6}" x="0" y="200" rx="12" ry="12" height="90" width="90"></rect>
+        <rect class="${classes.square} ${classes.s7}" x="100" y="200" rx="12" ry="12" height="90" width="90"></rect>
+      </clipPath>`;
+    }
+  });
+
+  function loaded(el) {
+    if (el?.node) {
+      el.node.setAttribute('clip-path', "url('#loader-clip')");
     }
 
-    return () => clearTriangles();
-  }, [isLoading]);
-
-  function start() {
-    if (setRef.current && setRef.current.set) {
-      triangle = Utils.createElement(setRef.current.set.id, 'path', { d: tPath, className: pathCssClasses });
-      box = triangle.getBBox();
-
-      triangle2 = Utils.createElement(setRef.current.set.id, 'path', { d: tPath, className: pathCssClasses });
-      triangle2.animate({ transform: `R60,${g[0]},${(box.y + box.height / 1.5)}` }, Math.random() * 1000 + 1000, 'bounce', third);
-    }
+    elToFront(el);
   }
 
-  function reset() {
-    clearTriangles();
-
-    start();
-
-    loop = setTimeout(reset, 5000);
-  }
-
-  function clearTriangles() {
-    if (setRef.current && setRef.current.set) {
-      forEach(setRef.current.set, el => {
-        if (el.type === 'path') {
-          el.stop();
-          el.remove();
-        }
-      });
-    }
-
-    count = 0;
-    count2 = 0;
-
-    loop = clearTimeout(loop);
-  }
-
-  function third() {
-    if (setRef.current && setRef.current.set) {
-      for (let i = 0; i < 6; i++) {
-        triangle3[i] = Utils.createElement(setRef.current.set.id, 'path', { d: tPath, className: pathCssClasses });
-        triangle3[i].transform(`s${1/3}t0,-${box.height}R${60 * i},${box.cx},${(box.y + box.height / 1.5)}`);
-        let sbox = triangle3[i].getBBox();
-
-        if (i % 2 == 0) {
-          triangle3[i].animate({ transform: `...R60,${sbox.cx},${(sbox.y + sbox.height / 1.5)}` }, 600, 'bounce', fourth);
-        } else {
-          triangle3[i].animate({ transform: `...R60,${sbox.cx},${(sbox.y + sbox.height / 3)}` }, 800, 'bounce', fourth2);
-        }
-      }
-    }
-  }
-
-  function fourth(j) {
-    if (setRef.current && setRef.current.set) {
-      for (let i = 0; i < 6; i++) {
-        box2[this.id] = this.getBBox();
-        triangle4[i] = Utils.createElement(setRef.current.set.id, 'path', { d: tPath, className: pathCssClasses });
-        triangle4[i].transform(`s${1/9}t0,-${box.height * 4}R${120 * count},${g[0]},${(box.y + box.height / 1.5)}R${60 * i},${box2[this.id].cx},${(box2[this.id].y + box2[this.id].height / 3)}`);
-        let sbox = triangle4[i].getBBox();
-
-        if(i % 2 == 0) {
-          triangle4[i].animate({ transform: `...R60,${sbox.cx},${(sbox.y + sbox.height / 1.5)}` }, Math.random() * 1200 + 700, 'bounce');
-        } else {
-          triangle4[i].animate({ transform: `...R60,${sbox.cx},${(sbox.y + sbox.height / 3)}` }, Math.random() * 1200 + 700, 'bounce');
-        }
-      }
-
-      count++;
-    }
-  }
-
-  function fourth2(j) {
-    if (setRef.current && setRef.current.set) {
-      for (let i = 0; i < 6; i++) {
-        box2[j] = this.getBBox();
-        triangle4_2[i] = Utils.createElement(setRef.current.set.id, 'path', { d: tPath, className: pathCssClasses });
-        triangle4_2[i].transform(`s${1/9}t0,-${box.height * 4}R${120 * count2 + 60},${g[0]},${(box.y + box.height / 1.5)}R${60 * i},${box2[j].cx},${(box2[j].y + box2[j].height / 1.5)}`);
-        let sbox = triangle4_2[i].getBBox();
-
-        if (i % 2 == 0) {
-          triangle4_2[i].animate({ transform: `...R60,${sbox.cx},${(sbox.y + sbox.height / 3)}` }, Math.random() * 1200 + 700, 'bounce');
-        } else {
-          triangle4_2[i].animate({ transform: `...R60,${sbox.cx},${(sbox.y + sbox.height / 1.5)}` }, Math.random() * 1200 + 700, 'bounce');
-        }
-      }
-
-      count2++;
-    }
-  }
-
-  return (
-    <Set ref={setRef}>
-      {isLoading && (
-        <>
-          <Rect width={540} height={450}
-            x={3} y={50}
-            styleName={`container`}
-            load={elToFront} update={elToFront} />
-
-          <Text text={'Generating Puzzle'}
-            x={270} y={270}
-            styleName={'text'}
-            load={elToFront} update={elToFront} />
-        </>
-      )}
+  return (isLoading &&
+    <Set>
+      <Rect width={540} height={450}
+        x={3} y={50}
+        styleName={`opacity`}
+        load={elToFront} update={elToFront} />
+      <Rect width={300} height={300} styleName={'gradient'} load={loaded} update={elToFront} />
+      <Text text={'Generating Board'}
+        x={275} y={125}
+        styleName={'text'}
+        load={elToFront} update={elToFront} />
     </Set>
-  )
+
+  );
 }
 
 export default Loader;

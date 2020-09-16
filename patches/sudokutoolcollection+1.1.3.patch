@@ -1,0 +1,65 @@
+diff --git a/node_modules/sudokutoolcollection/.eslintignore b/node_modules/sudokutoolcollection/.eslintignore
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/.eslintrc.js b/node_modules/sudokutoolcollection/.eslintrc.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/.prettierrc b/node_modules/sudokutoolcollection/.prettierrc
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/.vscode/launch.json b/node_modules/sudokutoolcollection/.vscode/launch.json
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/LICENSE b/node_modules/sudokutoolcollection/LICENSE
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/README.md b/node_modules/sudokutoolcollection/README.md
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/RELEASE.md b/node_modules/sudokutoolcollection/RELEASE.md
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/demo/test.ts b/node_modules/sudokutoolcollection/demo/test.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/dist/sudoku.js b/node_modules/sudokutoolcollection/dist/sudoku.js
+old mode 100644
+new mode 100755
+index 3727444..d70c39c
+--- a/node_modules/sudokutoolcollection/dist/sudoku.js
++++ b/node_modules/sudokutoolcollection/dist/sudoku.js
+@@ -335,8 +335,8 @@ var SudokuGetCandidates = /** @class */ (function () {
+         var rows = [];
+         var cur_row = [];
+         var i = 0;
+-        for (var square in Object.keys(candidates_map)) {
+-            var candidates = candidates_map[square];
++        for (var [key, value] of Object.entries(candidates_map)) {
++            var candidates = candidates_map[key];
+             cur_row.push(candidates);
+             if (i % 9 == 8) {
+                 rows.push(cur_row);
+diff --git a/node_modules/sudokutoolcollection/rollup.config.js b/node_modules/sudokutoolcollection/rollup.config.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/components/conversions.ts b/node_modules/sudokutoolcollection/src/components/conversions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/components/generator.ts b/node_modules/sudokutoolcollection/src/components/generator.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/components/get-candidates.ts b/node_modules/sudokutoolcollection/src/components/get-candidates.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/components/solve.ts b/node_modules/sudokutoolcollection/src/components/solve.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/components/sudoku.ts b/node_modules/sudokutoolcollection/src/components/sudoku.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/main.ts b/node_modules/sudokutoolcollection/src/main.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/sudokutoolcollection/src/utility/isIn.ts b/node_modules/sudokutoolcollection/src/utility/isIn.ts
+old mode 100644
+new mode 100755

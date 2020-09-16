@@ -55,6 +55,7 @@ export const reducer = createReducer(
     [actions.RESET_GAME]: (state, action) => {
       state.active = false;
       state.paused = false;
+      state.loading = false;
       state.time = 0;
       state.penalties = 0;
       state.startedAt = undefined;

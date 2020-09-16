@@ -38,32 +38,39 @@ function Menu() {
   };
   //const elToFront = el => hide ? el.hide() : el.show(); el.toFront();
 
-  const optionsTextTopY = 420;
-  const optionsTextBottomY = 120;
+  const optionsTextTopY = 120;
+  const optionsTextBottomY = 420;
 
-  let optionsTextY = optionsTextTopY;
-  let animation = null;
-  let prevOptionsVisible = useRef(null);
+  let optionsText = useRef(null);
+  let optionsRect = useRef(null);
+  let optionsTextY = useRef(optionsTextBottomY);
 
-  // capture previous props values to determine how to animate
+  let animation = optionsVisible
+    ? Raphael.animation({ opacity: 0 }, FADES_MS.FAST)
+    : Raphael.animation({ opacity: 1 }, FADES_MS.FAST);
+
   useEffect(() => {
-    prevOptionsVisible.current = {
-      isActive: isActive,
-      optionsVisible: optionsVisible
-    };
-  }, [isActive, optionsVisible]);
+    if (optionsText.current && optionsRect.current) {
+      const textEl = optionsText.current.getElement();
+      const rectEl = optionsRect.current.getElement();
 
-  // if ref is null, means new component, don't animate
-  if (prevOptionsVisible.current !== null) {
-    // if options visible, animate to 125
-    // if options not visible and not coming from an active board, animate
-    if (optionsVisible) {
-      animation = Raphael.animation({ y: optionsTextBottomY }, FADES_MS.FAST, '<>');
-    } else if (prevOptionsVisible.current.isActive === false) {
-      optionsTextY = 125;
-      animation = Raphael.animation({ y: optionsTextTopY }, FADES_MS.FAST, '<>');
+      if (optionsVisible) {
+        textEl.animate(Raphael.animation({ y: optionsTextTopY }, FADES_MS.FAST, '<>'));
+        rectEl.animate(Raphael.animation({ y: optionsTextTopY }, FADES_MS.FAST, '<>'));
+
+        setTimeout(() => {
+          optionsTextY.current = optionsTextTopY;
+        }, FADES_MS.FAST);
+      } else if (!isActive) {
+        textEl.animate(Raphael.animation({ y: optionsTextBottomY }, FADES_MS.FAST, '<>'));
+        rectEl.animate(Raphael.animation({ y: optionsTextBottomY }, FADES_MS.FAST, '<>'));
+
+        setTimeout(() => {
+          optionsTextY.current = optionsTextBottomY;
+        }, FADES_MS.FAST);
+      }
     }
-  }
+  }, [isActive, optionsVisible]);
 
   return (
     <Set>
@@ -80,11 +87,13 @@ function Menu() {
             key={`menu-difficulty-${d}`}
             styleName={`difficulty ${d.toLowerCase()}`}
             click={() => dispatch(gameActions.START_GAME_REQUEST({ difficulty: d }))}
+            animate={animation}
             load={showEl} update={showEl}></Text>
           <Rect x={275} y={117}
             key={`menu-difficulty-${d}-btn`}
             styleName={`difficulty ${d.toLowerCase()} rect`}
             click={() => dispatch(gameActions.START_GAME_REQUEST({ difficulty: d }))}
+            animate={animation}
             load={showEl} update={showEl}></Rect>
         </Set>
       ))}
@@ -95,26 +104,30 @@ function Menu() {
           x={275} y={335}
           styleName={`action resume`}
           click={() => dispatch(gameActions.RESUME_GAME())}
+          animate={animation}
           hide={hide || stoppedAt === undefined}
           load={showEl} update={showEl}></Text>
         <Rect x={275} y={335}
           styleName={`action resume rect`}
           click={() => dispatch(gameActions.RESUME_GAME())}
+          animate={animation}
           load={showEl} update={showEl}></Rect>
         {/* <Text text={'Load Last Game'}
           x={275} y={380}
           styleName={`action load`}
+          animate={animation}
           load={showEl} update={showEl}></Text> */}
         <Text text={'Options'}
-          x={275} y={optionsTextY}
+          x={275} y={optionsTextY.current}
           styleName={`action options`}
-          animate={animation}
+          ref={optionsText}
           click={() => dispatch(optionsActions.SET_OPTION({ option: OPTIONS.VISIBLE, value: true }))}
           load={showElNotActive} update={showElNotActive}></Text>
-        <Rect x={275} y={optionsTextY}
+        <Rect x={275} y={optionsTextY.current}
           styleName={`action options rect`}
+          ref={optionsRect}
           click={() => dispatch(optionsActions.SET_OPTION({ option: OPTIONS.VISIBLE, value: true }))}
-          load={showEl} update={showEl}></Rect>
+          load={showElNotActive} update={showElNotActive}></Rect>
       </Set>
 
       <Options></Options>
