@@ -134,6 +134,7 @@ export const reducer = createReducer(
 
 export const selectors = {
   getBoard: (state, type) => state.boards[type],
+  getBoardString: (state, type) => BoardUtils.toString(state.boards[type]),
   getCell: (state, type, row, col) => state.boards[type] ? BoardUtils.getCell(state.boards[type], row, col) : null,
   getCellIndex: (state, type, index) => state.boards[type]?.[index],
   isSolved: state => state.boards.solved,

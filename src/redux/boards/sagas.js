@@ -17,11 +17,14 @@ function* setCell(action) {
 
     // don't update cell when paused or prepopulated
     if (!isPaused && !isPrepopulated) {
+      const playerBoardString = yield select(boardsSelectors.getBoardString, BOARD_TYPES.PLAYER);
       const cellIndex = getCellIndex(row, col);
       const completeCell = yield select(boardsSelectors.getCell, BOARD_TYPES.COMPLETE, row, col);
       const playerCell = yield select(boardsSelectors.getCell, BOARD_TYPES.PLAYER, row, col);
       const isNotesMode = yield select(gameSelectors.isNotesMode);
       const isFeedback = yield select(optionsSelectors.isFeedback);
+      const regex = new RegExp(value, 'g' );
+      const isAllUsed = (playerBoardString.match(regex) || []).length > 8;
 
       if (isNotesMode) {
         // check if note exists and decide add/remove
@@ -38,7 +41,7 @@ function* setCell(action) {
         const isCellCorrect = playerCell === completeCell;
         const isPenalty = yield select(optionsSelectors.isPenalty);
 
-        if (isCorrect) {
+        if (isCorrect && !isAllUsed) {
           yield put(boardsActions.SET_CELL_SUCCESS({ row, col, value }));
           wasSet = true;
         } else if (!isCellCorrect) {
@@ -47,7 +50,7 @@ function* setCell(action) {
             penalty: isPenalty
           }));
         }
-      } else {
+      } else if (!isAllUsed) {
         yield put(boardsActions.SET_CELL_SUCCESS({ row, col, value }));
         wasSet = true;
       }
