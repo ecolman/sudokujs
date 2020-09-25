@@ -36,15 +36,12 @@ function Footer() {
         animate={animation}></Text>
 
       <Set>
-        <Text text={'Instructions'}
-          x={250} y={583}
-          styleName={`instructions header`}
-          animate={animation}></Text>
-        <Text text={'Clicking the red X in a cell will delete the cell.'}
+        <Text text={'https://github.com/ecolman/sudokujs'}
           x={250} y={610}
-          styleName={`instructions`}
+          styleName={`instructions link`}
+          click={() => window.open('https://github.com/ecolman/sudokujs')}
           animate={animation}></Text>
-        <Text text={'You can use your mouse, keyboard, or finger.'}
+        <Text text={'Created by Eric Colman'}
           x={250} y={596}
           styleName={`instructions`}
           animate={animation}></Text>

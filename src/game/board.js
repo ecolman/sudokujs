@@ -28,9 +28,7 @@ export function setBoard(board, cells) {
 
   if (isString(cells)) {
     cellsToSet = cells.split('');
-  }
-
-  if (isArray(cells)) {
+  } else if (isArray(cells)) {
     cellsToSet = cells;
   }
 
@@ -55,10 +53,6 @@ export function getColumn(board, index) {
   return map(ROWS, r => board[r][index]);
 }
 
-export function checkCell(board, row = 0, col = 0, value = 0) {
-  return getCell(board, row, col) === value;
-}
-
 export function getCell(board, row = 0, col = 0) {
   return board[row][col];
 }
@@ -69,6 +63,10 @@ export function setCell(board, row = 0, col = 0, value = 0) {
 
     return board[row][col];
   }
+}
+
+export function checkCell(board, row = 0, col = 0, value = 0) {
+  return getCell(board, row, col) === value;
 }
 
 export function clearCell(board, row = 0, col = 0) {

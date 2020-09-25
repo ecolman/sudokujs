@@ -7,6 +7,7 @@ const sudoku = SudokuToolCollection();
 
 onmessage = function (event) {
   const startTime = Date.now();
+  const given = event.data || 42;
   let generationAttempts = 0;
   let shownMessage = false
 
@@ -17,12 +18,11 @@ onmessage = function (event) {
 
   // loop to generate and test boards
   while (boards.solution === null && generationAttempts < BOARDS_TO_ATTEMPT) {
-    const base = sudoku.generator.generate(event.data);
-    const zeroedBase = base.replace(/\./g, 0)
+    const base = sudoku.generator.generate(given);
     const candidates = sudoku.getCandidates.get(base);
     const flattenedCandidates = flatten(candidates);
 
-    // if there are more than 81 candidate values, it means there is more than one solution
+    // more than 81 candidate values means there is more than one solution to board
     const hasDupes = flattenedCandidates.join('').length > 81;
 
     generationAttempts++;
@@ -34,29 +34,19 @@ onmessage = function (event) {
 
     if (!hasDupes) {
       let solution = sudoku.solver.solve(base);
-      boards.base = zeroedBase;
-      boards.solution = solution;
+      boards.base = base.replace(/\./g, 0);
+      boards.solution = solution.replace(/\./g, 0);
     }
   }
 
-  if (boards.base && boards.solution) {
-    //if (SHOW_LOGS) {
+  postMessage(boards);
+
+  //if (SHOW_LOGS) {
+    if (boards.base && boards.solution) {
       console.log(`Generated ${generationAttempts} boards to find one with a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
       console.log('Boards', boards);
-    //}
-
-    postMessage({
-      base: boards.base.replace(/\./g, 0),
-      solution: boards.solution.replace(/\./g, 0)
-    });
-  } else {
-    //if (SHOW_LOGS) {
+    } else {
       console.log(`Generated ${generationAttempts} boards, wasn't able to find board with a unique solution, took ${(Date.now() - startTime) / 1000 } seconds`);
-    //}
-
-    postMessage({
-      base: null,
-      solution: null
-    });
-  }
+    }
+  //}
 };
