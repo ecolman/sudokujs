@@ -30,6 +30,7 @@ export const reducer = createReducer(
 
       state.active = true;
       state.time = time || 0;
+      state.newGameStarted = true;
       state.penalties = penalties || 0;
       state.selectedCell = -1;
       state.selectorCell = -1;
@@ -38,10 +39,12 @@ export const reducer = createReducer(
     },
     [actions.DEACTIVATE_GAME]: (state, action) => {
       state.active = false;
+      state.newGameStarted = false;
       state.paused = false;
       state.stoppedAt = new Date().getTime();
     },
     [actions.PAUSE_GAME]: (state, action) => {
+      state.newGameStarted = false;
       state.paused = true;
       state.stoppedAt = new Date().getTime();
       state.time = getElapsedTime(state.time, state.startedAt, state.stoppedAt);
@@ -57,6 +60,7 @@ export const reducer = createReducer(
       state.paused = false;
       state.loading = false;
       state.time = 0;
+      state.newGameStarted = true;
       state.penalties = 0;
       state.startedAt = undefined;
       state.stoppedAt = undefined;
@@ -95,6 +99,7 @@ export const selectors = {
   isNotesMode: state => state.game.notesMode,
   isLoading: state => state.game.loading,
   isPaused: state => state.game.paused,
+  isNewGameStarted: state => state.game.newGameStarted,
   getTime: state => state.game.time,
   isErrorCell: (state, cellIndex) => state.game.errorCell === cellIndex,
   isSelectedCell: (state, cellIndex) => state.game.selectedCell === cellIndex,

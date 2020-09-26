@@ -23,6 +23,7 @@ function getTimerText(lengthMs) {
 function Timer() {
   const active = useSelector(gameSelectors.isActive);
   const paused = useSelector(gameSelectors.isPaused);
+  const newGameStarted = useSelector(gameSelectors.isNewGameStarted);
   const penalties = useSelector(gameSelectors.getPenalties);
   const isSolved = useSelector(boardsSelectors.isSolved);
   const time = useSelector(gameSelectors.getTime);
@@ -54,10 +55,12 @@ function Timer() {
     };
   }, [active, isSolved, paused]);
 
-  // // when time changes, reset state
+  // when new game starts, reset timer
   useEffect(() => {
-    setSeconds(0);
-  }, [time])
+    if (newGameStarted) {
+      setSeconds(0);
+    }
+  }, [newGameStarted])
 
   return (
     <Text text={getTimerText(time + (penalties * PENALTY_MS) + (!isSolved && !paused ? seconds * UPDATE_MS : 0))}

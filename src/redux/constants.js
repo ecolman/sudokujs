@@ -20,6 +20,7 @@ export const gameDefaults = {
   notesMode: false,
   paused: false,
   loading: false,
+  newGameStarted: false,
   time: 0,
   penalties: 0,
   errorCell: -1,
